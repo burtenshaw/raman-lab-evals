@@ -1,0 +1,11 @@
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Parser warnings: - No valid JSON object found
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-adapted/graphene-s05__8op8D7x/agent/trajectory.json
+Collecting main service artifacts

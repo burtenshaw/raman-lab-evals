@@ -1,0 +1,477 @@
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# ls -la /app
+[?2004ltotal 68
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:22 ..
+-rw-r--r--. 1 root root 69622 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# head -5 /app/spectrum.csv; wc -l /app/spectrum.csv; tail -3 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,768.701
+1100.5001,941.867
+1101.0003,726.939
+1101.5004,816.841
+3801 /app/spectrum.csv
+2998.9997,734.995
+2999.4999,973.002
+3000.0000,743.055
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# which pip3 python3; pip3 --version
+[?2004l/usr/local/bin/pip3
+/usr/local/bin/python3
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# timeout 60 pip3 install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# cat > /app/explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1'] if 'raman_shift_cm1' in d.dtype.names else d[d.dtype.names[0]]
+[?2004l[?2004h> y = d['intensity']
+[?2004l[?2004h> print(d.dtype.names, len(x), x.min(), x.max())
+[?2004l[?2004h> print('global min/max', y.min(), y.max())
+[?2004l[?2004h> for lo, hi, name in [(1100,1500,'D'),(1450,1750,'G'),(2500,2900,'2D')]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     i = np.argmax(ys)
+[?2004l[?2004h>     print(name, 'peak at', xs[i], 'value', ys[i], 'window median', np.median(ys), 'window min', ys.min())
+[?2004l[?2004h> # coarse profile
+[?2004l[?2004h> for lo in range(1100, 3001, 100):
+[?2004l[?2004h>     m = (x>=lo)&(x<lo+100)
+[?2004l[?2004h>     if m.sum():
+[?2004l[?2004h>         print(lo, round(float(y[m].mean()),1), round(float(y[m].max()),1), round(float(y[m].min()),1))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 /app/explore.py
+[?2004l('raman_shift_cm1', 'intensity') 3800 1100.0 3000.0
+global min/max 328.61 10801.957
+D peak at 1356.5675 value 1605.569 window median 883.3995 window min 488.887
+G peak at 1580.1263 value 7483.455 window median 957.1005 window min 485.373
+2D peak at 2689.4183 value 10801.957 window median 1341.922 window min 616.508
+1100 839.6 1184.1 488.9
+1200 850.0 1140.6 559.9
+1300 1048.3 1605.6 608.9
+1400 874.0 1215.6 541.0
+1500 2352.3 7483.5 701.2
+1600 1001.7 2012.2 602.9
+1700 830.4 1143.7 457.8
+1800 805.6 1077.5 487.5
+1900 807.4 1170.7 475.9
+2000 806.1 1138.3 481.1
+2100 785.8 1133.7 328.6
+2200 789.4 1059.6 428.0
+2300 818.5 1158.5 521.1
+2400 879.4 1172.9 571.7
+2500 1104.9 1701.4 646.9
+2600 5023.7 10802.0 1338.0
+2700 3052.0 8888.5 1001.2
+2800 996.1 1525.3 616.5
+2900 800.5 1178.6 459.1
+3000 743.1 743.1 743.1
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# cat > /app/fit_test.py << 'EOF'
+[?2004l={r:.2f}')
+
+print('--- 2D individual windows ---')
+for lo, hi in [(2500,2900),(2550,2850),(2520,2880),(2580,2820),(2450,2950)]:
+    p, r, n = fit(lo, hi, [9500,2690,30,900])
+    print(f'[{lo},{hi}] n={n} x0={p[1]:.3f} gamma={p[2]:.3f} amp={p[0]:.3f} off={p[3]:.3f} rms={r:.2f}')
+
+print('--- global fit 3 Lorentzians + one offset ---')
+def model3(x, a1,x1,g1, a2,x2,g2, a3,x3,g3, off):
+    return (a1*g1*g1/((x-x1)**2+g1*g1) + a2*g2*g2/((x-x2)**2+g2*g2)
+            + a3*g3*g3/((x-x3)**2+g3*g3) + off)
+p0 = [800,1350,20, 6600,1580,25, 9500,2690,30, 800]
+p, cov = curve_fit(model3, x, y, p0=p0, maxfev=500000)
+print('params', np.round(p,4))
+resid = y - model3(x, *p)
+print('global rms', float(np.sqrt(np.mean(resid**2))))
+EOF
+python3 /app/fit_test.py
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1']; y = d['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, x0, g, off):
+[?2004l[?2004h>     return amp*g*g/((x-x0)**2+g*g)+off
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(lo, hi, p0):
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     p, cov = curve_fit(lor, xs, ys, p0=p0, maxfev=200000)
+[?2004l[?2004h>     resid = ys - lor(xs, *p)
+[?2004l[?2004h>     ss = float(np.sum(resid**2))
+[?2004l[?2004h>     return p, np.sqrt(ss/len(xs)), len(xs)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- D individual windows ---')
+[?2004l[?2004h> for lo, hi in [(1150,1500),(1200,1470),(1250,1450),(1150,1480),(1100,1500)]:
+[?2004l[?2004h>     p, r, n = fit(lo, hi, [800,1350,20,800])
+[?2004l[?2004h>     print(f'[{lo},{hi}] n={n} x0={p[1]:.3f} gamma={p[2]:.3f} amp={p[0]:.3f} off={p[3]:.3f} rms={r:.2f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- G individual windows ---')
+[?2004l[?2004h> for lo, hi in [(1450,1720),(1470,1700),(1500,1680),(1480,1750),(1420,1760)]:
+[?2004l[?2004h>     p, r, n = fit(lo, hi, [6600,1580,25,800])
+[?2004l[?2004h>     print(f'[{lo},{hi}] n={n} x0={p[1]:.3f} gamma={p[2]:.3f} amp={p[0]:.3f} off={p[3]:.3f} rms={r:.2f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- 2D individual windows ---')
+[?2004l[?2004h> for lo, hi in [(2500,2900),(2550,2850),(2520,2880),(2580,2820),(2450,2950)]:
+[?2004l[?2004h>     p, r, n = fit(lo, hi, [9500,2690,30,900])
+[?2004l[?2004h>     print(f'[{lo},{hi}] n={n} x0={p[1]:.3f} gamma={p[2]:.3f} amp={p[0]:.3f} off={p[3]:.3f} rms={r:.2f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- global fit 3 Lorentzians + one offset ---')
+[?2004l[?2004h> def model3(x, a1,x1,g1, a2,x2,g2, a3,x3,g3, off):
+[?2004l[?2004h>     return (a1*g1*g1/((x-x1)**2+g1*g1) + a2*g2*g2/((x-x2)**2+g2*g2)
+[?2004l[?2004h>             + a3*g3*g3/((x-x3)**2+g3*g3) + off)
+[?2004l[?2004h> p0 = [800,1350,20, 6600,1580,25, 9500,2690,30, 800]
+[?2004l[?2004h> p, cov = curve_fit(model3, x, y, p0=p0, maxfev=500000)
+[?2004l[?2004h> print('params', np.round(p,4))
+[?2004l[?2004h> resid = y - model3(x, *p)
+[?2004l[?2004h> print('global rms', float(np.sqrt(np.mean(resid**2))))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 /app/fit_test.py
+[?2004l--- D individual windows ---
+[1150,1500] n=700 x0=1353.991 gamma=12.336 amp=632.953 off=846.641 rms=122.41
+[1200,1470] n=540 x0=1353.974 gamma=12.798 amp=635.818 off=838.631 rms=123.69
+[1250,1450] n=400 x0=1353.974 gamma=12.782 amp=635.943 off=838.735 rms=125.46
+[1150,1480] n=660 x0=1353.980 gamma=12.606 amp=634.782 off=841.833 rms=122.33
+[1100,1500] n=800 x0=1353.985 gamma=12.557 amp=633.826 off=843.177 rms=122.16
+--- G individual windows ---
+[1450,1720] n=540 x0=1579.391 gamma=9.050 amp=6547.603 off=807.111 rms=116.00
+[1470,1700] n=460 x0=1579.391 gamma=9.057 amp=6548.004 off=805.598 rms=112.11
+[1500,1680] n=360 x0=1579.391 gamma=9.093 amp=6551.444 off=796.442 rms=111.67
+[1480,1750] n=540 x0=1579.391 gamma=9.050 amp=6547.704 off=806.981 rms=113.70
+[1420,1760] n=680 x0=1579.391 gamma=9.029 amp=6546.394 off=811.704 rms=116.10
+--- 2D individual windows ---
+[2500,2900] n=800 x0=2688.699 gamma=25.582 amp=9807.659 off=734.150 rms=123.62
+[2550,2850] n=600 x0=2688.699 gamma=25.606 amp=9810.016 off=730.069 rms=124.03
+[2520,2880] n=720 x0=2688.699 gamma=25.579 amp=9807.532 off=734.478 rms=123.48
+[2580,2820] n=480 x0=2688.700 gamma=25.609 amp=9810.485 off=729.356 rms=125.23
+[2450,2950] n=1000 x0=2688.698 gamma=25.573 amp=9806.779 off=735.680 rms=121.42
+--- global fit 3 Lorentzians + one offset ---
+params [6.3289890e+02 1.3537144e+03 1.7221900e+01 6.5496518e+03 1.5793913e+03
+ 9.1665000e+00 9.7984721e+03 2.6886963e+03 2.5214800e+01 7.7579500e+02]
+global rms 124.41483201232454
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# cat > /app/diag.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1']; y = d['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- binned profile (50 cm-1 bins) ---')
+[?2004l[?2004h> for lo in range(1100,3000,50):
+[?2004l[?2004h>     m=(x>=lo)&(x<lo+50)
+[?2004l[?2004h>     if m.sum()>0:
+[?2004l[?2004h>         print(f'{lo:5d} n={m.sum():3d} mean={y[m].mean():8.1f} sem={y[m].std()/np.sqrt(m.sum()):6.1f} std={y[m].std():7.1f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, x0, g):
+[?2004l[?2004h>     return amp*g*g/((x-x0)**2+g*g)
+[?2004l[?2004h> 
+[?2004l[?2004h> def fitD(lo,hi):
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi); xs,ys=x[m],y[m]
+[?2004l[?2004h>     # D + G both free + offset
+[?2004l[?2004h>     def mod(x,a1,x1,g1,a2,x2,g2,off):
+[?2004l[?2004h>         return lor(x,a1,x1,g1)+lor(x,a2,x2,g2)+off
+[?2004l[?2004h>     p,c=curve_fit(mod,xs,ys,p0=[600,1354,13,6500,1579,9,800],maxfev=200000)
+[?2004l[?2004h>     r1=y[m]-mod(xs,*p)
+[?2004l[?2004h>     # D + offset only
+[?2004l[?2004h>     p2,_=curve_fit(lambda x,a,x0,g,off: lor(x,a,x0,g)+off, xs,ys,p0=[600,1354,13,800],maxfev=200000)
+[?2004l[?2004h>     r2=ys-(lor(xs,*p2[:3])+p2[3])
+[?2004l[?2004h>     # D + G(fixed from G-only fit) + offset
+[?2004l[?2004h>     pg,_=curve_fit(lambda x,a,x0,g,off: lor(x,a,x0,g)+off, x[(x>=1450)&(x<=1720)], y[(x>=1450)&(x<=1720)], p0=[6500,1579,9,800],maxfev=200000)
+[?2004l[?2004h>     def mod3(x,a,x0,g,off):
+[?2004l[?2004h>         return lor(x,a,x0,g)+lor(x,pg[0],pg[1],pg[2])+off
+[?2004l[?2004h>     p3,_=curve_fit(mod3,xs,ys,p0=[600,1354,13,800],maxfev=200000)
+[?2004l[?2004h>     r3=ys-mod3(xs,*p3)
+[?2004l[?2004h>     print(f'[{lo},{hi}] D+G+off: x0={p[1]:.2f} g={p[2]:.2f} a={p[0]:.1f} off={p[6]:.1f} rms={np.sqrt(np.mean(r1**2)):.1f}')
+[?2004l[?2004h>     print(f'          D+off   : x0={p2[1]:.2f} g={p2[2]:.2f} a={p2[0]:.1f} off={p2[3]:.1f} rms={np.sqrt(np.mean(r2**2)):.1f}')
+[?2004l[?2004h>     print(f'          D+Gfix  : x0={p3[1]:.2f} g={p3[2]:.2f} a={p3[0]:.1f} off={p3[3]:.1f} rms={np.sqrt(np.mean(r3**2)):.1f}   (G params {np.round(pg,2)})')
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- D region diagnostics ---')
+[?2004l[?2004h> for lo,hi in [(1200,1470),(1250,1450),(1150,1500),(1280,1430)]:
+[?2004l[?2004h>     fitD(lo,hi)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 /app/diag.py
+[?2004l--- binned profile (50 cm-1 bins) ---
+ 1100 n=100 mean=   829.5 sem=  11.9 std=  119.2
+ 1150 n=100 mean=   849.8 sem=  11.8 std=  117.6
+ 1200 n=100 mean=   845.0 sem=  10.7 std=  106.9
+ 1250 n=100 mean=   855.0 sem=  12.5 std=  124.7
+ 1300 n=100 mean=  1002.1 sem=  19.6 std=  195.9
+ 1350 n=100 mean=  1094.4 sem=  24.9 std=  249.1
+ 1400 n=100 mean=   872.6 sem=  12.5 std=  125.4
+ 1450 n=100 mean=   875.5 sem=  12.6 std=  126.3
+ 1500 n=100 mean=  1020.3 sem=  16.0 std=  159.9
+ 1550 n=100 mean=  3684.2 sem= 191.6 std= 1916.1
+ 1600 n=100 mean=  1144.4 sem=  28.3 std=  283.1
+ 1650 n=100 mean=   859.0 sem=  10.9 std=  109.2
+ 1700 n=100 mean=   840.4 sem=  11.9 std=  119.0
+ 1750 n=100 mean=   820.5 sem=  11.6 std=  116.2
+ 1800 n=100 mean=   809.7 sem=  12.1 std=  120.8
+ 1850 n=100 mean=   801.6 sem=  12.1 std=  121.4
+ 1900 n=100 mean=   811.8 sem=  12.1 std=  121.2
+ 1950 n=100 mean=   803.1 sem=  12.6 std=  126.2
+ 2000 n=100 mean=   809.6 sem=  14.1 std=  140.5
+ 2050 n=100 mean=   802.5 sem=  12.3 std=  123.4
+ 2100 n=100 mean=   785.4 sem=  12.9 std=  129.1
+ 2150 n=100 mean=   786.3 sem=  12.2 std=  122.2
+ 2200 n=100 mean=   786.6 sem=  11.5 std=  115.4
+ 2250 n=100 mean=   792.1 sem=  12.7 std=  127.3
+ 2300 n=100 mean=   823.7 sem=  11.6 std=  116.0
+ 2350 n=100 mean=   813.2 sem=  11.9 std=  119.4
+ 2400 n=100 mean=   852.4 sem=  12.7 std=  126.6
+ 2450 n=100 mean=   906.5 sem=  11.4 std=  113.7
+ 2500 n=100 mean=   977.4 sem=  13.3 std=  133.1
+ 2550 n=100 mean=  1232.3 sem=  16.1 std=  160.6
+ 2600 n=100 mean=  2266.8 sem=  62.9 std=  629.3
+ 2650 n=100 mean=  7780.6 sem= 232.1 std= 2321.1
+ 2700 n=100 mean=  4532.2 sem= 194.9 std= 1949.4
+ 2750 n=100 mean=  1571.7 sem=  29.9 std=  299.4
+ 2800 n=100 mean=  1068.0 sem=  14.8 std=  147.6
+ 2850 n=100 mean=   924.1 sem=  12.9 std=  129.4
+ 2900 n=100 mean=   826.2 sem=  10.8 std=  107.7
+ 2950 n= 99 mean=   774.6 sem=  11.5 std=  114.4
+--- D region diagnostics ---
+[1200,1470] D+G+off: x0=1353.95 g=12.75 a=635.5 off=-372.9 rms=123.7
+          D+off   : x0=1353.97 g=12.80 a=635.8 off=838.6 rms=123.7
+          D+Gfix  : x0=1353.88 g=12.92 a=638.3 off=824.7 rms=124.0   (G params [6547.6  1579.39    9.05  807.11])
+[1250,1450] D+G+off: x0=1353.92 g=12.76 a=635.7 off=307.0 rms=125.4
+          D+off   : x0=1353.97 g=12.78 a=635.9 off=838.7 rms=125.5
+          D+Gfix  : x0=1353.88 g=12.92 a=638.2 off=824.6 rms=125.5   (G params [6547.6  1579.39    9.05  807.11])
+[1150,1500] D+G+off: x0=1353.98 g=12.58 a=634.6 off=842.3 rms=121.6
+          D+off   : x0=1353.99 g=12.34 a=633.0 off=846.6 rms=122.4
+          D+Gfix  : x0=1353.89 g=12.64 a=637.1 off=829.0 rms=122.0   (G params [6547.6  1579.39    9.05  807.11])
+[1280,1430] D+G+off: x0=1353.96 g=13.05 a=639.4 off=832.7 rms=126.4
+          D+off   : x0=1353.98 g=12.70 a=635.2 off=840.3 rms=127.0
+          D+Gfix  : x0=1353.90 g=12.81 a=637.3 off=826.7 rms=126.9   (G params [6547.6  1579.39    9.05  807.11])
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# cat > /app/diag2.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1']; y = d['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, a, x0, g):
+[?2004l[?2004h>     return a*g*g/((x-x0)**2+g*g)
+[?2004l[?2004h> 
+[?2004l[?2004h> # 1) smoothed D profile (moving average window 11 points ~ 5.5 cm-1)
+[?2004l[?2004h> print('--- smoothed profile around D (baseline ~845) ---')
+[?2004l[?2004h> for lo in range(1320,1396,5):
+[?2004l[?2004h>     m=(x>=lo)&(x<lo+5)
+[?2004l[?2004h>     print(f'{lo+2.5:7.1f} mean={y[m].mean():8.1f} n={m.sum()}')
+[?2004l[?2004h> 
+[?2004l[?2004h> # 2) chi2 profile over gamma for D region, x0/amp/offset optimized (linear)
+[?2004l[?2004h> def chi2_profile(lo,hi,gammas,linear_baseline=False):
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi); xs,ys=x[m],y[m]
+[?2004l[?2004h>     out=[]
+[?2004l[?2004h>     for g in gammas:
+[?2004l[?2004h>         # grid over x0
+[?2004l[?2004h>         best=None
+[?2004l[?2004h>         for x0 in np.arange(1340,1368,0.5):
+[?2004l[?2004h>             L=lor(xs,1,x0,g)
+[?2004l[?2004h>             if linear_baseline:
+[?2004l[?2004h>                 A=np.vstack([L,np.ones_like(xs),xs-xs.mean()]).T
+[?2004l[?2004h>             else:
+[?2004l[?2004h>                 A=np.vstack([L,np.ones_like(xs)]).T
+[?2004l[?2004h>             c,res,rk,sv=np.linalg.lstsq(A,ys,rcond=None)
+[?2004l[?2004h>             r=ys-A@c
+[?2004l[?2004h>             s=float(np.sum(r*r))
+[?2004l[?2004h>             if best is None or s<best[0]:
+[?2004l[?2004h>                 best=(s,x0,c)
+[?2004l[?2004h>         out.append((g,best))
+[?2004l[?2004h>     return out
+[?2004l[?2004h> 
+[?2004l[?2004h> for lb in (False,True):
+[?2004l[?2004h>     print(f'--- D chi2 profile (linear_baseline={lb}) region 1150-1500 ---')
+[?2004l[?2004h>     for g,b in chi2_profile(1150,1500,[6,8,10,12,13,14,16,18,20,25,30],lb):
+[?2004l[?2004h>         print(f'  gamma={g:5.1f} chi2={b[0]:12.1f} x0={b[1]:7.2f} amp={b[2][0]:8.1f} off={b[2][1]:8.1f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> # 3) global fits with linear / quadratic background
+[?2004l[?2004h> def run_global(bg):
+[?2004l[?2004h>     def model(x,a1,x1,g1,a2,x2,g2,a3,x3,g3,*bgp):
+[?2004l[?2004h>         m=(lor(x,a1,x1,g1)+lor(x,a2,x2,g2)+lor(x,a3,x3,g3))
+[?2004l[?2004h>         if bg=='const': m=m+bgp[0]
+[?2004l[?2004h>         elif bg=='lin': m=m+bgp[0]+bgp[1]*(x-2000)
+[?2004l[?2004h>         else: m=m+bgp[0]+bgp[1]*(x-2000)+bgp[2]*(x-2000)**2/1e4
+[?2004l[?2004h>         return m
+[?2004l[?2004h>     if bg=='const': p0=[800,1354,13,6500,1579,9,9800,2689,26,800]
+[?2004l[?2004h>     elif bg=='lin': p0=[800,1354,13,6500,1579,9,9800,2689,26,800,0.0]
+[?2004l[?2004h>     else: p0=[800,1354,13,6500,1579,9,9800,2689,26,800,0.0,0.0]
+[?2004l[?2004h>     p,_=curve_fit(model,x,y,p0=p0,maxfev=500000)
+[?2004l[?2004h>     r=y-model(x,*p)
+[?2004l[?2004h>     print(bg,'rms=%.2f'%float(np.sqrt(np.mean(r**2))),np.round(p,3))
+[?2004l[?2004h> for bg in ('const','lin','quad'):
+[?2004l[?2004h>     run_global(bg)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 /app/diag2.py
+[?2004l--- smoothed profile around D (baseline ~845) ---
+ 1322.5 mean=   957.2 n=10
+ 1327.5 mean=  1025.9 n=10
+ 1332.5 mean=  1064.3 n=10
+ 1337.5 mean=  1034.4 n=10
+ 1342.5 mean=  1186.1 n=10
+ 1347.5 mean=  1323.3 n=10
+ 1352.5 mean=  1446.3 n=10
+ 1357.5 mean=  1457.9 n=10
+ 1362.5 mean=  1276.0 n=10
+ 1367.5 mean=  1104.1 n=10
+ 1372.5 mean=  1097.1 n=10
+ 1377.5 mean=  1022.3 n=10
+ 1382.5 mean=   852.8 n=10
+ 1387.5 mean=   909.3 n=10
+ 1392.5 mean=   905.6 n=10
+ 1397.5 mean=   872.6 n=10
+--- D chi2 profile (linear_baseline=False) region 1150-1500 ---
+  gamma=  6.0 chi2=  11980602.9 x0=1354.50 amp=   803.0 off=   871.2
+  gamma=  8.0 chi2=  11056311.8 x0=1354.00 amp=   737.7 off=   862.1
+  gamma= 10.0 chi2=  10625367.8 x0=1354.00 amp=   684.2 off=   854.4
+  gamma= 12.0 chi2=  10491502.2 x0=1354.00 amp=   639.7 off=   847.7
+  gamma= 13.0 chi2=  10497725.3 x0=1354.00 amp=   620.2 off=   844.6
+  gamma= 14.0 chi2=  10538987.2 x0=1354.00 amp=   602.2 off=   841.8
+  gamma= 16.0 chi2=  10698049.8 x0=1354.00 amp=   570.2 off=   836.5
+  gamma= 18.0 chi2=  10925271.6 x0=1354.00 amp=   542.6 off=   831.7
+  gamma= 20.0 chi2=  11192926.8 x0=1354.00 amp=   518.6 off=   827.3
+  gamma= 25.0 chi2=  11935003.5 x0=1354.00 amp=   470.7 off=   817.7
+  gamma= 30.0 chi2=  12680845.4 x0=1354.00 amp=   435.0 off=   809.4
+--- D chi2 profile (linear_baseline=True) region 1150-1500 ---
+  gamma=  6.0 chi2=  11860562.5 x0=1354.00 amp=   794.7 off=   871.7
+  gamma=  8.0 chi2=  10974258.7 x0=1354.00 amp=   730.8 off=   862.6
+  gamma= 10.0 chi2=  10571204.0 x0=1354.00 amp=   678.5 off=   854.9
+  gamma= 12.0 chi2=  10456372.7 x0=1354.00 amp=   635.0 off=   848.2
+  gamma= 13.0 chi2=  10469731.3 x0=1354.00 amp=   615.9 off=   845.1
+  gamma= 14.0 chi2=  10516893.8 x0=1354.00 amp=   598.4 off=   842.2
+  gamma= 16.0 chi2=  10684822.4 x0=1354.00 amp=   567.2 off=   836.9
+  gamma= 18.0 chi2=  10917951.5 x0=1354.00 amp=   540.3 off=   832.1
+  gamma= 20.0 chi2=  11189382.1 x0=1354.00 amp=   517.0 off=   827.6
+  gamma= 25.0 chi2=  11934967.1 x0=1354.00 amp=   470.5 off=   817.7
+  gamma= 30.0 chi2=  12679590.0 x0=1354.00 amp=   436.1 off=   809.1
+const rms=124.41 [6.329370e+02 1.353715e+03 1.722000e+01 6.549651e+03 1.579391e+03
+ 9.166000e+00 9.798472e+03 2.688696e+03 2.521500e+01 7.757960e+02]
+lin rms=121.11 [ 6.388760e+02  1.353935e+03  1.290000e+01  6.546498e+03  1.579394e+03
+  9.019000e+00  9.807102e+03  2.688713e+03  2.558000e+01  7.789620e+02
+ -6.500000e-02]
+quad rms=121.09 [ 6.390070e+02  1.353920e+03  1.302900e+01  6.546462e+03  1.579394e+03
+  9.016000e+00  9.807337e+03  2.688715e+03  2.559000e+01  7.810980e+02
+ -6.400000e-02 -8.100000e-02]
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# cat > /app/final_fit.py << 'EOF'
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = np.asarray(d['raman_shift_cm1'], dtype=float)
+[?2004l[?2004h> y = np.asarray(d['intensity'], dtype=float)
+[?2004l[?2004h> print('data points:', len(x), 'range', x.min(), x.max())
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1200.0, 1470.0, [700.0, 1350.0, 15.0, 830.0]),
+[?2004l[?2004h>     'G':  (1450.0, 1720.0, [6500.0, 1580.0, 10.0, 800.0]),
+[?2004l[?2004h>     '2D': (2500.0, 2900.0, [9500.0, 2690.0, 26.0, 800.0]),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi, p0) in windows.items():
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, xs, ys, p0=p0, maxfev=200000)
+[?2004l[?2004h>     amplitude, x0, gamma, offset = [float(v) for v in popt]
+[?2004l[?2004h>     resid = ys - lorentzian(xs, *popt)
+[?2004l[?2004h>     rms = float(np.sqrt(np.mean(resid**2)))
+[?2004l[?2004h>     perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     print(f'{name:3s} window [{lo},{hi}] n={m.sum()}: amp={amplitude:.4f}+-{perr[0]:.4f} '
+[?2004l[?2004h>           f'x0={x0:.4f}+-{perr[1]:.4f} gamma={gamma:.4f}+-{perr[2]:.4f} '
+[?2004l[?2004h>           f'offset={offset:.4f}+-{perr[3]:.4f} rms={rms:.3f}')
+[?2004l[?2004h>     results[name] = {'x0': x0, 'gamma': gamma, 'amplitude': amplitude, 'offset': offset}
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print('ID_IG = %.6f' % results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 /app/final_fit.py
+[?2004ldata points: 3800 range 1100.0 3000.0
+D   window [1200.0,1470.0] n=540: amp=635.8180+-27.7579 x0=1353.9736+-0.5574 gamma=12.7984+-0.9249 offset=838.6305+-7.2856 rms=123.688
+G   window [1450.0,1720.0] n=540: amp=6547.6025+-30.9074 x0=1579.3908+-0.0427 gamma=9.0498+-0.0675 offset=807.1108+-6.2315 rms=116.002
+2D  window [2500.0,2900.0] n=800: amp=9807.6593+-19.6808 x0=2688.6988+-0.0510 gamma=25.5816+-0.0901 offset=734.1501+-6.7102 rms=123.625
+ID_IG = 0.097107
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# cat /app/results.json; python3 -c "import json;print(json.load(open('/app/results.json')))"
+[?2004l{
+  "D": {
+    "x0": 1353.9736221438384,
+    "gamma": 12.79844315868683,
+    "amplitude": 635.8180309016975,
+    "offset": 838.630463887631
+  },
+  "G": {
+    "x0": 1579.3908064786326,
+    "gamma": 9.049806281034677,
+    "amplitude": 6547.602525040285,
+    "offset": 807.1107980441031
+  },
+  "2D": {
+    "x0": 2688.6987946968043,
+    "gamma": 25.5816492639556,
+    "amplitude": 9807.659265030754,
+    "offset": 734.1500527377491
+  },
+  "ID_IG": 0.09710699885494126
+}{'D': {'x0': 1353.9736221438384, 'gamma': 12.79844315868683, 'amplitude': 635.8180309016975, 'offset': 838.630463887631}, 'G': {'x0': 1579.3908064786326, 'gamma': 9.049806281034677, 'amplitude': 6547.602525040285, 'offset': 807.1107980441031}, '2D': {'x0': 2688.6987946968043, 'gamma': 25.5816492639556, 'amplitude': 9807.659265030754, 'offset': 734.1500527377491}, 'ID_IG': 0.09710699885494126}
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# python3 -c "
+[?2004l[?2004h> import json
+[?2004l[?2004h> r=json.load(open('/app/results.json'))
+[?2004l[?2004h> assert set(r)=={'D','G','2D','ID_IG'}
+[?2004l[?2004h> for k in ('D','G','2D'):
+[?2004l[?2004h>     assert set(r[k])=={'x0','gamma','amplitude','offset'}, r[k]
+[?2004l[?2004h>     for v in r[k].values(): assert isinstance(v,float)
+[?2004l[?2004h> assert isinstance(r['ID_IG'],float)
+[?2004l[?2004h> assert abs(r['ID_IG']-r['D']['amplitude']/r['G']['amplitude'])<1e-12
+[?2004l[?2004h> print('JSON schema OK'); print(json.dumps(r,indent=2))
+[?2004l[?2004h> "
+[?2004lJSON schema OK
+{
+  "D": {
+    "x0": 1353.9736221438384,
+    "gamma": 12.79844315868683,
+    "amplitude": 635.8180309016975,
+    "offset": 838.630463887631
+  },
+  "G": {
+    "x0": 1579.3908064786326,
+    "gamma": 9.049806281034677,
+    "amplitude": 6547.602525040285,
+    "offset": 807.1107980441031
+  },
+  "2D": {
+    "x0": 2688.6987946968043,
+    "gamma": 25.5816492639556,
+    "amplitude": 9807.659265030754,
+    "offset": 734.1500527377491
+  },
+  "ID_IG": 0.09710699885494126
+}
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# ls -la /app
+[?2004ltotal 92
+drwxr-xr-x. 2 root root   134 Nov 18 11:28 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:22 ..
+-rw-r--r--. 1 root root  1797 Nov 18 11:26 diag.py
+-rw-r--r--. 1 root root  2205 Nov 18 11:27 diag2.py
+-rw-r--r--. 1 root root   726 Nov 18 11:24 explore.py
+-rw-r--r--. 1 root root  1463 Nov 18 11:28 final_fit.py
+-rw-r--r--. 1 root root  1712 Nov 18 11:24 fit_test.py
+-rw-r--r--. 1 root root   465 Nov 18 11:28 results.json
+-rw-r--r--. 1 root root 69622 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8a86e5cad0e4dc3e6b7d-gqq6sva5-2fd45-b5bg7:/app# 

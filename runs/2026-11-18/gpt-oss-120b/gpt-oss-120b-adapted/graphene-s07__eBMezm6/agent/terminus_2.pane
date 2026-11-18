@@ -1,0 +1,158 @@
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:06 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:14 ..
+-rw-r--r--. 1 root root 72263 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# head -n 5 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1188.408
+1100.5001,1068.023
+1101.0003,1192.268
+1101.5004,1162.308
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# python3 - << 'PY'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> x, y = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian model with offset
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit function for a given window and initial guess
+[?2004l[?2004h> def fit_peak(x, y, window, guess):
+[?2004l[?2004h>     mask = (x >= window[0]) & (x <= window[1])
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x[mask], y[mask], p0=guess, maxfev=10000)
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define windows and initial guesses
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D': (1300, 1400),
+[?2004l[?2004h>     'G': (1500, 1650),
+[?2004l[?2004h>     '2D': (2600, 2800)
+[?2004l[?2004h> }
+[?2004l[?2004h> initial_guesses = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     y_window = y[mask]
+[?2004l[?2004h>     x_window = x[mask]
+[?2004l[?2004h>     amp_guess = y_window.max() - y_window.min()
+[?2004l[?2004h>     x0_guess = x_window[np.argmax(y_window)]
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_window.min()
+[?2004l[?2004h>     initial_guesses[name] = [amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Perform fits
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name in ['D', 'G', '2D']:
+[?2004l[?2004h>     popt = fit_peak(x, y, windows[name], initial_guesses[name])
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'x0': float(popt[1]),
+[?2004l[?2004h>         'gamma': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G (using amplitudes)
+[?2004l[?2004h> ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+[?2004l[?2004h> results['ID_IG'] = float(ID_IG) if ID_IG is not None else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# pip install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# python3 - << 'PY'
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> x, y = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian model with offset
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit function for a given window and initial guess
+[?2004l[?2004h> def fit_peak(x, y, window, guess):
+[?2004l[?2004h>     mask = (x >= window[0]) & (x <= window[1])
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x[mask], y[mask], p0=guess, maxfev=10000)
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define windows and initial guesses
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D': (1300, 1400),
+[?2004l[?2004h>     'G': (1500, 1650),
+[?2004l[?2004h>     '2D': (2600, 2800)
+[?2004l[?2004h> }
+[?2004l[?2004h> initial_guesses = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     y_window = y[mask]
+[?2004l[?2004h>     x_window = x[mask]
+[?2004l[?2004h>     amp_guess = y_window.max() - y_window.min()
+[?2004l[?2004h>     x0_guess = x_window[np.argmax(y_window)]
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_window.min()
+[?2004l[?2004h>     initial_guesses[name] = [amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Perform fits
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name in ['D', 'G', '2D']:
+[?2004l[?2004h>     popt = fit_peak(x, y, windows[name], initial_guesses[name])
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'x0': float(popt[1]),
+[?2004l[?2004h>         'gamma': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G (using amplitudes)
+[?2004l[?2004h> ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+[?2004l[?2004h> results['ID_IG'] = float(ID_IG) if ID_IG is not None else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> PY
+[?2004lFitting complete. Results written to results.json
+[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 8228.709379972175,
+    "x0": 1348.242826630291,
+    "gamma": 16.82477352488591,
+    "offset": 1236.9089780088166
+  },
+  "G": {
+    "amplitude": 7520.185980933295,
+    "x0": 1580.3858060309103,
+    "gamma": 12.988350243679777,
+    "offset": 1296.3320957762708
+  },
+  "2D": {
+    "amplitude": 10376.11353937476,
+    "x0": 2692.4093465021065,
+    "gamma": 20.897154695290975,
+    "offset": 1414.5648695519615
+  },
+  "ID_IG": 1.094216206997443
+}[?2004hroot@j-openenv-6afd88844643bac7ac634e5b-61144y74-2bf5b-8k57c:/app# 

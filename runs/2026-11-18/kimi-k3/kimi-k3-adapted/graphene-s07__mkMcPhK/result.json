@@ -1,0 +1,147 @@
+{
+    "id": "f132232c-42ce-40f9-96bc-16da62bcc3a9",
+    "task_name": "raman-lab/graphene-s07",
+    "trial_name": "graphene-s07__mkMcPhK",
+    "trial_uri": "file:///tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK",
+    "task_id": {
+        "path": "/tmp/work/datasets/raman-lab/graphene-s07"
+    },
+    "source": "raman-lab",
+    "task_checksum": "8124159a8e443b98dcfce44be2bad957c1990a7c337180d37b28bbdadebac6c5",
+    "config": {
+        "task": {
+            "path": "/tmp/work/datasets/raman-lab/graphene-s07",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": "raman-lab"
+        },
+        "trial_name": "graphene-s07__mkMcPhK",
+        "trials_dir": "/tmp/work/jobs/kimi-k3-adapted",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "terminus-2",
+            "import_path": null,
+            "model_name": "openai/moonshotai/Kimi-K3:deepinfra",
+            "base_url": null,
+            "model_api_key_name": null,
+            "model_api_format": null,
+            "skip_model_parsing": false,
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            },
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "hf-sandbox",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "stream": false,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {},
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "5c0ce029-cf65-474d-978f-bc0d0fb70831",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "moonshotai/Kimi-K3:deepinfra",
+            "provider": "openai"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 14285,
+        "n_cache_tokens": 3072,
+        "n_output_tokens": 1428,
+        "cost_usd": 0.05318157,
+        "model_usage": {
+            "moonshotai/kimi-k3": {
+                "n_input_tokens": 14285,
+                "n_cache_tokens": 3072,
+                "n_output_tokens": 1428,
+                "cost_usd": 0.05318157
+            }
+        },
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 6,
+            "api_request_times_msec": [
+                3122.663974761963,
+                3645.5345153808594,
+                3386.5108489990234,
+                4239.405155181885,
+                2445.693016052246,
+                1381.6277980804443
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "d_fit": 1.0,
+            "g_fit": 1.0,
+            "2d_fit": 1.0,
+            "id_ig": 1.0,
+            "reward": 1.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-11-18T11:20:34.731136Z",
+    "finished_at": "2026-11-18T11:22:14.845330Z",
+    "environment_setup": {
+        "started_at": "2026-11-18T11:20:34.741252Z",
+        "finished_at": "2026-11-18T11:20:40.115653Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-11-18T11:20:40.115682Z",
+        "finished_at": "2026-11-18T11:20:50.355465Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-11-18T11:20:50.355752Z",
+        "finished_at": "2026-11-18T11:22:11.439663Z"
+    },
+    "verifier": {
+        "started_at": "2026-11-18T11:22:11.620845Z",
+        "finished_at": "2026-11-18T11:22:14.761012Z"
+    },
+    "step_results": null
+}

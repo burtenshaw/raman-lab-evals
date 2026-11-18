@@ -1,0 +1,210 @@
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# ls -la /app
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# head -20 /app/graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# wc -l /app/graphene.dat
+[?2004l3565 /app/graphene.dat
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# tail -5 /app/graphene.dat; sed -n '1780,1785p' /app/graphene.dat
+[?2004l1649,768294	6062,725860
+1649,507095	6005,066261
+1649,246046	6009,427936
+1648,985151	5911,446799
+1648,724404	5950,923261
+2581,142006	209,870637
+2580,107906	490,973340
+2579,074934	558,539483
+2578,043081	478,448266
+2577,012352	611,167254
+2575,982739	489,380028
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# python3 -c "import numpy, scipy; print('ok')"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print('ok')
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# pip install numpy scipy 2>&1 | tail -2
+[?2004l[notice] A new release of pip is available: 25.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# python3 -c "import numpy, scipy; print('ok')"
+[?2004lok
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# cat > /app/explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> 
+[?2004l[?2004h> xs, ys = [], []
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         parts = line.replace(',', '.').split()
+[?2004l[?2004h>         xs.append(float(parts[0])); ys.append(float(parts[1]))
+[?2004l[?2004h> x = np.array(xs); y = np.array(ys)
+[?2004l[?2004h> print('N=', len(x), 'xrange=', x.min(), x.max())
+[?2004l[?2004h> # print y stats in bins over x
+[?2004l[?2004h> order = np.argsort(x)
+[?2004l[?2004h> xs2, ys2 = x[order], y[order]
+[?2004l[?2004h> for lo in range(0, 48000, 2000):
+[?2004l[?2004h>     m = (xs2 >= lo) & (xs2 < lo+2000)
+[?2004l[?2004h>     if m.sum():
+[?2004l[?2004h>         print(lo, m.sum(), ys2[m].min(), ys2[m].max(), ys2[m].mean())
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# python3 /app/explore.py
+[?2004lN= 3565 xrange= 1648.724404 47183.554644
+0 975 1908.738293 6474.278695 4043.4983629230765
+2000 1597 40.090842 12920.880624 1117.9490140995615
+4000 400 2056.586105 5564.352442 3476.5399502575
+6000 182 5190.192062 13777.736503 7019.515977461539
+8000 104 7615.218807 12517.649645 8949.716084759617
+10000 68 11548.6813 18805.235384 14268.850151794117
+12000 47 12178.820615 13419.056796 12705.983175787233
+14000 35 13490.892848 17042.073545 15020.058504257146
+16000 27 16411.397241 23027.686784 18340.045844074073
+18000 21 19658.818994 79400.095085 47382.542740761906
+20000 17 12210.634432 17059.352078 13164.369508941178
+22000 15 12627.408745 14876.857371 14012.665650733334
+24000 12 14746.20199 15792.470243 15234.429212249997
+26000 10 15668.553468 16763.433695 16262.838171699997
+28000 9 16827.649805 17844.333233 17284.282110555556
+30000 8 17987.028918 19630.215111 18620.423109249998
+32000 7 19883.117751 21252.731073 20664.401951142856
+34000 6 19599.237174 20285.381465 19859.894814666666
+36000 6 19518.303269 19684.212843 19596.92833883333
+38000 4 19344.943112 19672.573559 19516.646914
+40000 5 19360.099292 19704.066336 19519.9280368
+42000 4 19678.348151 19812.863021 19752.128361
+44000 3 19173.287322 19506.586203 19393.797259333336
+46000 3 19077.996963 19266.089699 19201.877956333334
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# cat > /app/peaks.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> 
+[?2004l[?2004h> xs, ys = [], []
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         p = line.replace(',', '.').split()
+[?2004l[?2004h>         xs.append(float(p[0])); ys.append(float(p[1]))
+[?2004l[?2004h> x = 1e7/np.array(xs)
+[?2004l[?2004h> y = np.array(ys)
+[?2004l[?2004h> o = np.argsort(x)
+[?2004l[?2004h> x, y = x[o], y[o]
+[?2004l[?2004h> print('wn range', x.min(), x.max(), 'monotonic diffs min', np.diff(x).min())
+[?2004l[?2004h> # smooth lightly
+[?2004l[?2004h> from scipy.signal import savgol_filter
+[?2004l[?2004h> ys = savgol_filter(y, 11, 3)
+[?2004l[?2004h> pk, props = find_peaks(ys, prominence=500)
+[?2004l[?2004h> for i, pidx in enumerate(pk):
+[?2004l[?2004h>     print(f'peak at wn={x[pidx]:.1f} y={y[pidx]:.0f} prom={props["prominences"][i]:.0f}')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# python3 /app/peaks.py
+[?2004lwn range 211.93824999939102 6065.295070382182 monotonic diffs min 0.9590792814351516
+peak at wn=300.8 y=21253 prom=1796
+peak at wn=519.9 y=78815 prom=69611
+peak at wn=618.1 y=18120 prom=1457
+peak at wn=947.3 y=18602 prom=7033
+peak at wn=1579.9 y=13778 prom=7015
+peak at wn=2446.9 y=2723 prom=534
+peak at wn=2670.2 y=12921 prom=11119
+peak at wn=3238.4 y=1062 prom=561
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> xs, ys = [], []
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         p = line.replace(',', '.').split()
+[?2004l[?2004h>         xs.append(float(p[0])); ys.append(float(p[1]))
+[?2004l[?2004h> x = 1e7/np.array(xs)
+[?2004l[?2004h> y = np.array(ys)
+[?2004l[?2004h> o = np.argsort(x)
+[?2004l[?2004h> x, y = x[o], y[o]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, x0, gamma, amp, off):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(lo, hi, name):
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xf, yf = x[m], y[m]
+[?2004l[?2004h>     off0 = yf.min()
+[?2004l[?2004h>     x00 = xf[np.argmax(yf)]
+[?2004l[?2004h>     amp0 = yf.max() - off0
+[?2004l[?2004h>     p0 = [x00, 15.0, amp0, off0]
+[?2004l[?2004h>     popt, _ = curve_fit(lorentz, xf, yf, p0=p0, maxfev=20000)
+[?2004l[?2004h>     x0, gamma, amp, off = popt
+[?2004l[?2004h>     gamma = abs(gamma)
+[?2004l[?2004h>     print(name, 'x0=%.3f gamma=%.3f amp=%.1f off=%.1f' % (x0, gamma, amp, off))
+[?2004l[?2004h>     return {'x0': float(x0), 'gamma': float(gamma), 'amplitude': float(amp), 'offset': float(off)}
+[?2004l[?2004h> 
+[?2004l[?2004h> res = {
+[?2004l[?2004h>     'G': fit_peak(1480, 1680, 'G'),
+[?2004l[?2004h>     '2D': fit_peak(2580, 2800, '2D'),
+[?2004l[?2004h> }
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(res, f, indent=2)
+[?2004l[?2004h> print(json.dumps(res, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# python3 /app/fit.py
+[?2004lG x0=1580.329 gamma=8.478 amp=8307.4 off=5755.1
+2D x0=2670.111 gamma=18.305 amp=12479.2 off=984.8
+{
+  "G": {
+    "x0": 1580.3290635882397,
+    "gamma": 8.478014833395225,
+    "amplitude": 8307.370269019071,
+    "offset": 5755.122839793031
+  },
+  "2D": {
+    "x0": 2670.1107530124777,
+    "gamma": 18.304630284856977,
+    "amplitude": 12479.172086113438,
+    "offset": 984.7914437026299
+  }
+}
+[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# cat /app/results.json
+[?2004l{
+  "G": {
+    "x0": 1580.3290635882397,
+    "gamma": 8.478014833395225,
+    "amplitude": 8307.370269019071,
+    "offset": 5755.122839793031
+  },
+  "2D": {
+    "x0": 2670.1107530124777,
+    "gamma": 18.304630284856977,
+    "amplitude": 12479.172086113438,
+    "offset": 984.7914437026299
+  }
+}[?2004hroot@j-openenv-6afd86e5884144d2f44fd3bb-vwdptt08-9234b-w8zbr:/app# 

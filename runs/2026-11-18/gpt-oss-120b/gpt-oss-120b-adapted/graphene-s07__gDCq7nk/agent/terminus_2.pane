@@ -1,0 +1,121 @@
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# python3 - << 'PY'
+[?2004l[?2004h> import sys, json, numpy as np, os
+[?2004l[?2004h> try:
+[?2004l[?2004h>     import scipy.optimize as opt
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('scipy not available', e)
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> # Ensure columns exist
+[?2004l[?2004h> x = data['raman_shift_cm_1'] if 'raman_shift_cm_1' in data.dtype.names else data['raman_shift_cm-1']
+[?2004l[?2004h> # Some CSV headers may have hyphen; handle both
+[?2004l[?2004h> if isinstance(x, np.ndarray) is False:
+[?2004l[?2004h>     # fallback: use column index
+[?2004l[?2004h>     x = data['raman_shift_cm-1']
+[?2004l[?2004h> intensity = data['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian model
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a region
+[?2004l[?2004h> def fit_region(center, window=50):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = intensity[mask]
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     x0_guess = center
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = opt.curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print('Fit failed for center', center, e)
+[?2004l[?2004h>         popt = [np.nan]*4
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit each peak
+[?2004l[?2004h> params_D = fit_region(1350)
+[?2004l[?2004h> params_G = fit_region(1580)
+[?2004l[?2004h> params_2D = fit_region(2690)
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': {'amplitude': float(params_D[0]), 'x0': float(params_D[1]), 'gamma': float(params_D[2]), 'offset': float(params_D[3])},
+[?2004l[?2004h>     'G': {'amplitude': float(params_G[0]), 'x0': float(params_G[1]), 'gamma': float(params_G[2]), 'offset': float(params_G[3])},
+[?2004l[?2004h>     '2D': {'amplitude': float(params_2D[0]), 'x0': float(params_2D[1]), 'gamma': float(params_2D[2]), 'offset': float(params_2D[3])},
+[?2004l[?2004h>     'ID_IG': float(params_D[0] / params_G[0] if params_G[0] != 0 else np.nan)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write JSON
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Done')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# pip install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# python3 - << 'PY'
+[?2004l[?2004h> import sys, json, numpy as np
+[?2004l[?2004h> import scipy.optimize as opt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> # Determine column name for Raman shift
+[?2004l[?2004h> if 'raman_shift_cm-1' in data.dtype.names:
+[?2004l[?2004h>     x = data['raman_shift_cm-1']
+[?2004l[?2004h> elif 'raman_shift_cm_1' in data.dtype.names:
+[?2004l[?2004h>     x = data['raman_shift_cm_1']
+[?2004l[?2004h> else:
+[?2004l[?2004h>     print('Raman shift column not found')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> intensity = data['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_region(center, window=50):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = intensity[mask]
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     x0_guess = center
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h>     popt, _ = opt.curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> params_D = fit_region(1350)
+[?2004l[?2004h> params_G = fit_region(1580)
+[?2004l[?2004h> params_2D = fit_region(2690)
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': {'amplitude': float(params_D[0]), 'x0': float(params_D[1]), 'gamma': float(params_D[2]), 'offset': float(params_D[3])},
+[?2004l[?2004h>     'G': {'amplitude': float(params_G[0]), 'x0': float(params_G[1]), 'gamma': float(params_G[2]), 'offset': float(params_G[3])},
+[?2004l[?2004h>     '2D': {'amplitude': float(params_2D[0]), 'x0': float(params_2D[1]), 'gamma': float(params_2D[2]), 'offset': float(params_2D[3])},
+[?2004l[?2004h>     'ID_IG': float(params_D[0] / params_G[0] if params_G[0] != 0 else float('nan'))
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Done')
+[?2004l[?2004h> PY
+[?2004lRaman shift column not found
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8a8029e8b7ccfbbb81bc-cx60e6rh-e4199-dbnqb:/app# 

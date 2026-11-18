@@ -1,0 +1,162 @@
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# head -20 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1365.563
+1100.5001,1398.616
+1101.0003,1325.446
+1101.5004,1350.712
+1102.0005,1288.901
+1102.5007,1318.175
+1103.0008,1335.503
+1103.5009,1347.222
+1104.0011,1321.654
+1104.5012,1305.455
+1105.0013,1230.196
+1105.5014,1298.804
+1106.0016,1293.007
+1106.5017,1300.968
+1107.0018,1404.140
+1107.5020,1293.371
+1108.0021,1411.161
+1108.5022,1250.129
+1109.0024,1401.282
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# python3 -c "import numpy, scipy; print('numpy', numpy.__version__); print('scipy', scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print('numpy', numpy.__version__); print('scipy', scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# python3 -c "
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x = data[:,0]; y = data[:,1]
+[?2004l[?2004h> print('x range:', x.min(), x.max())
+[?2004l[?2004h> print('y range:', y.min(), y.max())
+[?2004l[?2004h> print('num points:', len(x))
+[?2004l[?2004h> # Rough look at regions around expected peaks
+[?2004l[?2004h> for center, width in [(1350,100),(1580,100),(2690,150)]:
+[?2004l[?2004h>     mask = (x > center-width) & (x < center+width)
+[?2004l[?2004h>     if mask.sum()>0:
+[?2004l[?2004h>         i = np.argmax(y[mask])
+[?2004l[?2004h>         print(f'Peak near {center}: max at x={x[mask][i]:.1f}, y={y[mask][i]:.1f}')
+[?2004l[?2004h> "
+[?2004lx range: 1100.0 3000.0
+y range: 962.224 13447.987
+num points: 3800
+Peak near 1350: max at x=1346.1, y=13448.0
+Peak near 1580: max at x=1585.1, y=9883.7
+Peak near 2690: max at x=2678.4, y=11944.4
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x = data[:,0]; y = data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(center, width):
+[?2004l[?2004h>     mask = (x > center - width) & (x < center + width)
+[?2004l[?2004h>     xs = x[mask]; ys = y[mask]
+[?2004l[?2004h>     # initial guesses
+[?2004l[?2004h>     off0 = np.percentile(ys, 5)  # baseline estimate
+[?2004l[?2004h>     i = np.argmax(ys)
+[?2004l[?2004h>     x0_0 = xs[i]
+[?2004l[?2004h>     amp0 = ys[i] - off0
+[?2004l[?2004h>     gamma0 = 20.0
+[?2004l[?2004h>     p0 = [x0_0, gamma0, amp0, off0]
+[?2004l[?2004h>     bounds = ([xs.min(), 1.0, 0.0, -np.inf],
+[?2004l[?2004h>               [xs.max(), width, np.inf, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, xs, ys, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     x0, gamma, amp, off = popt
+[?2004l[?2004h>     return dict(x0=float(x0), gamma=float(gamma), amplitude=float(amp), offset=float(off))
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> results['D'] = fit_peak(1350, 90)
+[?2004l[?2004h> results['G'] = fit_peak(1580, 90)
+[?2004l[?2004h> results['2D'] = fit_peak(2690, 120)
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# python3 /app/fit.py
+[?2004l{
+  "D": {
+    "x0": 1345.9876284941636,
+    "gamma": 14.747684467442848,
+    "amplitude": 12085.1514468596,
+    "offset": 1263.1985881442297
+  },
+  "G": {
+    "x0": 1585.0918694418017,
+    "gamma": 13.931320175856255,
+    "amplitude": 8607.715005707782,
+    "offset": 1273.2348479792458
+  },
+  "2D": {
+    "x0": 2678.0380479925298,
+    "gamma": 19.972799804959134,
+    "amplitude": 10767.533723510529,
+    "offset": 1074.813307975891
+  },
+  "ID_IG": 1.4039906570844791
+}
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# python3 -c "
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> def lor(x,x0,g,a,o): return a*g**2/((x-x0)**2+g**2)+o
+[?2004l[?2004h> data=np.genfromtxt('/app/spectrum.csv',delimiter=',',skip_header=1); x,y=data[:,0],data[:,1]
+[?2004l[?2004h> r=json.load(open('/app/results.json'))
+[?2004l[?2004h> for name,c,w in [('D',1350,90),('G',1580,90),('2D',2690,120)]:
+[?2004l[?2004h>     m=(x>c-w)&(x<c+w); p=r[name]
+[?2004l[?2004h>     res=y[m]-lor(x[m],p['x0'],p['gamma'],p['amplitude'],p['offset'])
+[?2004l[?2004h>     print(f'{name}: resid rms={np.sqrt(np.mean(res**2)):.2f}, max|resid|={np.abs(res).max():.1f}')
+[?2004l[?2004h> print('ID_IG:', r['ID_IG'])
+[?2004l[?2004h> print('keys:', list(r.keys()))
+[?2004l[?2004h> "
+[?2004lD: resid rms=59.59, max|resid|=197.0
+G: resid rms=67.34, max|resid|=218.7
+2D: resid rms=61.93, max|resid|=196.5
+ID_IG: 1.4039906570844791
+keys: ['D', 'G', '2D', 'ID_IG']
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# echo '--- results.json ---'; cat /app/results.json
+[?2004l--- results.json ---
+{
+  "D": {
+    "x0": 1345.9876284941636,
+    "gamma": 14.747684467442848,
+    "amplitude": 12085.1514468596,
+    "offset": 1263.1985881442297
+  },
+  "G": {
+    "x0": 1585.0918694418017,
+    "gamma": 13.931320175856255,
+    "amplitude": 8607.715005707782,
+    "offset": 1273.2348479792458
+  },
+  "2D": {
+    "x0": 2678.0380479925298,
+    "gamma": 19.972799804959134,
+    "amplitude": 10767.533723510529,
+    "offset": 1074.813307975891
+  },
+  "ID_IG": 1.4039906570844791
+}[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# python3 -c "import json; r=json.load(open('/app/results.json')); assert set(r)=={'D','G','2D','ID_IG'}; assert all(set(v)=={'x0','gamma','amplitude','offset'} for k in ['D','G','2D'] for v in [r[k]]); assert isinstance(r['ID_IG'], float); print('VALID'); print('ID_IG =', r['ID_IG'])"
+[?2004lVALID
+ID_IG = 1.4039906570844791
+[?2004hroot@j-openenv-6afd8ceae5cad0e4dc3e6d8b-7p7u2l9t-05fec-9qqwn:/app# 

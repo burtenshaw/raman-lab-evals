@@ -1,0 +1,399 @@
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:33 ..
+-rw-r--r--. 1 root root 69871 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# head -n 5 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,902.977
+1100.5001,976.662
+1101.0003,906.945
+1101.5004,1014.009
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# wc -l spectrum.csv
+[?2004l3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, gamma, x0, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': (1250.0, 1450.0),
+[?2004l[?2004h>     'G': (1500.0, 1650.0),
+[?2004l[?2004h>     '2D': (2550.0, 2800.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in peaks.items():
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw = x[m]
+[?2004l[?2004h>     yw = y[m]
+[?2004l[?2004h>     i0 = int(np.argmax(yw))
+[?2004l[?2004h>     p0 = [max(yw) - min(yw), 20.0, xw[i0], min(yw)]
+[?2004l[?2004h>     bounds = ([0.0, 0.1, lo, 0.0], [np.inf, 200.0, hi, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lor, xw, yw, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     amp, gamma, x0, offset = popt
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset),
+[?2004l[?2004h>     }
+[?2004l[?2004h>     print(name, results[name])
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print('ID_IG', results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print('wrote results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> with open('spectrum.csv') as f:
+[?2004l[?2004h>     r = csv.reader(f)
+[?2004l[?2004h>     next(r)
+[?2004l[?2004h>     data = [(float(a), float(b)) for a, b in r]
+[?2004l[?2004h> for name, lo, hi in [('D', 1250, 1450), ('G', 1500, 1650), ('2D', 2550, 2800)]:
+[?2004l[?2004h>     w = [(x, y) for x, y in data if lo <= x <= hi]
+[?2004l[?2004h>     xm, ym = max(w, key=lambda p: p[1])
+[?2004l[?2004h>     print(name, 'max at', xm, ym, 'min', min(y for x, y in w), 'max', max(y for x, y in w), 'n', len(w))
+[?2004l[?2004h> PY
+[?2004lD max at 1351.0661 2325.647 min 892.792 max 2325.647 n 400
+G max at 1581.1266 7573.63 min 968.379 max 7573.63 n 300
+2D max at 2684.417 13904.551 min 979.371 max 13904.551 n 500
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, json, math
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l0, 10.0, 20.0, 40.0, 80.0)):
+    best = None
+    for gamma0 in gammas:
+        p0 = initial_guess(x, y)
+        p0[1] = gamma0
+        p, s = fit_lm(x, y, p0)
+        if best is None or s < best[1]:
+            best = (p, s)
+    return best[0]
+
+def fit_lm(x, y, p0, maxiter=400):
+    p = p0[:]
+    npar = 4
+    # scale parameters so LM steps are well balanced
+    scale = [max(100.0, max(y)), max(1.0, p[1]), 1.0, max(100.0, max(y))]
+    base = p[:]
+    q = [0.0]*npar
+    lam = 1e-3
+    s = sse(p, x, y)
+    for it in range(maxiter):
+        # residual and Jacobian in original coordinates
+        r = [model(p, xi) - yi for xi, yi in zip(x, y)]
+        cols = jacobian(p, x)  # 4 x n
+        # convert to scaled parameter q where p = base + scale*q
+        Jq = [[cols[k][i]*scale[k] for i in range(len(x))] for k in range(npar)]
+        JTJ = [[0.0]*npar for _ in range(npar)]
+        JTr = [0.0]*npar
+        for k in range(npar):
+            for l in range(npar):
+                JTJ[k][l] = sum(Jq[k][i]*Jq[l][i] for i in range(len(x)))
+            JTr[k] = sum(Jq[k][i]*r[i] for i in range(len(x)))
+        # check gradient
+        if max(abs(v) for v in JTr) < 1e-10:
+            break
+        diag = [max(JTJ[i][i], 1e-15) for i in range(npar)]
+        accepted = False
+        for _ in range(50):
+            M = [[JTJ[i][j] + (lam*diag[i] if i == j else 0.0) for j in range(npar)] for i in range(npar)]
+            try:
+                delta = solve_linear(M, [-v for v in JTr])
+            except ZeroDivisionError:
+                lam *= 10.0
+                continue
+            qnew = [q[i] + delta[i] for i in range(npar)]
+            pnew = [base[i] + scale[i]*qnew[i] for i in range(npar)]
+            if pnew[1] <= 0.05:
+                lam *= 10.0
+                continue
+            snew = sse(pnew, x, y)
+            if snew < s - 1e-12*max(1.0, s):
+                p = pnew
+                q = qnew
+                s = snew
+                lam = max(lam*0.3, 1e-12)
+                accepted = True
+                break
+            else:
+                lam *= 10.0
+        if[?2004h> with open('spectrum.csv') as f:
+[?2004l[?2004h>     r = csv.reader(f)
+[?2004l[?2004h>     next(r)
+[?2004l[?2004h>     data = [(float(a), float(b)) for a, b in r]
+[?2004l[?2004h> xs = [p[0] for p in data]
+[?2004l[?2004h> ys = [p[1] for p in data]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian plus constant offset
+[?2004l[?2004h> # I = amp * gamma^2 / ((x-x0)^2 + gamma^2) + offset
+[?2004l[?2004h> def model(p, x):
+[?2004l[?2004h>     A, g, x0, c = p
+[?2004l[?2004h>     d = (x - x0)**2 + g*g
+[?2004l[?2004h>     return A*g*g/d + c
+[?2004l[?2004h> 
+[?2004lf[?2004h> def jacobian(p, x):
+[?2004l[?2004h>     A, g, x0, c = p
+[?2004l[?2004h>     d = (x - x0)**2 + g*g
+[?2004l[?2004h>     d2 = d*d
+[?2004l[?2004h>     g2 = g*g
+[?2004l[?2004h>     return [
+[?2004l[?2004h>         g2/d,
+[?2004l[?2004h>         2.0*A*g*(x-x0)**2/d2,
+[?2004l[?2004h>         2.0*A*g2*(x-x0)/d2,
+[?2004l[?2004h>         1.0,
+[?2004l[?2004h>     ]
+[?2004l[?2004h> 
+[?2004ls[?2004h> def sse(p, x, y):
+[?2004l  [?2004h>     return sum((model(p, xi) - yi)**2 for xi, yi in zip(x, y))
+[?2004l[?2004h> 
+[?2004lt[?2004h> def solve_linear(A, b):
+[?2004l[?2004h>     n = len(b)
+[?2004l[?2004h>     M = [A[i][:] + [b[i]] for i in range(n)]
+[?2004le[?2004h>     for col in range(n):
+[?2004l[?2004h>         piv = max(range(col, n), key=lambda r: abs(M[r][col]))
+[?2004l[?2004h>         if abs(M[piv][col]) < 1e-15:
+[?2004l[?2004h>             raise ZeroDivisionError('singular matrix')
+[?2004l[?2004h>         if piv != col:
+[?2004l[?2004h>             M[col], M[piv] = M[piv], M[col]
+[?2004l[?2004h>         pv = M[col][col]
+[?2004l[?2004h>         for r in range(col+1, n):
+[?2004l[?2004h>             f = M[r][col] / pv
+[?2004l[?2004h>             if f != 0.0:
+[?2004l[?2004h>                 for k in range(col, n+1):
+[?2004l[?2004h>                     M[r][k] -= f * M[col][k]
+[?2004l[?2004h>     x = [0.0]*n
+[?2004l[?2004h>     for i in range(n-1, -1, -1):
+[?2004l[?2004h>         s = M[i][n] - sum(M[i][j]*x[j] for j in range(i+1, n))
+[?2004l[?2004h>         x[i] = s / M[i][i]
+[?2004l[?2004h>     return x
+[?2004l[?2004h> 
+[?2004l[?2004h> def initial_guess(x, y):
+[?2004l[?2004h>     imax = max(range(len(y)), key=lambda i: y[i])
+[?2004l[?2004h>     x0 = x[imax]
+[?2004l[?2004h>     peak = y[imax]
+[?2004l[?2004h>     c0 = min(y)
+[?2004l[?2004h>     half = c0 + 0.5*(peak - c0)
+[?2004l[?2004h>     # left half-max crossing
+[?2004l[?2004h>     xl = x[0]
+[?2004l[?2004h>     for i in range(imax-1, -1, -1):
+[?2004l[?2004h>         if y[i] <= half:
+[?2004l[?2004h>             xl = x[i] + (x[i+1]-x[i])*(half-y[i])/(y[i+1]-y[i])
+[?2004l[?2004h>             break
+[?2004l[?2004h>     xr = x[-1]
+[?2004l[?2004h>     for i in range(imax+1, len(y)):
+[?2004l[?2004h>         if y[i] <= half:
+[?2004l[?2004h>             xr = x[i-1] + (x[i]-x[i-1])*(half-y[i-1])/(y[i]-y[i-1])
+[?2004l[?2004h>             break
+[?2004l[?2004h>     fwhm = max(0.1, xr-xl)
+[?2004l[?2004h>     gamma0 = fwhm/2.0
+[?2004l[?2004h>     if not (0.1 <= gamma0 <= 300):
+[?2004l[?2004h>         gamma0 = 15.0
+[?2004l[?2004h>     return [max(peak-c0, 1.0), gamma0, x0, c0]
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x, y, gammas=(5.0, 10.0, 20.0, 40.0, 80.0)):
+[?2004l[?2004h>     best = None
+[?2004l[?2004h>     for gamma0 in gammas:
+[?2004l[?2004h>         p0 = initial_guess(x, y)
+[?2004l[?2004h>         p0[1] = gamma0
+[?2004l[?2004h>         p, s = fit_lm(x, y, p0)
+[?2004l[?2004h>         if best is None or s < best[1]:
+[?2004l[?2004h>             best = (p, s)
+[?2004l[?2004h>     return best[0]
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_lm(x, y, p0, maxiter=400):
+[?2004l[?2004h>     p = p0[:]
+[?2004l[?2004h>     npar = 4
+[?2004l[?2004h>     # scale parameters so LM steps are well balanced
+[?2004l[?2004h>     scale = [max(100.0, max(y)), max(1.0, p[1]), 1.0, max(100.0, max(y))]
+[?2004l[?2004h>     base = p[:]
+[?2004l[?2004h>     q = [0.0]*npar
+[?2004l[?2004h>     lam = 1e-3
+[?2004l[?2004h>     s = sse(p, x, y)
+[?2004l[?2004h>     for it in range(maxiter):
+[?2004l[?2004h>         # residual and Jacobian in original coordinates
+[?2004l[?2004h>         r = [model(p, xi) - yi for xi, yi in zip(x, y)]
+[?2004l[?2004h>         cols = jacobian(p, x)  # 4 x n
+[?2004l[?2004h>         # convert to scaled parameter q where p = base + scale*q
+[?2004l[?2004h>         Jq = [[cols[k][i]*scale[k] for i in range(len(x))] for k in range(npar)]
+[?2004l[?2004h>         JTJ = [[0.0]*npar for _ in range(npar)]
+[?2004l[?2004h>         JTr = [0.0]*npar
+[?2004l[?2004h>         for k in range(npar):
+[?2004l[?2004h>             for l in range(npar):
+[?2004l[?2004h>                 JTJ[k][l] = sum(Jq[k][i]*Jq[l][i] for i in range(len(x)))
+[?2004l[?2004h>             JTr[k] = sum(Jq[k][i]*r[i] for i in range(len(x)))
+[?2004l[?2004h>         # check gradient
+[?2004l[?2004h>         if max(abs(v) for v in JTr) < 1e-10:
+[?2004l[?2004h>             break
+[?2004l[?2004h>         diag = [max(JTJ[i][i], 1e-15) for i in range(npar)]
+[?2004l[?2004h>         accepted = False
+[?2004l[?2004h>         for _ in range(50):
+[?2004l[?2004h>             M = [[JTJ[i][j] + (lam*diag[i] if i == j else 0.0) for j in range(npar)] for i in range(npar)]
+[?2004l[?2004h>             try:
+[?2004l[?2004h>                 delta = solve_linear(M, [-v for v in JTr])
+[?2004l[?2004h>             except ZeroDivisionError:
+[?2004l[?2004h>                 lam *= 10.0
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             qnew = [q[i] + delta[i] for i in range(npar)]
+[?2004l[?2004h>             pnew = [base[i] + scale[i]*qnew[i] for i in range(npar)]
+[?2004l[?2004h>             if pnew[1] <= 0.05:
+[?2004l[?2004h>                 lam *= 10.0
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             snew = sse(pnew, x, y)
+[?2004l[?2004h>             if snew < s - 1e-12*max(1.0, s):
+[?2004l[?2004h>                 p = pnew
+[?2004l[?2004h>                 q = qnew
+[?2004l[?2004h>                 s = snew
+[?2004l[?2004h>                 lam = max(lam*0.3, 1e-12)
+[?2004l[?2004h>                 accepted = True
+[?2004l[?2004h>                 break
+[?2004l[?2004h>             else:
+[?2004l[?2004h>                 lam *= 10.0
+[?2004l[?2004h>         if not accepted:
+[?2004l[?2004h>             break
+[?2004l[?2004h>         if max(abs(delta[i]*scale[i]) for i in range(npar)) < 1e-9:
+[?2004l[?2004h>             break
+[?2004l[?2004h>     return p, s
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D': (1250.0, 1450.0),
+[?2004l[?2004h>     'G': (1500.0, 1650.0),
+[?2004l[?2004h>     '2D': (2550.0, 2800.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     xw = [x for x in xs if lo <= x <= hi]
+[?2004l[?2004h>     yw = [y for x, y in data if lo <= x <= hi]
+[?2004l[?2004h>     p = fit_peak(xw, yw)
+[?2004l[?2004h>     A, g, x0, c = p
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(g),
+[?2004l[?2004h>         'amplitude': float(A),
+[?2004l[?2004h>         'offset': float(c),
+[?2004l[?2004h>     }
+[?2004l[?2004h>     print(name, results[name], 'SSE', sse(p, xw, yw))
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print('ID_IG', results['ID_IG'])
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print('wrote /app/results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m151[0m, in [35m<module>[0m
+  File [35m"<stdin>"[0m, line [35m82[0m, in [35mfit_peak[0m
+  File [35m"<stdin>"[0m, line [35m99[0m, in [35mfit_lm[0m
+  File [35m"<stdin>"[0m, line [35m20[0m, in [35mjacobian[0m
+[1;35mTypeError[0m: [35munsupported operand type(s) for -: 'list' and 'float'[0m
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, json
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     rows = list(csv.reader(f))
+[?2004l[?2004h> data = [(float(a), float(b)) for a, b in rows[1:]]
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_linear(xs, ys, x0, g):
+[?2004l[?2004h>     g2 = g * g
+[?2004l[?2004h>     fs = []
+[?2004l[?2004h>     Sf = Sff = Sfy = Sy = Syy = 0.0
+[?2004l[?2004h>     for x, y in zip(xs, ys):
+[?2004l[?2004h>         f = g2 / ((x - x0) ** 2 + g2)
+[?2004l[?2004h>         fs.append(f)
+[?2004l[?2004h>         Sf += f
+[?2004l[?2004h>         Sff += f * f
+[?2004l[?2004h>         Sfy += f * y
+[?2004l[?2004h>         Sy += y
+[?2004l[?2004h>         Syy += y * y
+[?2004l[?2004h>     n = len(xs)
+[?2004l[?2004h>     det = n * Sff - Sf * Sf
+[?2004l[?2004h>     if det <= 0.0:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     A = (n * Sfy - Sf * Sy) / det
+[?2004l[?2004h>     c = (Sff * Sy - Sf * Sfy) / det
+[?2004l[?2004h>     if A <= 0.0 or c < 0.0:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     sse = sum((A * f + c - y) ** 2 for f, y in zip(fs, ys))
+[?2004l[?2004h>     return A, c, sse
+[?2004l[?2004h> 
+[?2004l[?2004h> def scan(xs, ys, x0s, gs):
+[?2004l[?2004h>     best = None
+[?2004l[?2004h>     for g in gs:
+[?2004l[?2004h>         for x0 in x0s:
+[?2004l[?2004h>             if x0 <= xs[0] or x0 >= xs[-1]:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             r = fit_linear(xs, ys, x0, g)
+[?2004l[?2004h>             if r is not None and (best is None or r[2] < best[4]):
+[?2004l[?2004h>                 best = (r[0], g, x0, r[1], r[2])
+[?2004l[?2004h>     return best
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(xs, ys):
+[?2004l[?2004h>     imax = max(range(len(ys)), key=lambda i: ys[i])
+[?2004l[?2004h>     x0c = xs[imax]
+[?2004l[?2004h>     best = scan(xs, ys, [x0c + 0.2 * k for k in range(-25, 26)], [float(g) for g in range(2, 101)])
+[?2004l[?2004h>     best = scan(xs, ys, [best[2] + 0.02 * k for k in range(-25, 26)], [best[1] + 0.05 * k for k in range(-20, 21)])
+[?2004l[?2004h>     best = scan(xs, ys, [best[2] + 0.002 * k for k in range(-25, 26)], [best[1] + 0.005 * k for k in range(-20, 21)])
+[?2004l[?2004h>     return best
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {'D': (1250.0, 1450.0), 'G': (1500.0, 1650.0), '2D': (2550.0, 2800.0)}
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     xs = [x for x, y in data if lo <= x <= hi]
+[?2004l[?2004h>     ys = [y for x, y in data if lo <= x <= hi]
+[?2004l[?2004h>     A, g, x0, c, sse = fit_peak(xs, ys)
+[?2004l[?2004h>     results[name] = {'x0': x0, 'gamma': g, 'amplitude': A, 'offset': c}
+[?2004l[?2004h>     print(name, results[name], 'SSE', sse)
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print('ID_IG', results['ID_IG'])
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print('done')
+[?2004l[?2004h> PY
+[?2004lD {'x0': 1349.2341000000001, 'gamma': 13.535, 'amplitude': 1313.4472834754024, 'offset': 971.6804322834882} SSE 619433.3210141622
+G {'x0': 1581.1306, 'gamma': 8.43, 'amplitude': 6596.40715097495, 'offset': 943.4537330596627} SSE 447229.5251708951
+2D {'x0': 2684.731, 'gamma': 16.995, 'amplitude': 13064.794128766578, 'offset': 811.1200009354188} SSE 784320.3643820144
+ID_IG 0.19911555691059407
+done
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1349.2341000000001,
+    "gamma": 13.535,
+    "amplitude": 1313.4472834754024,
+    "offset": 971.6804322834882
+  },
+  "G": {
+    "x0": 1581.1306,
+    "gamma": 8.43,
+    "amplitude": 6596.40715097495,
+    "offset": 943.4537330596627
+  },
+  "2D": {
+    "x0": 2684.731,
+    "gamma": 16.995,
+    "amplitude": 13064.794128766578,
+    "offset": 811.1200009354188
+  },
+  "ID_IG": 0.19911555691059407
+}[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# python3 -m json.tool /app/results.json >/dev/null && echo 'valid JSON'
+[?2004lvalid JSON
+[?2004hroot@j-openenv-6afd8ce429e8b7ccfbbb8365-hgqy1ats-0ea6b-vwvr9:/app# 

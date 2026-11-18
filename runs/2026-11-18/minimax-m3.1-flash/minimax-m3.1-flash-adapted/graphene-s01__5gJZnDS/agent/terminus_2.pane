@@ -1,0 +1,558 @@
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# ls -la /app && head -5 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:34 ..
+-rw-r--r--. 1 root root 72310 Nov 18 11:07 spectrum.csv
+raman_shift_cm-1,intensity
+1100.0000,1338.925
+1100.5001,1328.540
+1101.0003,1244.349
+1101.5004,1282.687
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 --version; which pip3 pip; tail -3 /app/spectrum.csv
+[?2004lPython 3.13.18
+/usr/local/bin/pip3
+/usr/local/bin/pip
+2998.9997,1302.413
+2999.4999,1293.036
+3000.0000,1289.024
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# pip3 install --quiet numpy scipy 2>&1 | tail -5
+[?2004lWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 -c "import numpy, scipy; from scipy.optimize import curve_fit; print(numpy.__version__, scipy.__version__)"
+[?2004l2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# cat > /app/explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1'] if 'raman_shift_cm1' in d.dtype.names else d[d.dtype.names[0]]
+[?2004l[?2004h> y = d['intensity']
+[?2004l[?2004h> print(d.dtype.names, x.min(), x.max(), len(x))
+[?2004l[?2004h> for lo, hi in [(1150,1550),(1450,1850),(2400,3000)]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     print('window', lo, hi, 'max at', xs[np.argmax(ys)], ys.max(), 'min', ys.min(), 'argmin at', xs[np.argmin(ys)])
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 /app/explore.py
+[?2004l('raman_shift_cm1', 'intensity') 1100.0 3000.0 3800
+window 1150 1550 max at 1549.6183 1708.489 min 1170.08 argmin at 1159.5157
+window 1450 1850 max at 1580.6265 8221.131 min 1134.461 argmin at 1837.194
+window 2400 3000 max at 2693.9195 15305.993 min 1219.433 argmin at 2996.9992
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# cat > /app/explore2.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1']; y = d['intensity']
+[?2004l[?2004h> m = (x>=1150)&(x<=1500)
+[?2004l[?2004h> xs, ys = x[m], y[m]
+[?2004l[?2004h> # local maxima
+[?2004l[?2004h> for i in range(1,len(ys)-1):
+[?2004l[?2004h>     if ys[i] > ys[i-1] and ys[i] >= ys[i+1]:
+[?2004l[?2004h>         print('local max', round(xs[i],2), round(ys[i],2))
+[?2004l[?2004h> print('---- values around 1330-1380 ----')
+[?2004l[?2004h> for xx, yy in zip(xs, ys):
+[?2004l[?2004h>     if 1300 <= xx <= 1400 and int(round(xx*2))%10==0:
+[?2004l[?2004h>         print(round(xx,2), round(yy,2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 /app/explore2.py
+[?2004llocal max 1151.51 1306.99
+local max 1153.01 1320.95
+local max 1154.01 1336.38
+local max 1155.01 1363.29
+local max 1157.52 1263.96
+local max 1158.52 1252.73
+local max 1160.52 1358.27
+local max 1162.52 1373.52
+local max 1164.02 1314.51
+local max 1166.02 1306.58
+local max 1167.02 1355.76
+local max 1169.52 1356.21
+local max 1171.52 1319.97
+local max 1173.02 1304.74
+local max 1175.02 1328.5
+local max 1177.02 1367.29
+local max 1179.02 1339.95
+local max 1180.02 1305.83
+local max 1181.52 1298.38
+local max 1183.52 1325.22
+local max 1184.52 1298.48
+local max 1185.52 1322.88
+local max 1187.02 1329.18
+local max 1188.02 1314.61
+local max 1189.02 1292.37
+local max 1190.52 1303.31
+local max 1192.52 1354.47
+local max 1194.02 1309.51
+local max 1196.03 1290.64
+local max 1197.03 1299.92
+local max 1199.53 1351.96
+local max 1201.03 1308.03
+local max 1202.03 1292.5
+local max 1203.53 1311.01
+local max 1206.03 1328.82
+local max 1207.03 1328.61
+local max 1208.03 1328.63
+local max 1209.53 1317.44
+local max 1211.03 1360.57
+local max 1212.03 1329.7
+local max 1215.03 1349.73
+local max 1216.53 1342.2
+local max 1217.53 1335.2
+local max 1218.53 1323.16
+local max 1221.03 1381.02
+local max 1222.53 1294.58
+local max 1224.53 1349.3
+local max 1226.53 1296.36
+local max 1227.53 1295.98
+local max 1228.53 1296.92
+local max 1230.03 1317.19
+local max 1233.04 1307.85
+local max 1234.04 1364.12
+local max 1236.54 1313.89
+local max 1238.54 1299.02
+local max 1240.54 1304.25
+local max 1242.04 1293.58
+local max 1243.04 1300.63
+local max 1245.54 1374.02
+local max 1247.54 1343.8
+local max 1248.54 1317.66
+local max 1250.04 1287.97
+local max 1252.04 1389.34
+local max 1253.04 1286.55
+local max 1255.54 1327.74
+local max 1257.04 1326.19
+local max 1258.04 1360.12
+local max 1259.54 1340.53
+local max 1261.04 1341.71
+local max 1262.54 1322.1
+local max 1265.04 1346.39
+local max 1266.54 1362.39
+local max 1267.54 1321.45
+local max 1269.04 1292.89
+local max 1270.04 1335.41
+local max 1271.55 1314.39
+local max 1273.05 1323.33
+local max 1274.55 1369.13
+local max 1275.55 1292.91
+local max 1276.55 1354.26
+local max 1278.05 1309.53
+local max 1279.05 1272.82
+local max 1280.05 1380.18
+local max 1281.55 1352.23
+local max 1283.05 1280.66
+local max 1284.05 1349.57
+local max 1285.55 1330.7
+local max 1287.55 1317.2
+local max 1290.05 1383.66
+local max 1291.05 1347.41
+local max 1292.05 1384.56
+local max 1293.05 1297.24
+local max 1294.55 1330.96
+local max 1295.55 1341.48
+local max 1296.55 1323.67
+local max 1298.05 1367.82
+local max 1299.05 1310.95
+local max 1300.55 1362.22
+local max 1302.55 1365.75
+local max 1303.55 1376.8
+local max 1305.05 1341.43
+local max 1306.05 1361.07
+local max 1307.55 1356.34
+local max 1309.56 1425.08
+local max 1310.56 1288.66
+local max 1312.06 1347.15
+local max 1313.56 1385.71
+local max 1316.06 1408.45
+local max 1317.06 1404.95
+local max 1319.56 1375.23
+local max 1320.56 1407.99
+local max 1321.56 1372.94
+local max 1322.56 1466.91
+local max 1323.56 1456.24
+local max 1326.56 1445.67
+local max 1327.56 1477.85
+local max 1328.56 1453.02
+local max 1330.56 1454.94
+local max 1332.56 1477.24
+local max 1334.06 1540.82
+local max 1336.06 1491.57
+local max 1337.56 1570.31
+local max 1339.56 1654.71
+local max 1341.06 1606.26
+local max 1342.06 1625.11
+local max 1344.06 1600.72
+local max 1346.06 1704.64
+local max 1347.06 1653.57
+local max 1349.57 1647.53
+local max 1351.07 1649.94
+local max 1353.57 1643.77
+local max 1355.57 1688.68
+local max 1357.57 1610.88
+local max 1359.07 1636.56
+local max 1360.07 1639.28
+local max 1361.07 1584.41
+local max 1363.07 1588.24
+local max 1365.07 1568.7
+local max 1366.57 1502.46
+local max 1367.57 1514.4
+local max 1368.57 1570.25
+local max 1370.57 1515.27
+local max 1371.57 1448.82
+local max 1373.57 1466.76
+local max 1374.57 1444.06
+local max 1375.57 1411.16
+local max 1377.07 1469.16
+local max 1378.57 1442.8
+local max 1380.07 1421.47
+local max 1381.07 1445.14
+local max 1382.07 1408.82
+local max 1383.57 1456.25
+local max 1384.57 1442.51
+local max 1386.08 1378.43
+local max 1387.08 1338.54
+local max 1388.08 1395.46
+local max 1389.58 1438.01
+local max 1390.58 1348.94
+local max 1392.08 1472.86
+local max 1393.08 1398.35
+local max 1394.58 1386.47
+local max 1397.08 1388.22
+local max 1398.58 1356.81
+local max 1400.08 1321.95
+local max 1401.58 1348.86
+local max 1404.08 1407.36
+local max 1406.08 1383.88
+local max 1408.08 1341.04
+local max 1410.08 1349.6
+local max 1412.58 1319.23
+local max 1413.58 1336.88
+local max 1415.08 1310.57
+local max 1416.08 1359.5
+local max 1417.58 1353.71
+local max 1419.58 1381.5
+local max 1421.08 1416.89
+local max 1423.08 1393.68
+local max 1424.59 1369.04
+local max 1426.59 1337.48
+local max 1427.59 1348.78
+local max 1428.59 1349.24
+local max 1429.59 1331.24
+local max 1431.09 1347.72
+local max 1433.09 1313.94
+local max 1434.09 1373.97
+local max 1435.59 1365.73
+local max 1436.59 1329.1
+local max 1439.09 1392.9
+local max 1440.09 1387.9
+local max 1441.59 1333.67
+local max 1442.59 1343.6
+local max 1444.09 1324.46
+local max 1445.59 1333.21
+local max 1448.59 1290.34
+local max 1449.59 1354.52
+local max 1450.59 1357.19
+local max 1451.59 1320.59
+local max 1452.59 1332.69
+local max 1453.59 1380.75
+local max 1455.09 1385.12
+local max 1456.09 1327.84
+local max 1457.09 1390.14
+local max 1459.59 1332.75
+local max 1460.59 1306.74
+local max 1462.1 1303.38
+local max 1463.1 1365.86
+local max 1464.1 1357.78
+local max 1465.6 1349.7
+local max 1467.6 1364.32
+local max 1469.6 1373.7
+local max 1471.6 1362.1
+local max 1472.6 1334.96
+local max 1473.6 1322.08
+local max 1475.6 1330.44
+local max 1476.6 1317.4
+local max 1478.1 1362.62
+local max 1479.1 1303.02
+local max 1480.1 1358.0
+local max 1481.1 1343.85
+local max 1482.6 1337.12
+local max 1483.6 1327.13
+local max 1485.6 1338.01
+local max 1487.1 1391.3
+local max 1489.1 1313.55
+local max 1491.1 1421.6
+local max 1492.6 1326.42
+local max 1495.1 1409.42
+local max 1497.6 1351.17
+local max 1499.1 1408.02
+---- values around 1330-1380 ----
+1300.05 1232.27
+1305.05 1341.43
+1310.06 1258.11
+1315.06 1299.02
+1320.06 1329.24
+1325.06 1391.45
+1330.06 1380.22
+1335.06 1424.88
+1340.06 1492.18
+1345.06 1559.96
+1350.07 1601.32
+1355.07 1638.98
+1360.07 1639.28
+1365.07 1568.7
+1370.07 1505.0
+1375.07 1402.38
+1380.07 1421.47
+1385.08 1290.79
+1390.08 1313.38
+1395.08 1352.95
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# cat > /app/fit_explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1']; y = d['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, x0, gamma, off):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def l3(x, a1,x1,g1, a2,x2,g2, a3,x3,g3, off):
+[?2004l[?2004h>     return (lor(x,a1,x1,g1,0)+lor(x,a2,x2,g2,0)+lor(x,a3,x3,g3,0)+off)
+[?2004l[?2004h> 
+[?2004l[?2004h> p0 = [400,1350,15, 6900,1580,20, 14000,2694,30, 1300]
+[?2004l[?2004h> lb = [0,1300,1, 0,1500,1, 0,2600,1, 0]
+[?2004l[?2004h> ub = [1e6,1420,200, 1e6,1700,200, 1e6,2800,200, 1e6]
+[?2004l[?2004h> popt, pcov = curve_fit(l3, x, y, p0=p0, bounds=(lb,ub), maxfev=200000)
+[?2004l[?2004h> print('global fit params:')
+[?2004l[?2004h> print('D  amp=%.3f x0=%.3f gamma=%.3f' % (popt[0],popt[1],popt[2]))
+[?2004l[?2004h> print('G  amp=%.3f x0=%.3f gamma=%.3f' % (popt[3],popt[4],popt[5]))
+[?2004l[?2004h> print('2D amp=%.3f x0=%.3f gamma=%.3f' % (popt[6],popt[7],popt[8]))
+[?2004l[?2004h> print('offset=%.3f' % popt[9])
+[?2004l[?2004h> res = y - l3(x,*popt)
+[?2004l[?2004h> print('global rms resid', np.sqrt(np.mean(res**2)))
+[?2004l[?2004h> print('ID/IG global', popt[0]/popt[3])
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 /app/fit_explore.py
+[?2004lglobal fit params:
+D  amp=345.451 x0=1351.994 gamma=31.310
+G  amp=6931.575 x0=1581.084 gamma=8.124
+2D amp=14090.705 x0=2694.885 gamma=26.728
+offset=1224.102
+global rms resid 46.639466008617994
+ID/IG global 0.049837329234311153
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# cat > /app/fit_explore2.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = d['raman_shift_cm1']; y = d['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, x0, gamma, off):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> # global 3 lorentzians + constant
+[?2004l[?2004h> def l3(x,a1,x1,g1,a2,x2,g2,a3,x3,g3,off):
+[?2004l[?2004h>     return lor(x,a1,x1,g1,0)+lor(x,a2,x2,g2,0)+lor(x,a3,x3,g3,0)+off
+[?2004l[?2004h> p0=[400,1350,15,6900,1580,20,14000,2694,30,1300]
+[?2004l[?2004h> popt,_=curve_fit(l3,x,y,p0=p0,maxfev=400000)
+[?2004l[?2004h> res=y-l3(x,*popt)
+[?2004l[?2004h> print('block mean residuals (global const-offset fit):')
+[?2004l[?2004h> for lo in range(1100,3000,100):
+[?2004l[?2004h>     m=(x>=lo)&(x<lo+100)
+[?2004l[?2004h>     print(lo, 'mean=%.1f'%res[m].mean(), 'std=%.1f'%res[m].std())
+[?2004l[?2004h> 
+[?2004l[?2004h> # global with linear baseline
+[?2004l[?2004h> def l3lin(x,a1,x1,g1,a2,x2,g2,a3,x3,g3,b,m):
+[?2004l[?2004h>     return l3(x,a1,x1,g1,a2,x2,g2,a3,x3,g3,0)+b+m*(x-2000)
+[?2004l[?2004h> popt2,_=curve_fit(l3lin,x,y,p0=list(popt)+[0.0],maxfev=400000)
+[?2004l[?2004h> print('linear baseline fit:', np.round(popt2,3))
+[?2004l[?2004h> res2=y-l3lin(x,*popt2)
+[?2004l[?2004h> print('rms resid lin', np.sqrt(np.mean(res2**2)))
+[?2004l[?2004h> 
+[?2004l[?2004h> def fitone(lo,hi):
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     xs,ys=x[m],y[m]
+[?2004l[?2004h>     i=np.argmax(ys)
+[?2004l[?2004h>     amp0=max(ys.max()-np.median(ys),1.0)
+[?2004l[?2004h>     p=[amp0,xs[i],20.0,np.median(ys)]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         po,_=curve_fit(lor,xs,ys,p0=p,maxfev=200000)
+[?2004l[?2004h>         r=ys-lor(xs,*po)
+[?2004l[?2004h>         return po,np.sqrt(np.mean(r**2)),len(xs)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         return None,e,0
+[?2004l[?2004h> 
+[?2004l[?2004h> print('\nIndividual window fits:')
+[?2004l[?2004h> for name,cands in [('D',[(1200,1500),(1250,1450),(1280,1420),(1300,1400),(1200,1450),(1220,1480)]),
+[?2004l[?2004h>                    ('G',[(1450,1750),(1500,1700),(1450,1650),(1500,1750),(1420,1780)]),
+[?2004l[?2004h>                    ('2D',[(2400,3000),(2500,2900),(2450,2950),(2550,2850)])]:
+[?2004l[?2004h>     for lo,hi in cands:
+[?2004l[?2004h>         po,rms,n=fitone(lo,hi)
+[?2004l[?2004h>         print(name,(lo,hi),'n=%d'%n, np.round(po,3) if po is not None else po, 'rms=%.2f'%rms)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 /app/fit_explore2.py
+[?2004lblock mean residuals (global const-offset fit):
+1100 mean=48.9 std=40.9
+1200 mean=24.1 std=40.3
+1300 mean=-12.8 std=48.3
+1400 mean=14.3 std=42.8
+1500 mean=8.5 std=40.5
+1600 mean=18.3 std=41.1
+1700 mean=20.2 std=40.6
+1800 mean=15.7 std=39.5
+1900 mean=6.8 std=41.1
+2000 mean=3.3 std=39.1
+2100 mean=-9.0 std=41.6
+2200 mean=-12.7 std=41.1
+2300 mean=-10.7 std=41.8
+2400 mean=-18.6 std=42.2
+2500 mean=-18.5 std=38.8
+2600 mean=1.9 std=44.1
+2700 mean=-3.7 std=43.8
+2800 mean=-34.0 std=39.3
+2900 mean=-42.1 std=42.6
+linear baseline fit: [ 3.4998100e+02  1.3523610e+03  1.9594000e+01  6.9283550e+03
+  1.5810840e+03  8.0190000e+00  1.4098277e+04  2.6948950e+03
+  2.6945000e+01  1.2291400e+03 -5.6000000e-02]
+rms resid lin 40.42119786924843
+
+Individual window fits:
+D (1200, 1500) n=600 [ 342.87  1352.483   18.487 1290.198] rms=41.69
+D (1250, 1450) n=400 [ 347.729 1352.458   19.501 1282.019] rms=41.97
+D (1280, 1420) n=280 [ 354.131 1352.431   20.429 1273.086] rms=42.06
+D (1300, 1400) n=200 [ 354.084 1352.411   20.584 1272.502] rms=42.22
+D (1200, 1450) n=500 [ 348.585 1352.465   19.681 1280.583] rms=40.63
+D (1220, 1480) n=520 [ 344.751 1352.48    18.934 1286.78 ] rms=41.43
+G (1450, 1750) n=600 [6927.849 1581.082    8.014 1265.118] rms=40.25
+G (1500, 1700) n=400 [6928.725 1581.082    8.022 1262.632] rms=39.28
+G (1450, 1650) n=400 [6926.556 1581.082    8.    1269.045] rms=39.36
+G (1500, 1750) n=500 [6929.041 1581.082    8.027 1261.427] rms=39.84
+G (1420, 1780) n=720 [6927.34  1581.082    8.006 1267.055] rms=41.04
+2D (2400, 3000) n=1200 [14098.381  2694.884    26.947  1190.178] rms=41.21
+2D (2500, 2900) n=800 [14099.071  2694.885    26.955  1188.533] rms=39.68
+2D (2450, 2950) n=1000 [14098.918  2694.885    26.954  1188.862] rms=40.25
+2D (2550, 2850) n=600 [14099.991  2694.885    26.962  1186.927] rms=40.02
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# cat > /app/fit_spectrum.py << 'EOF'
+[?2004l[?2004h> import json
+[?2004l open('/app/results.json', 'w') as f:
+    json.dump(out, f, indent=2)
+print(json.dumps(out, indent=2))
+EOF
+python3 /app/fit_spectrum.py
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # ---- load data ----
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> cols = list(d.dtype.names)
+[?2004l[?2004h> x = d[cols[0]].astype(float)
+[?2004l[?2004h> y = d[cols[1]].astype(float)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x, y, lo, hi, guess):
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     p0 = [guess[0], guess[1], guess[2], guess[3]]
+[?2004l[?2004h>     lb = [0.0, guess[1] - 60.0, 0.5, -np.inf]
+[?2004l[?2004h>     ub = [np.inf, guess[1] + 60.0, 200.0, np.inf]
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, xs, ys, p0=p0, bounds=(lb, ub), maxfev=200000)
+[?2004l[?2004h>     resid = ys - lorentzian(xs, *popt)
+[?2004l[?2004h>     rms = float(np.sqrt(np.mean(resid**2)))
+[?2004l[?2004h>     err = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     return dict(zip(['amplitude', 'x0', 'gamma', 'offset'], [float(v) for v in popt])), rms, err, len(xs)
+[?2004l[?2004h> 
+[?2004l[?2004h> # windows chosen to isolate each peak (neighbour tails are negligible there)
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1250.0, 1450.0, [350.0, 1352.0, 20.0, 1280.0]),
+[?2004l[?2004h>     'G':  (1450.0, 1750.0, [6930.0, 1581.0, 8.0, 1265.0]),
+[?2004l[?2004h>     '2D': (2450.0, 2950.0, [14100.0, 2695.0, 27.0, 1190.0]),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi, g) in windows.items():
+[?2004l[?2004h>     params, rms, err, n = fit_peak(x, y, lo, hi, g)
+[?2004l[?2004h>     results[name] = params
+[?2004l[?2004h>     print('%s: window %.0f-%.0f (n=%d) rms=%.2f' % (name, lo, hi, n, rms))
+[?2004l[?2004h>     print('   amplitude=%.3f (+-%.3f)  x0=%.3f (+-%.3f)  gamma=%.3f (+-%.3f)  offset=%.3f (+-%.3f)'
+[?2004l[?2004h>           % (params['amplitude'], err[0], params['x0'], err[1], params['gamma'], err[2], params['offset'], err[3]))
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = float(results['D']['amplitude'] / results['G']['amplitude'])
+[?2004l[?2004h> print('ID/IG = %.6f' % results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> out = {
+[?2004l[?2004h>     'D':  {k: results['D'][k]  for k in ['x0', 'gamma', 'amplitude', 'offset']},
+[?2004l[?2004h>     'G':  {k: results['G'][k]  for k in ['x0', 'gamma', 'amplitude', 'offset']},
+[?2004l[?2004h>     '2D': {k: results['2D'][k] for k in ['x0', 'gamma', 'amplitude', 'offset']},
+[?2004l[?2004h>     'ID_IG': results['ID_IG'],
+[?2004l[?2004h> }
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(out, f, indent=2)
+[?2004l[?2004h> print(json.dumps(out, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 /app/fit_spectrum.py
+[?2004lD: window 1250-1450 (n=400) rms=41.97
+   amplitude=347.729 (+-7.859)  x0=1352.458 (+-0.428)  gamma=19.501 (+-0.864)  offset=1282.019 (+-4.097)
+G: window 1450-1750 (n=600) rms=40.25
+   amplitude=6927.849 (+-11.387)  x0=1581.082 (+-0.013)  gamma=8.014 (+-0.020)  offset=1265.118 (+-1.958)
+2D: window 2450-2950 (n=1000) rms=40.25
+   amplitude=14098.918 (+-6.221)  x0=2694.885 (+-0.012)  gamma=26.954 (+-0.020)  offset=1188.862 (+-1.823)
+ID/IG = 0.050193
+{
+  "D": {
+    "x0": 1352.458409147664,
+    "gamma": 19.501171994844047,
+    "amplitude": 347.72878654744056,
+    "offset": 1282.0193368286564
+  },
+  "G": {
+    "x0": 1581.0821164480953,
+    "gamma": 8.01358590869588,
+    "amplitude": 6927.849138882393,
+    "offset": 1265.1175502443818
+  },
+  "2D": {
+    "x0": 2694.884727672848,
+    "gamma": 26.953820071532093,
+    "amplitude": 14098.91828555507,
+    "offset": 1188.861630903227
+  },
+  "ID_IG": 0.05019289242252993
+}
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1352.458409147664,
+    "gamma": 19.501171994844047,
+    "amplitude": 347.72878654744056,
+    "offset": 1282.0193368286564
+  },
+  "G": {
+    "x0": 1581.0821164480953,
+    "gamma": 8.01358590869588,
+    "amplitude": 6927.849138882393,
+    "offset": 1265.1175502443818
+  },
+  "2D": {
+    "x0": 2694.884727672848,
+    "gamma": 26.953820071532093,
+    "amplitude": 14098.91828555507,
+    "offset": 1188.861630903227
+  },
+  "ID_IG": 0.05019289242252993
+}[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# python3 -c "import json;r=json.load(open('/app/results.json'));print(sorted(r.keys()));print(sorted(r['D'].keys()),sorted(r['G'].keys()),sorted(r['2D'].keys()));print('recomputed ID_IG',r['D']['amplitude']/r['G']['amplitude'],'stored',r['ID_IG']);print(all(isinstance(v,float) for p in ['D','G','2D'] for v in r[p].values()),isinstance(r['ID_IG'],float))"
+[?2004l['2D', 'D', 'G', 'ID_IG']
+['amplitude', 'gamma', 'offset', 'x0'] ['amplitude', 'gamma', 'offset', 'x0'] ['amplitude', 'gamma', 'offset', 'x0']
+recomputed ID_IG 0.05019289242252993 stored 0.05019289242252993
+True True
+[?2004hroot@j-openenv-6afd8d38e5cad0e4dc3e6dae-2hrc9i0v-eb966-m9jxl:/app# 

@@ -1,0 +1,229 @@
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:30 ..
+-rw-r--r--. 1 root root 72012 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# head -20 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1018.716
+1100.5001,1054.576
+1101.0003,963.467
+1101.5004,965.532
+1102.0005,1015.416
+1102.5007,1084.571
+1103.0008,1090.301
+1103.5009,1025.105
+1104.0011,1014.728
+1104.5012,1038.340
+1105.0013,977.811
+1105.5014,996.566
+1106.0016,973.657
+1106.5017,1085.767
+1107.0018,967.464
+1107.5020,968.632
+1108.0021,911.704
+1108.5022,1040.827
+1109.0024,924.466
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> x, y = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1).T
+[?2004l[?2004h> print('npoints', len(x))
+[?2004l[?2004h> print('x range', x.min(), x.max())
+[?2004l[?2004h> for name, lo, hi in [('D', 1250, 1450), ('G', 1500, 1680), ('2D', 2500, 2850)]:
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     i = np.argmax(y[m])
+[?2004l[?2004h>     print(name, 'max at', x[m][i], 'intensity', y[m][i])
+[?2004l[?2004h> try:
+[?2004l[?2004h>     import scipy
+[?2004l[?2004h>     print('scipy', scipy.__version__)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('scipy unavailable', repr(e))
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> x=[]; y=[]
+[?2004l[?2004h> with open('spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.reader(f)
+[?2004l[?2004h>     header=next(r)
+[?2004l[?2004h>     print('header', header)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         if len(row)>=2:
+[?2004l[?2004h>             x.append(float(row[0])); y.append(float(row[1]))
+[?2004l[?2004h> print('npoints', len(x))
+[?2004l[?2004h> print('x range', min(x), max(x))
+[?2004l[?2004h> for name, lo, hi in [('D',1250,1450),('G',1500,1680),('2D',2500,2850)]:
+[?2004l[?2004h>     pairs=[(xx,yy) for xx,yy in zip(x,y) if lo<=xx<=hi]
+[?2004l[?2004h>     mx=max(pairs, key=lambda p:p[1])
+[?2004l[?2004h>     mn=min(pairs, key=lambda p:p[1])
+[?2004l[?2004h>     print(name, 'max', mx, 'min', mn)
+[?2004l[?2004h> PY
+[?2004lheader ['raman_shift_cm-1', 'intensity']
+npoints 3800
+x range 1100.0 3000.0
+D max (1345.5646, 3414.673) min (1252.04, 977.716)
+G max (1582.1269, 8943.983) min (1669.1498, 1007.735)
+2D max (2692.9192, 17124.573) min (2507.8705, 1155.689)
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# cat > /app/fit_spectrum.py <<'PY'
+[?2004l[?2004h> import csv, math, json
+[?2004l[?2004h> def read_data(path):
+[?2004l[?2004h>     xs=[]; ys=[]
+[?2004l[?2004h>     with open(path, newline='') as f:
+[?2004l[?2004h>         r=csv.reader(f)
+[?2004l[?2004h>         next(r)
+[?2004l[?2004h>         for row in r:
+[?2004l[?2004h>             if len(row)>=2:
+[?2004l[?2004h>                 xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h>     return xs, ys
+[?2004l[?2004h> def model(p, x):
+[?2004l[?2004h>     A, g, x0, c = p
+[?2004l[?2004h>     d=x-x0
+[?2004l[?2004h>     return A*g*g/(d*d+g*g)+c
+[?2004l[?2004h> def cost(p, xs, ys):
+[?2004l[?2004h>     return sum((y-model(p,x))**2 for x,y in zip(xs,ys))
+[?2004l[?2004h> def linear_shape(xs, ys, x0, g):
+[?2004l[?2004h>     us=[g*g/((x-x0)**2+g*g) for x in xs]
+[?2004l[?2004h>     n=len(xs)
+[?2004l[?2004h>     Suu=sum(u*u for u in us); Su=sum(us)
+[?2004l[?2004h>     Suy=sum(u*y for u,y in zip(us,ys)); Sy=sum(ys)
+[?2004l[?2004h>     det=n*Suu-Su*Su
+[?2004l[?2004h>     if abs(det)<1e-12: return None
+[?2004l[?2004h>     A=(n*Suy-Su*Sy)/det
+[?2004l[?2004h>     c=(Suu*Sy-Su*Suy)/det
+[?2004l[?2004h>     sse=sum((y-(A*u+c))**2 for u,y in zip(us,ys))
+[?2004l[?2004h>     return sse, A, c
+[?2004l[?2004h> def initial_fit(xs, ys):
+[?2004l[?2004h>     im=max(range(len(ys)), key=lambda i: ys[i])
+[?2004l[?2004h>     xm=xs[im]
+[?2004l[?2004h>     best=None
+[?2004l[?2004h>     for i in range(81):
+[?2004l[?2004h>         x0=xm-40.0+i
+[?2004l[?2004h>         for g in [5,7.5,10,12.5,15,18,22,27,33,40,50,65,80]:
+[?2004l[?2004h>             r=linear_shape(xs,ys,x0,g)
+[?2004l[?2004h>             if r is None: continue
+[?2004l[?2004h>             sse,A,c=r
+[?2004l[?2004h>             if A>0 and (best is None or sse<best[0]):
+[?2004l[?2004h>                 best=(sse,[A,g,x0,c])
+[?2004l[?2004h>     if best is None: raise RuntimeError('no initial fit')
+[?2004l[?2004h>     return best[1]
+[?2004l[?2004h> def solve4(A,b):
+[?2004l[?2004h>     M=[A[i][:]+[b[i]] for i in range(4)]
+[?2004l[?2004h>     for col in range(4):
+[?2004l[?2004h>         piv=max(range(col,4), key=lambda r: abs(M[r][col]))
+[?2004l[?2004h>         if abs(M[piv][col])<1e-15: return None
+[?2004l[?2004h>         if piv!=col: M[col],M[piv]=M[piv],M[col]
+[?2004l[?2004h>         pv=M[col][col]
+[?2004l[?2004h>         for j in range(col,5): M[col][j]/=pv
+[?2004l[?2004h>         for r in range(4):
+[?2004l[?2004h>             if r!=col:
+[?2004l[?2004h>                 fac=M[r][col]
+[?2004l[?2004h>                 if fac!=0.0:
+[?2004l[?2004h>                     for j in range(col,5): M[r][j]-=fac*M[col][j]
+[?2004l[?2004h>     return [M[i][4] for i in range(4)]
+[?2004l[?2004h> def lm_fit(xs,ys,p):
+[?2004l[?2004h>     p=list(p)
+[?2004l[?2004h>     if p[1]<=0: p[1]=1.0
+[?2004l[?2004h>     cur=cost(p,xs,ys)
+[?2004l[?2004h>     lam=1e-3
+[?2004l[?2004h>     for it in range(300):
+[?2004l[?2004h>         JtJ=[[0.0]*4 for _ in range(4)]; Jtr=[0.0]*4
+[?2004l[?2004h>         for x,y in zip(xs,ys):
+[?2004l[?2004h>             A,g,x0,c=p
+[?2004l[?2004h>             d=x-x0; den=d*d+g*g
+[?2004l[?2004h>             f=A*g*g/den+c; r=y-f
+[?2004l[?2004h>             j=[g*g/den, 2.0*A*g*d*d/(den*den), 2.0*A*g*g*d/(den*den), 1.0]
+[?2004l[?2004h>             for a in range(4):
+[?2004l[?2004h>                 Jtr[a]+=j[a]*r
+[?2004l[?2004h>                 for b in range(4): JtJ[a][b]+=j[a]*j[b]
+[?2004l[?2004h>         M=[row[:] for row in JtJ]
+[?2004l[?2004h>         for a in range(4): M[a][a]+=lam*max(JtJ[a][a],1e-12)
+[?2004l[?2004h>         delta=solve4(M,Jtr)
+[?2004l[?2004h>         if delta is None: break
+[?2004l[?2004h>         cand=[p[a]+delta[a] for a in range(4)]
+[?2004l[?2004h>         if cand[1]<=0.0:
+[?2004l[?2004h>             lam*=10.0
+[?2004l[?2004h>             if lam>1e15: break
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         nc=cost(cand,xs,ys)
+[?2004l[?2004h>         if nc<cur:
+[?2004l[?2004h>             p=cand; cur=nc; lam*=0.3
+[?2004l[?2004h>             if lam<1e-15: lam=1e-15
+[?2004l[?2004h>             step=sum(d*d for d in delta); scale=sum(q*q for q in p)+1e-12
+[?2004l[?2004h>             if step<1e-12*scale: break
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             lam*=10.0
+[?2004l[?2004h>             if lam>1e15: break
+[?2004l[?2004h>     return p,cur
+[?2004l[?2004h> def main():
+[?2004l[?2004h>     xs,ys=read_data('/app/spectrum.csv')
+[?2004l[?2004h>     windows={'D':(1250.0,1450.0),'G':(1500.0,1680.0),'2D':(2500.0,2850.0)}
+[?2004l[?2004h>     res={}
+[?2004l[?2004h>     for name,(lo,hi) in windows.items():
+[?2004l[?2004h>         wx=[x for x in xs if lo<=x<=hi]
+[?2004l[?2004h>         wy=[y for x,y in zip(xs,ys) if lo<=x<=hi]
+[?2004l[?2004h>         p0=initial_fit(wx,wy)
+[?2004l[?2004h>         p,c=lm_fit(wx,wy,p0)
+[?2004l[?2004h>         A,g,x0,c=p
+[?2004l[?2004h>         rms=math.sqrt(c/len(wx))
+[?2004l[?2004h>         print(name, 'x0', x0, 'gamma', g, 'amp', A, 'offset', c, 'rms', rms)
+[?2004l[?2004h>         res[name]={'x0':x0,'gamma':g,'amplitude':A,'offset':c}
+[?2004l[?2004h>     res['ID_IG']=res['D']['amplitude']/res['G']['amplitude']
+[?2004l[?2004h>     with open('/app/results.json','w') as f: json.dump(res,f,indent=2)
+[?2004l[?2004h>     print(json.dumps(res,indent=2))
+[?2004l[?2004h> main()
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# python3 /app/fit_spectrum.py
+[?2004lD x0 1346.3917969423358 gamma 16.950635233461128 amp 2348.6889635614752 offset 1016.8404920773592 rms 1.5943968233138819
+G x0 1582.1929853551767 gamma 8.98837672968304 amp 7870.687286889449 offset 1031.7253335299986 rms 1.692898019447715
+2D x0 2692.702396720953 gamma 24.15777606806148 amp 16035.246761112736 offset 1068.6792868438358 rms 1.2355908285072346
+{
+  "D": {
+    "x0": 1346.3917969423358,
+    "gamma": 16.950635233461128,
+    "amplitude": 2348.6889635614752,
+    "offset": 1016.8404920773592
+  },
+  "G": {
+    "x0": 1582.1929853551767,
+    "gamma": 8.98837672968304,
+    "amplitude": 7870.687286889449,
+    "offset": 1031.7253335299986
+  },
+  "2D": {
+    "x0": 2692.702396720953,
+    "gamma": 24.15777606806148,
+    "amplitude": 16035.246761112736,
+    "offset": 1068.6792868438358
+  },
+  "ID_IG": 0.29840964047368396
+}
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.3917969423358,
+    "gamma": 16.950635233461128,
+    "amplitude": 2348.6889635614752,
+    "offset": 1016.8404920773592
+  },
+  "G": {
+    "x0": 1582.1929853551767,
+    "gamma": 8.98837672968304,
+    "amplitude": 7870.687286889449,
+    "offset": 1031.7253335299986
+  },
+  "2D": {
+    "x0": 2692.702396720953,
+    "gamma": 24.15777606806148,
+    "amplitude": 16035.246761112736,
+    "offset": 1068.6792868438358
+  },
+  "ID_IG": 0.29840964047368396
+}[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# python3 -m json.tool /app/results.json >/dev/null && echo 'valid JSON'
+[?2004lvalid JSON
+[?2004hroot@j-openenv-6afd8c41e5cad0e4dc3e6ceb-4i54gor7-56335-mz4b4:/app# 

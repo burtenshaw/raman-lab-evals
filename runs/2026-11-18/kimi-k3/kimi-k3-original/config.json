@@ -1,0 +1,25 @@
+{
+    "job_name": "kimi-k3-original",
+    "jobs_dir": "/tmp/work/jobs",
+    "n_attempts": 3,
+    "n_concurrent_trials": 5,
+    "quiet": true,
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "agents": [
+        {
+            "name": "terminus-2",
+            "model_name": "openai/moonshotai/Kimi-K3:deepinfra",
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            }
+        }
+    ],
+    "tasks": [
+        {
+            "name": "terminal-bench/raman-fitting",
+            "ref": "latest"
+        }
+    ]
+}

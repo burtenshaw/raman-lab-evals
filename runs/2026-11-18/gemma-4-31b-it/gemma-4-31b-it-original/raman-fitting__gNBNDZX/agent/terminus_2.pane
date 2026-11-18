@@ -1,0 +1,254 @@
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# ls -F
+[?2004lgraphene.dat
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# head -n 20 graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = np.loadtxt('graphene.dat', delimiter=None)
+[?2004l[?2004h> # The data seems to have commas as decimals. Let's handle it manually if loadtxt fails
+[?2004l[?2004h> # Re-reading and replacing commas with dots
+[?2004l[?2004h> with open('graphene.dat', 'r') as f:
+[?2004l[?2004h>     lines = f.readlines()
+[?2004l[?2004h>     vals = []
+[?2004l[?2004h>     for line in lines:
+[?2004l[?2004h>         parts = line.split()
+[?2004l[?2004h>         if len(parts) >= 2:
+[?2004l[?2004h>             x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>             y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>             vals.append([x, y])
+[?2004l[?2004h>     data = np.array(vals)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian function: L(x) = offset + amplitude * gamma^2 / ((x - x0)^2 + gamma^2)
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> # To find G and 2D peaks, we look for local maxima
+[?2004l[?2004h> # G peak is usually the first major peak, 2D the second (at higher x)
+[?2004l[?2004h> # Let's find the peaks by sorting y
+[?2004l[?2004h> idx_sorted = np.argsort(y)[::-1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find the two most prominent peaks that are sufficiently separated
+[?2004l[?2004h> peaks = []
+[?2004l[?2004h> for idx in idx_sorted:
+[?2004l[?2004h>     px = x[idx]
+[?2004l[?2004h>     # Ensure the peak is far enough from existing peaks
+[?2004l[?2004h>     if all(abs(px - p[0]) > 100 for p in peaks):
+[?2004l[?2004h>         peaks.append([px, y[idx]])
+[?2004l[?2004h>     if len(peaks) == 2:
+[?2004l[?2004h>         break
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort peaks by x value: G (lower x) and 2D (higher x)
+[?2004l[?2004h> peaks = sorted(peaks, key=lambda p: p[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peak_names = ['G', '2D']
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, peak in zip(peak_names, peaks):
+[?2004l[?2004h>     x0_guess = peak[0]
+[?2004l[?2004h>     y0_guess = np.min(y)
+[?2004l[?2004h>     amp_guess = peak[1] - y0_guess
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Define a window around the peak to fit
+[?2004l[?2004h>     mask = (x > x0_guess - 100) & (x < x0_guess + 100)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=[x0_guess, gamma_guess, amp_guess, y0_guess])
+[?2004l[?2004h>         results[name] = {
+[?2004l[?2004h>             "x0": float(popt[0]),
+[?2004l[?2004h>             "gamma": float(popt[1]),
+[?2004l[?2004h>             "amplitude": float(popt[2]),
+[?2004l[?2004h>             "offset": float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f"Error fitting {name}: {e}")
+[?2004l[?2004h>         results[name] = {"x0": 0, "gamma": 0, "amplitude": 0, "offset": 0}
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# mv results.json /app/results.json
+[?2004lmv: cannot stat 'results.json': No such file or directory
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# pip install numpy scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m211.6 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m289.5 MB/s[0m  [33m0:00:00[0m
+[?25hInstalling collected packages: numpy, scipy
+[?25l[2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy]python3 fit_raman.py
+[2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy]mv results.json /app/results.json
+[2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/2[0m [scipy]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 scipy-1.18.1
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m25.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m6[0m, in [35m<module>[0m
+    data = np.loadtxt('graphene.dat', delimiter=None)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1381[0m, in [35mloadtxt[0m
+    arr = _read(fname, dtype=dtype, comment=comment, delimiter=delimiter,
+                converters=converters, skiplines=skiprows, usecols=usecols,
+                unpack=unpack, ndmin=ndmin, encoding=encoding,
+                max_rows=max_rows, quote=quotechar)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1035[0m, in [35m_read[0m
+    arr = _load_from_filelike(
+        data, delimiter=delimiter, comment=comment, quote=quote,
+    ...<3 lines>...
+        encoding=encoding, filelike=filelike,
+        byte_converters=byte_converters)
+[1;35mValueError[0m: [35mcould not convert string '47183,554644' to float64 at row 0, column 1.[0m
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# mv results.json /app/results.json
+[?2004lmv: cannot stat 'results.json': No such file or directory
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# pip install numpy scipy
+[?2004lRequirement already satisfied: numpy in /usr/local/lib/python3.13/site-packages (2.5.5)
+Requirement already satisfied: scipy in /usr/local/lib/python3.13/site-packages (1.18.1)
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m25.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m6[0m, in [35m<module>[0m
+    data = np.loadtxt('graphene.dat', delimiter=None)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1381[0m, in [35mloadtxt[0m
+    arr = _read(fname, dtype=dtype, comment=comment, delimiter=delimiter,
+                converters=converters, skiplines=skiprows, usecols=usecols,
+                unpack=unpack, ndmin=ndmin, encoding=encoding,
+                max_rows=max_rows, quote=quotechar)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1035[0m, in [35m_read[0m
+    arr = _load_from_filelike(
+        data, delimiter=delimiter, comment=comment, quote=quote,
+    ...<3 lines>...
+        encoding=encoding, filelike=filelike,
+        byte_converters=byte_converters)
+[1;35mValueError[0m: [35mcould not convert string '47183,554644' to float64 at row 0, column 1.[0m
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# mv results.json /app/results.json
+[?2004lmv: cannot stat 'results.json': No such file or directory
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data manually to handle commas as decimals
+[?2004l[?2004h> vals = []
+[?2004l[?2004h> with open('graphene.dat', 'r') as f:
+[?2004l[?2004h>     lines = f.readlines()
+[?2004l[?2004h>     for line in lines:
+[?2004l[?2004h>         parts = line.split()
+[?2004l[?2004h>         if len(parts) >= 2:
+[?2004l[?2004h>             try:
+[?2004l[?2004h>                 x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>                 y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>                 vals.append([x, y])
+[?2004l[?2004h>             except ValueError:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>     data = np.array(vals)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian function
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find G and 2D peaks
+[?2004l[?2004h> idx_sorted = np.argsort(y)[::-1]
+[?2004l[?2004h> peaks = []
+[?2004l[?2004h> for idx in idx_sorted:
+[?2004l[?2004h>     px = x[idx]
+[?2004l[?2004h>     if all(abs(px - p[0]) > 100 for p in peaks):
+[?2004l[?2004h>         peaks.append([px, y[idx]])
+[?2004l[?2004h>     if len(peaks) == 2:
+[?2004l[?2004h>         break
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = sorted(peaks, key=lambda p: p[0])
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peak_names = ['G', '2D']
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, peak in zip(peak_names, peaks):
+[?2004l[?2004h>     x0_guess = peak[0]
+[?2004l[?2004h>     y0_guess = np.min(y)
+[?2004l[?2004h>     amp_guess = peak[1] - y0_guess
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     
+[?2004l[?2004h>     mask = (x > x0_guess - 200) & (x < x0_guess + 200)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=[x0_guess, gamma_guess, amp_guess, y0_guess])
+[?2004l[?2004h>         results[name] = {
+[?2004l[?2004h>             "x0": float(popt[0]),
+[?2004l[?2004h>             "gamma": float(popt[1]),
+[?2004l[?2004h>             "amplitude": float(popt[2]),
+[?2004l[?2004h>             "offset": float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f"Error fitting {name}: {e}")
+[?2004l[?2004h>         results[name] = {"x0": float(x0_guess), "gamma": 0, "amplitude": 0, "offset": 0}
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# python3 fit_raman.py
+[?2004l[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# mv results.json /app/results.json
+[?2004lmv: 'results.json' and '/app/results.json' are the same file
+[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# cat /app/results.json
+[?2004l{
+  "G": {
+    "x0": 19207.48574648757,
+    "gamma": 22553.364549729544,
+    "amplitude": 109682132.01985,
+    "offset": -109600930.07003452
+  },
+  "2D": {
+    "x0": 19260.065750778573,
+    "gamma": 22084.537777911017,
+    "amplitude": 78030873.51374325,
+    "offset": -77950181.00521466
+  }
+}[?2004hroot@j-openenv-6afd86ec884144d2f44fd3cd-w9nkx3qt-4bac4-6hvs2:/app# 

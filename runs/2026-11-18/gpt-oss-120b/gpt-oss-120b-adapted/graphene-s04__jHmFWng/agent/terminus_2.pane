@@ -1,0 +1,145 @@
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# ls -l /app/spectrum.csv
+[?2004l-rw-r--r--. 1 root root 72290 Nov 18 11:06 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# python3 - <<'PY'
+[?2004l[?2004h> import pandas as pd, numpy as np, json, sys
+[?2004lsults written to /app/results.json')
+PY
+[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('Error reading CSV:', e)
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian model
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a region
+[?2004l[?2004h> def fit_region(x_center, window):
+[?2004l[?2004h>     mask = (x >= x_center - window) & (x <= x_center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     amp_guess = max(y_fit) - min(y_fit)
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = min(y_fit)
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x_center, offset_guess]
+[?2004l[?2004h>     bounds = ([0, 0, x_center - window, -np.inf], [np.inf, np.inf, x_center + window, np.inf])
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=bounds)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for center {x_center}:', e)
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit each peak
+[?2004l[?2004h> params_D = fit_region(1350, 150)   # D peak window ±150 cm⁻¹
+[?2004l[?2004h> params_G = fit_region(1580, 150)   # G peak window ±150 cm⁻¹
+[?2004l[?2004h> params_2D = fit_region(2690, 200)  # 2D peak window ±200 cm⁻¹
+[?2004l[?2004h> 
+[?2004l[?2004h> # Build result dict
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {
+[?2004l[?2004h>         "x0": float(params_D[2]),
+[?2004l[?2004h>         "gamma": float(params_D[1]),
+[?2004l[?2004h>         "amplitude": float(params_D[0]),
+[?2004l[?2004h>         "offset": float(params_D[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "G": {
+[?2004l[?2004h>         "x0": float(params_G[2]),
+[?2004l[?2004h>         "gamma": float(params_G[1]),
+[?2004l[?2004h>         "amplitude": float(params_G[0]),
+[?2004l[?2004h>         "offset": float(params_G[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "2D": {
+[?2004l[?2004h>         "x0": float(params_2D[2]),
+[?2004l[?2004h>         "gamma": float(params_2D[1]),
+[?2004l[?2004h>         "amplitude": float(params_2D[0]),
+[?2004l[?2004h>         "offset": float(params_2D[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "ID_IG": float(params_D[0] / params_G[0] if params_G[0] != 0 else np.nan)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write JSON
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Fitting complete, results written to /app/results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load CSV without pandas (skip header)
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('Error loading CSV:', e)
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian model
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit helper
+[?2004l[?2004h> def fit_region(center, window):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     if x_fit.size == 0:
+[?2004l[?2004h>         return [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     amp_guess = np.max(y_fit) - np.min(y_fit)
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = np.min(y_fit)
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, center, offset_guess]
+[?2004l[?2004h>     lower = [0, 0, center - window, -np.inf]
+[?2004l[?2004h>     upper = [np.inf, np.inf, center + window, np.inf]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=(lower, upper))
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for {center}:', e)
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Perform fits
+[?2004l[?2004h> params_D = fit_region(1350, 150)
+[?2004l[?2004h> params_G = fit_region(1580, 150)
+[?2004l[?2004h> params_2D = fit_region(2690, 200)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio
+[?2004l[?2004h> ID_IG = float(params_D[0] / params_G[0]) if params_G[0] != 0 else float('nan')
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {"x0": float(params_D[2]), "gamma": float(params_D[1]), "amplitude": float(params_D[0]), "offset": float(params_D[3])},
+[?2004l[?2004h>     "G": {"x0": float(params_G[2]), "gamma": float(params_G[1]), "amplitude": float(params_G[0]), "offset": float(params_G[3])},
+[?2004l[?2004h>     "2D": {"x0": float(params_2D[2]), "gamma": float(params_2D[1]), "amplitude": float(params_2D[0]), "offset": float(params_2D[3])},
+[?2004l[?2004h>     "ID_IG": ID_IG
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Fitting complete, results written to /app/results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8939e5cad0e4dc3e698c-exdt7pew-ec83e-gxwq9:/app# 

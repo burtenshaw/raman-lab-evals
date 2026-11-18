@@ -1,0 +1,150 @@
+{
+    "id": "5c148679-9d78-4add-a010-307c156f4cee",
+    "task_name": "raman-lab/graphene-s03",
+    "trial_name": "graphene-s03__vUhVf9c",
+    "trial_uri": "file:///tmp/work/jobs/minimax-m3.1-flash-adapted/graphene-s03__vUhVf9c",
+    "task_id": {
+        "path": "/tmp/work/datasets/raman-lab/graphene-s03"
+    },
+    "source": "raman-lab",
+    "task_checksum": "003b41d5a7f8c3617302cdae90f0dc55e01fb412b6cfdd7885dc7141d2ef35c2",
+    "config": {
+        "task": {
+            "path": "/tmp/work/datasets/raman-lab/graphene-s03",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": "raman-lab"
+        },
+        "trial_name": "graphene-s03__vUhVf9c",
+        "trials_dir": "/tmp/work/jobs/minimax-m3.1-flash-adapted",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "terminus-2",
+            "import_path": null,
+            "model_name": "openai/MiniMaxAI/MiniMax-M3.1-Flash:together",
+            "base_url": null,
+            "model_api_key_name": null,
+            "model_api_format": null,
+            "skip_model_parsing": false,
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            },
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "hf-sandbox",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "stream": false,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {},
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "bc33425e-8f96-44a7-a046-b7e7e77c723e",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "MiniMaxAI/MiniMax-M3.1-Flash:together",
+            "provider": "openai"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 76227,
+        "n_cache_tokens": 58368,
+        "n_output_tokens": 10873,
+        "cost_usd": 0.01007817,
+        "model_usage": {
+            "minimax/minimax-m3.1-flash": {
+                "n_input_tokens": 76227,
+                "n_cache_tokens": 58368,
+                "n_output_tokens": 10873,
+                "cost_usd": 0.01007817
+            }
+        },
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 9,
+            "api_request_times_msec": [
+                1161.740779876709,
+                1534.968376159668,
+                7505.746126174927,
+                17155.88879585266,
+                13556.065320968628,
+                7558.602809906006,
+                8705.217361450195,
+                1765.1050090789795,
+                896.1739540100098
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "d_fit": 1.0,
+            "g_fit": 1.0,
+            "2d_fit": 1.0,
+            "id_ig": 1.0,
+            "reward": 1.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-11-18T11:30:34.867684Z",
+    "finished_at": "2026-11-18T11:34:16.884741Z",
+    "environment_setup": {
+        "started_at": "2026-11-18T11:30:34.872314Z",
+        "finished_at": "2026-11-18T11:30:48.281079Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-11-18T11:30:48.281105Z",
+        "finished_at": "2026-11-18T11:30:55.347592Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-11-18T11:30:55.347812Z",
+        "finished_at": "2026-11-18T11:34:13.403959Z"
+    },
+    "verifier": {
+        "started_at": "2026-11-18T11:34:13.620891Z",
+        "finished_at": "2026-11-18T11:34:16.811281Z"
+    },
+    "step_results": null
+}

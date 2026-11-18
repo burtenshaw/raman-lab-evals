@@ -1,0 +1,124 @@
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# ls -l /app/spectrum.csv
+[?2004l-rw-r--r--. 1 root root 72310 Nov 18 11:06 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data, skip header
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a region
+[?2004l[?2004h> def fit_region(center, window):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit, y_fit = x[mask], y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ (max-min), gamma ~ 10, x0 ~ center, offset ~ min
+[?2004l[?2004h>     amp0 = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma0 = 10.0
+[?2004l[?2004h>     x0_0 = center
+[?2004l[?2004h>     offset0 = y_fit.min()
+[?2004l[?2004h>     p0 = [amp0, gamma0, x0_0, offset0]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         sys.stderr.write(f'Fit failed for center {center}: {e}\n')
+[?2004l[?2004h>         popt = [np.nan]*4
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit D, G, 2D peaks
+[?2004l[?2004h> params_D = fit_region(1350, 150)
+[?2004l[?2004h> params_G = fit_region(1580, 150)
+[?2004l[?2004h> params_2D = fit_region(2690, 200)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Build result dict
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {"x0": float(params_D[2]), "gamma": float(params_D[1]), "amplitude": float(params_D[0]), "offset": float(params_D[3])},
+[?2004l[?2004h>     "G": {"x0": float(params_G[2]), "gamma": float(params_G[1]), "amplitude": float(params_G[0]), "offset": float(params_G[3])},
+[?2004l[?2004h>     "2D": {"x0": float(params_2D[2]), "gamma": float(params_2D[1]), "amplitude": float(params_2D[0]), "offset": float(params_2D[3])},
+[?2004l[?2004h>     "ID_IG": float(params_D[0] / params_G[0] if params_G[0] != 0 else np.nan)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Done')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# pip install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data, skip header
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a region
+[?2004l[?2004h> def fit_region(center, window):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit, y_fit = x[mask], y[mask]
+[?2004l[?2004h>     amp0 = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma0 = 10.0
+[?2004l[?2004h>     x0_0 = center
+[?2004l[?2004h>     offset0 = y_fit.min()
+[?2004l[?2004h>     p0 = [amp0, gamma0, x0_0, offset0]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         sys.stderr.write(f'Fit failed for center {center}: {e}\n')
+[?2004l[?2004h>         popt = [np.nan]*4
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> params_D = fit_region(1350, 150)
+[?2004l[?2004h> params_G = fit_region(1580, 150)
+[?2004l[?2004h> params_2D = fit_region(2690, 200)
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {"x0": float(params_D[2]), "gamma": float(params_D[1]), "amplitude": float(params_D[0]), "offset": float(params_D[3])},
+[?2004l[?2004h>     "G": {"x0": float(params_G[2]), "gamma": float(params_G[1]), "amplitude": float(params_G[0]), "offset": float(params_G[3])},
+[?2004l[?2004h>     "2D": {"x0": float(params_2D[2]), "gamma": float(params_2D[1]), "amplitude": float(params_2D[0]), "offset": float(params_2D[3])},
+[?2004l[?2004h>     "ID_IG": float(params_D[0] / params_G[0] if params_G[0] != 0 else np.nan)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Done')
+[?2004l[?2004h> PY
+[?2004lDone
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1352.4825098878434,
+    "gamma": 18.48683836829855,
+    "amplitude": 342.8688217280913,
+    "offset": 1290.197383190017
+  },
+  "G": {
+    "x0": 1581.0821012376387,
+    "gamma": 8.00377151303899,
+    "amplitude": 6927.230917872202,
+    "offset": 1267.7004188436078
+  },
+  "2D": {
+    "x0": 2694.885084837996,
+    "gamma": 26.948205844718018,
+    "amplitude": 14098.369319335803,
+    "offset": 1190.0101200053798
+  },
+  "ID_IG": 0.049495797930381155
+}[?2004hroot@j-openenv-6afd87ee4643bac7ac634e23-c2igu3ix-f5a92-9gv6v:/app# 

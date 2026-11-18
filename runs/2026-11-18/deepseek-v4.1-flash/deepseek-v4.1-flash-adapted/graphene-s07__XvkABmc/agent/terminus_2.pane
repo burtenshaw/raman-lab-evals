@@ -1,0 +1,356 @@
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# ls -la /app
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:28 ..
+-rw-r--r--. 1 root root 72263 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# head -5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1188.408
+1100.5001,1068.023
+1101.0003,1192.268
+1101.5004,1162.308
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# python3 - <<'PY'
+[?2004l[?2004h> import importlib.util
+[?2004l[?2004h> for p in ['numpy','scipy','pandas']:
+[?2004l[?2004h>     print(p, bool(importlib.util.find_spec(p)))
+[?2004l[?2004h> PY
+[?2004lnumpy False
+scipy False
+pandas False
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> print('n', len(xs))
+[?2004l[?2004h> print('x range', min(xs), max(xs))
+[?2004l[?2004h> print('y range', min(ys), max(ys))
+[?2004l[?2004h> for lo,hi,name in [(1250,1450,'D'),(1500,1650,'G'),(2550,2800,'2D')]:
+[?2004l[?2004h>     vals=[(y,x) for x,y in zip(xs,ys) if lo<=x<=hi]
+[?2004l[?2004h>     ymax,xmax=max(vals)
+[?2004l[?2004h>     print(name, 'max', ymax, 'at', xmax, 'window', lo, hi)
+[?2004l[?2004h> PY
+[?2004ln 3800
+x range 1100.0 3000.0
+y range 960.507 11914.488
+D max 9689.36 at 1348.0653 window 1250 1450
+G max 8873.863 at 1579.6262 window 1500 1650
+2D max 11914.488 at 2690.4185 window 2550 2800
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# python3 - <<'PY'
+[?2004l(-sx,-sg)]
+    rmse=math.sqrt(best_sse/len(xw))
+    return {'x0':x0,'gamma':gamma,'amplitude':A,'offset':c,'rmse':rmse,'n':len(xw)}
+
+xs,ys=load_data('/app/spectrum.csv')
+regions=[('D',1250,1450),('G',1500,1650),('2D',2550,2800)]
+results={}
+for name,lo,hi in regions:
+    fit=fit_peak(xs,ys,lo,hi)
+    results[name]=fit
+    print(name, 'x0=%.6f gamma=%.6f amplitude=%.6f offset=%.6f rmse=%.6f n=%d' % (fit['x0'],fit['gamma'],fit['amplitude'],fit['offset'],fit['rmse'],fit['n']))
+print('ID_IG', results['D']['amplitude']/results['G']['amplitude'])
+PY
+[?2004h> import csv, math
+[?2004l[?2004h> 
+[?2004l[?2004h> def load_data(path):
+[?2004l[?2004h>     xs=[]
+[?2004l[?2004h>     ys=[]
+[?2004l[?2004h>     with open(path, newline='') as f:
+[?2004l[?2004h>         r=csv.DictReader(f)
+[?2004l[?2004h>         for row in r:
+[?2004l[?2004h>             xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>             ys.append(float(row['intensity']))
+[?2004l[?2004h>     return xs, ys
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_linear_params(xw, yw, x0, gamma):
+[?2004l[?2004h>     b=[]
+[?2004l[?2004h>     for x in xw:
+[?2004l[?2004h>         d=x-x0
+[?2004l[?2004h>         b.append(gamma*gamma/(d*d+gamma*gamma))
+[?2004l[?2004h>     n=len(xw)
+[?2004l[?2004h>     sb=sum(b)
+[?2004l[?2004h>     sy=sum(yw)
+[?2004l[?2004h>     sbb=sum(v*v for v in b)
+[?2004l[?2004h>     sby=sum(bi*yi for bi,yi in zip(b,yw))
+[?2004l[?2004h>     det=n*sbb-sb*sb
+[?2004l[?2004h>     if abs(det) < 1e-12:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     A=(n*sby-sb*sy)/det
+[?2004l[?2004h>     c=(sy-A*sb)/n
+[?2004l[?2004h>     if A <= 0.0:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     sse=0.0
+[?2004l[?2004h>     for bi,yi in zip(b,yw):
+[?2004l[?2004h>         r=A*bi+c-yi
+[?2004l[?2004h>         sse += r*r
+[?2004l[?2004h>     return A, c, sse
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(xs, ys, lo, hi):
+[?2004l[?2004h>     data=[(x,y) for x,y in zip(xs,ys) if lo <= x <= hi]
+[?2004l[?2004h>     xw=[p[0] for p in data]
+[?2004l[?2004h>     yw=[p[1] for p in data]
+[?2004l[?2004h>     ymax=max(yw)
+[?2004l[?2004h>     xpeak=xw[yw.index(ymax)]
+[?2004l[?2004h>     gamma_grid=[2,3,4,5,6,8,10,12,15,18,22,26,30,35,40,50,60,80,100,120]
+[?2004l[?2004h>     best=None
+[?2004l[?2004h>     for i in range(-20,21):
+[?2004l[?2004h>         x0=xpeak+i*0.5
+[?2004l[?2004h>         for gamma in gamma_grid:
+[?2004l[?2004h>             res=fit_linear_params(xw,yw,x0,gamma)
+[?2004l[?2004h>             if res is not None:
+[?2004l[?2004h>                 A,c,sse=res
+[?2004l[?2004h>                 if best is None or sse < best[4]:
+[?2004l[?2004h>                     best=(x0,gamma,A,c,sse)
+[?2004l[?2004h>     x0,gamma,A,c,best_sse=best
+[?2004l[?2004h>     sx=1.0
+[?2004l[?2004h>     sg=2.0
+[?2004l[?2004h>     steps=[(sx,0.0),(-sx,0.0),(0.0,sg),(0.0,-sg),(sx,sg),(sx,-sg),(-sx,sg),(-sx,-sg)]
+[?2004l[?2004h>     while sx > 1e-6 or sg > 1e-6:
+[?2004l[?2004h>         improved=False
+[?2004l[?2004h>         for dx,dg in steps:
+[?2004l[?2004h>             cx=x0+dx
+[?2004l[?2004h>             cg=gamma+dg
+[?2004l[?2004h>             if cg <= 0.05:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             res=fit_linear_params(xw,yw,cx,cg)
+[?2004l[?2004h>             if res is not None:
+[?2004l[?2004h>                 nA,nc,nsse=res
+[?2004l[?2004h>                 if nsse < best_sse:
+[?2004l[?2004h>                     x0,gamma,A,c,best_sse=cx,cg,nA,nc,nsse
+[?2004l[?2004h>                     improved=True
+[?2004l[?2004h>         if not improved:
+[?2004l[?2004h>             sx *= 0.5
+[?2004l[?2004h>             sg *= 0.5
+[?2004l[?2004h>             steps=[(sx,0.0),(-sx,0.0),(0.0,sg),(0.0,-sg),(sx,sg),(sx,-sg),(-sx,sg),(-sx,-sg)]
+[?2004l[?2004h>     rmse=math.sqrt(best_sse/len(xw))
+[?2004l[?2004h>     return {'x0':x0,'gamma':gamma,'amplitude':A,'offset':c,'rmse':rmse,'n':len(xw)}
+[?2004l[?2004h> 
+[?2004l[?2004h> xs,ys=load_data('/app/spectrum.csv')
+[?2004l[?2004h> regions=[('D',1250,1450),('G',1500,1650),('2D',2550,2800)]
+[?2004l[?2004h> results={}
+[?2004l[?2004h> for name,lo,hi in regions:
+[?2004l[?2004h>     fit=fit_peak(xs,ys,lo,hi)
+[?2004l[?2004h>     results[name]=fit
+[?2004l[?2004h>     print(name, 'x0=%.6f gamma=%.6f amplitude=%.6f offset=%.6f rmse=%.6f n=%d' % (fit['x0'],fit['gamma'],fit['amplitude'],fit['offset'],fit['rmse'],fit['n'])) M[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K)
+[?2004l[?2004h> print('ID_IG', results['D']['amplitude']/results['G']['amplitude'])
+[?2004l[?2004h> PY
+[?2004lD x0=1348.251997 gamma=16.733461 amplitude=8212.085067 offset=1260.802889 rmse=104.330180 n=400
+G x0=1580.385806 gamma=12.988350 amplitude=7520.186020 offset=1296.332127 rmse=98.290830 n=300
+2D x0=2692.410158 gamma=20.931416 amplitude=10380.364857 offset=1407.084958 rmse=100.033497 n=500
+ID_IG 1.0920055760774658
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# python3 - <<'PY'
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     "D": {"x0": 1348.251997, "gamma": 16.733461, "amplitude": 8212.085067, "offset": 1260.802889},
+[?2004l[?2004h>     "G": {"x0": 1580.385806, "gamma": 12.988350, "amplitude": 7520.186020, "offset": 1296.332127},
+[?2004l[?2004h>     "2D": {"x0": 2692.410158, "gamma": 20.931416, "amplitude": 10380.364857, "offset": 1407.084958}
+[?2004l[?2004h> }
+[?2004l[?2004h> results["ID_IG"] = results["D"]["amplitude"] / results["G"]["amplitude"]
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h>     f.write('\n')
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> PY
+[?2004l{
+  "D": {
+    "x0": 1348.251997,
+    "gamma": 16.733461,
+    "amplitude": 8212.085067,
+    "offset": 1260.802889
+  },
+  "G": {
+    "x0": 1580.385806,
+    "gamma": 12.98835,
+    "amplitude": 7520.18602,
+    "offset": 1296.332127
+  },
+  "2D": {
+    "x0": 2692.410158,
+    "gamma": 20.931416,
+    "amplitude": 10380.364857,
+    "offset": 1407.084958
+  },
+  "ID_IG": 1.0920055760801513
+}
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1348.251997,
+    "gamma": 16.733461,
+    "amplitude": 8212.085067,
+    "offset": 1260.802889
+  },
+  "G": {
+    "x0": 1580.385806,
+    "gamma": 12.98835,
+    "amplitude": 7520.18602,
+    "offset": 1296.332127
+  },
+  "2D": {
+    "x0": 2692.410158,
+    "gamma": 20.931416,
+    "amplitude": 10380.364857,
+    "offset": 1407.084958
+  },
+  "ID_IG": 1.0920055760801513
+}
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l[?2004h> 
+[?2004l[?2004h> def load_data(path):
+[?2004l[?2004h>     xs=[]; ys=[]
+[?2004l[?2004h>     with open(path, newline='') as f:
+[?2004l[?2004h>         r=csv.DictReader(f)
+[?2004l[?2004h>         for row in r:
+[?2004l[?2004h>             xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>             ys.append(float(row['intensity']))
+[?2004l[?2004h>     return xs, ys
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_linear(xw, yw, x0, gamma):
+[?2004l[?2004h>     b=[]
+[?2004l[?2004h>     for x in xw:
+[?2004l[?2004h>         d=x-x0
+[?2004l[?2004h>         b.append(gamma*gamma/(d*d+gamma*gamma))
+[?2004l[?2004h>     n=len(xw)
+[?2004l[?2004h>     sb=sum(b)
+[?2004l[?2004h>     sy=sum(yw)
+[?2004l[?2004h>     sbb=sum(v*v for v in b)
+[?2004l[?2004h>     sby=sum(v*y for v,y in zip(b,yw))
+[?2004l[?2004h>     det=n*sbb-sb*sb
+[?2004l[?2004h>     if abs(det)<1e-12:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     A=(n*sby-sb*sy)/det
+[?2004l[?2004h>     c=(sy-A*sb)/n
+[?2004l[?2004h>     if A<=0.0:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     sse=0.0
+[?2004l[?2004h>     for v,y in zip(b,yw):
+[?2004l[?2004h>         r=A*v+c-y
+[?2004l[?2004h>         sse+=r*r
+[?2004l[?2004h>     return A,c,sse
+[?2004l[?2004h> 
+[?2004l[?2004h> def local_refine(xw, yw, x0, gamma, sse):
+[?2004l[?2004h>     dx=0.5
+[?2004l[?2004h>     dg=1.0
+[?2004l[?2004h>     while dx>1e-5 or dg>1e-5:
+[?2004l[?2004h>         improved=False
+[?2004l[?2004h>         for ix in (-1,0,1):
+[?2004l[?2004h>             for ig in (-1,0,1):
+[?2004l[?2004h>                 if ix==0 and ig==0:
+[?2004l[?2004h>                     continue
+[?2004l[?2004h>                 cx=x0+ix*dx
+[?2004l[?2004h>                 cg=gamma+ig*dg
+[?2004l[?2004h>                 if cg<=0.01:
+[?2004l[?2004h>                     continue
+[?2004l[?2004h>                 res=fit_linear(xw,yw,cx,cg)
+[?2004l[?2004h>                 if res is not None and res[2]<sse:
+[?2004l[?2004h>                     x0,gamma,A,c,sse=cx,cg,res[0],res[1],res[2]
+[?2004l[?2004h>                     improved=True
+[?2004l[?2004h>         if not improved:
+[?2004l[?2004h>             dx*=0.5
+[?2004l[?2004h>             dg*=0.5
+[?2004l[?2004h>     return x0,gamma,sse
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(xw, yw):
+[?2004l[?2004h>     ymax=max(yw)
+[?2004l[?2004h>     xpeak=xw[yw.index(ymax)]
+[?2004l[?2004h>     cands=[]
+[?2004l[?2004h>     for i in range(-30,31):
+[?2004l[?2004h>         x0=xpeak+i*0.5
+[?2004l[?2004h>         for j in range(50):
+[?2004l[?2004h>             gamma=2.0+2.0*j
+[?2004l[?2004h>             res=fit_linear(xw,yw,x0,gamma)
+[?2004l[?2004h>             if res is not None:
+[?2004l[?2004h>                 cands.append((res[2],x0,gamma))
+[?2004l[?2004h>     cands.sort(key=lambda t:t[0])
+[?2004l[?2004h>     best=None
+[?2004l[?2004h>     for sse0,x0c,gammac in cands[:20]:
+[?2004l[?2004h>         x0,gamma,sse=local_refine(xw,yw,x0c,gammac,sse0)
+[?2004l[?2004h>         if best is None or sse<best[2]:
+[?2004l[?2004h>             best=(x0,gamma,sse)
+[?2004l[?2004h>     x0,gamma,sse=best
+[?2004l[?2004h>     A,c,_=fit_linear(xw,yw,x0,gamma)
+[?2004l[?2004h>     return x0,gamma,A,c,sse
+[?2004l[?2004h> 
+[?2004l[?2004h> xs,ys=load_data('/app/spectrum.csv')
+[?2004l[?2004h> regions=[('D',1250,1450),('G',1500,1650),('2D',2550,2800)]
+[?2004l[?2004h> for name,lo,hi in regions:
+[?2004l[?2004h>     xw=[x for x,y in zip(xs,ys) if lo<=x<=hi]
+[?2004l[?2004h>     yw=[y for x,y in zip(xs,ys) if lo<=x<=hi]
+[?2004l[?2004h>     x0,gamma,A,c,sse=fit_peak(xw,yw)
+[?2004l[?2004h>     rmse=math.sqrt(sse/len(xw))
+[?2004l[?2004h>     print(name, 'x0=%.9f gamma=%.9f amplitude=%.9f offset=%.9f rmse=%.9f' % (x0,gamma,A,c,rmse))
+[?2004l[?2004h> PY
+[?2004lD x0=1348.251998914 gamma=16.733459473 amplitude=8212.085268608 offset=1260.803036193 rmse=104.330180015
+G x0=1580.385805408 gamma=12.988357544 amplitude=7520.185111546 offset=1296.331406128 rmse=98.290829593
+2D x0=2692.410161072 gamma=20.931411743 amplitude=10380.365265352 offset=1407.085255126 rmse=100.033497467
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# python3 - <<'PY'
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     "D": {"x0": 1348.251998914, "gamma": 16.733459473, "amplitude": 8212.085268608, "offset": 1260.803036193},
+[?2004l[?2004h>     "G": {"x0": 1580.385805408, "gamma": 12.988357544, "amplitude": 7520.185111546, "offset": 1296.331406128},
+[?2004l[?2004h>     "2D": {"x0": 2692.410161072, "gamma": 20.931411743, "amplitude": 10380.365265352, "offset": 1407.085255126}
+[?2004l[?2004h> }
+[?2004l[?2004h> results["ID_IG"] = results["D"]["amplitude"] / results["G"]["amplitude"]
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h>     f.write('\n')
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> PY
+[?2004l{
+  "D": {
+    "x0": 1348.251998914,
+    "gamma": 16.733459473,
+    "amplitude": 8212.085268608,
+    "offset": 1260.803036193
+  },
+  "G": {
+    "x0": 1580.385805408,
+    "gamma": 12.988357544,
+    "amplitude": 7520.185111546,
+    "offset": 1296.331406128
+  },
+  "2D": {
+    "x0": 2692.410161072,
+    "gamma": 20.931411743,
+    "amplitude": 10380.365265352,
+    "offset": 1407.085255126
+  },
+  "ID_IG": 1.0920057348056103
+}
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1348.251998914,
+    "gamma": 16.733459473,
+    "amplitude": 8212.085268608,
+    "offset": 1260.803036193
+  },
+  "G": {
+    "x0": 1580.385805408,
+    "gamma": 12.988357544,
+    "amplitude": 7520.185111546,
+    "offset": 1296.331406128
+  },
+  "2D": {
+    "x0": 2692.410161072,
+    "gamma": 20.931411743,
+    "amplitude": 10380.365265352,
+    "offset": 1407.085255126
+  },
+  "ID_IG": 1.0920057348056103
+}
+[?2004hroot@j-openenv-6afd8be529e8b7ccfbbb82cc-yqw5g5w0-ef0b2-glbnv:/app# 

@@ -1,0 +1,132 @@
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# head -5 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,954.992
+1100.5001,989.534
+1101.0003,1110.132
+1101.5004,1024.330
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# pip install numpy scipy 2>&1 | tail -3
+[?2004l
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# python3 -c "import numpy, scipy; print('ok', numpy.__version__, scipy.__version__)"
+[?2004lok 2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# tail -3 /app/spectrum.csv
+[?2004l2998.9997,800.619
+2999.4999,884.799
+3000.0000,809.211
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {'D': 1350, 'G': 1580, '2D': 2690}
+[?2004l[?2004h> win = 100.0
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, center in peaks.items():
+[?2004l[?2004h>     m = (x >= center - win) & (x <= center + win)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     # initial guesses
+[?2004l[?2004h>     offset0 = np.percentile(ys, 10)
+[?2004l[?2004h>     i_max = np.argmax(ys)
+[?2004l[?2004h>     x0_0 = xs[i_max]
+[?2004l[?2004h>     amp0 = ys[i_max] - offset0
+[?2004l[?2004h>     gamma0 = 20.0
+[?2004l[?2004h>     p0 = [amp0, x0_0, gamma0, offset0]
+[?2004l[?2004h>     bounds = ([0, center - 60, 1, -np.inf], [np.inf, center + 60, 100, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, xs, ys, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     amp, x0, gamma, offset = popt
+[?2004l[?2004h>     perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     results[name] = {'x0': float(x0), 'gamma': float(gamma),
+[?2004l[?2004h>                      'amplitude': float(amp), 'offset': float(offset)}
+[?2004l[?2004h>     print(f"{name}: x0={x0:.3f}+/-{perr[1]:.2f} gamma={gamma:.3f}+/-{perr[2]:.3f} "
+[?2004l[?2004h>           f"amp={amp:.2f}+/-{perr[0]:.2f} offset={offset:.2f}+/-{perr[3]:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> id_ig = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print(f"ID/IG = {id_ig:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> out = {k: results[k] for k in ['D', 'G', '2D']}
+[?2004l[?2004h> out['ID_IG'] = float(id_ig)
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(out, f, indent=2)
+[?2004l[?2004h> print('written /app/results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# python3 /app/fit.py
+[?2004lD: x0=1354.910+/-0.04 gamma=18.576+/-0.087 amp=6000.10+/-14.52 offset=914.35+/-7.18
+G: x0=1583.396+/-0.03 gamma=10.899+/-0.051 amp=7484.75+/-20.57 offset=935.14+/-6.08
+2D: x0=2676.537+/-0.04 gamma=28.482+/-0.085 amp=9966.12+/-14.04 offset=798.24+/-10.83
+ID/IG = 0.8016
+written /app/results.json
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# cat > /app/check.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, a, x0, g, o):
+[?2004l[?2004h>     return a * g**2 / ((x - x0)**2 + g**2) + o
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, center in {'D':1350,'G':1580,'2D':2690}.items():
+[?2004l[?2004h>     m = (x >= center-250) & (x <= center+250)
+[?2004l[?2004h>     print(name, 'argmax in wide region:', x[m][np.argmax(y[m])])
+[?2004l[?2004h>     for win in (50, 100, 150):
+[?2004l[?2004h>         m = (x >= center-win) & (x <= center+win)
+[?2004l[?2004h>         xs, ys = x[m], y[m]
+[?2004l[?2004h>         p0 = [ys.max()-np.percentile(ys,10), xs[np.argmax(ys)], 20.0, np.percentile(ys,10)]
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, xs, ys, p0=p0,
+[?2004l[?2004h>                             bounds=([0, center-80, 1, -np.inf],[np.inf, center+80, 150, np.inf]), maxfev=20000)
+[?2004l[?2004h>         r = ys - lorentzian(xs, *popt)
+[?2004l[?2004h>         ss_res = (r**2).sum(); ss_tot = ((ys-ys.mean())**2).sum()
+[?2004l[?2004h>         print(f'  win={win:3d} x0={popt[1]:.2f} g={popt[2]:.2f} a={popt[0]:.1f} o={popt[3]:.1f} R2={1-ss_res/ss_tot:.5f}')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# python3 /app/check.py
+[?2004lD argmax in wide region: 1582.627
+  win= 50 x0=1354.91 g=18.51 a=5987.2 o=929.5 R2=0.99829
+  win=100 x0=1354.91 g=18.58 a=6000.1 o=914.4 R2=0.99797
+  win=150 x0=1354.91 g=18.46 a=5991.3 o=930.8 R2=0.99717
+G argmax in wide region: 1582.627
+  win= 50 x0=1583.40 g=10.92 a=7485.3 o=931.4 R2=0.99867
+  win=100 x0=1583.40 g=10.90 a=7484.8 o=935.1 R2=0.99789
+  win=150 x0=1583.39 g=10.76 a=7474.0 o=966.8 R2=0.99508
+2D argmax in wide region: 2676.915
+  win= 50 x0=2676.56 g=28.52 a=9984.1 o=780.0 R2=0.99907
+  win=100 x0=2676.54 g=28.48 a=9966.1 o=798.2 R2=0.99922
+  win=150 x0=2676.53 g=28.54 a=9971.5 o=789.1 R2=0.99916
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1354.909698420519,
+    "gamma": 18.575930614707016,
+    "amplitude": 6000.103462210932,
+    "offset": 914.3541137657577
+  },
+  "G": {
+    "x0": 1583.3962273071018,
+    "gamma": 10.899282518302853,
+    "amplitude": 7484.7528816941,
+    "offset": 935.1366007369224
+  },
+  "2D": {
+    "x0": 2676.5372080665024,
+    "gamma": 28.481955844788764,
+    "amplitude": 9966.123793335242,
+    "offset": 798.2403803572039
+  },
+  "ID_IG": 0.8016434953899062
+}[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b86-fowvzwn0-4ad56-5hczf:/app# 

@@ -1,0 +1,12 @@
+{
+  "model": "moonshotai/Kimi-K3",
+  "provider": "deepinfra",
+  "k": 3,
+  "router_pricing": {
+    "input": 2.85,
+    "output": 14.25
+  },
+  "harbor": "0.25.0",
+  "agent": "terminus-2",
+  "sandbox_namespace": "openenv"
+}

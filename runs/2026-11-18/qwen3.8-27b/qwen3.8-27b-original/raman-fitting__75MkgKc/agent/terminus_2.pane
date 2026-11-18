@@ -1,0 +1,1058 @@
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# ls -la /app
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# find /app -maxdepth 2 -type f | head -50
+[?2004l/app/graphene.dat
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# head -20 /app/graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# wc -l /app/graphene.dat
+[?2004l3565 /app/graphene.dat
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# tail -5 /app/graphene.dat
+[?2004l1649,768294	6062,725860
+1649,507095	6005,066261
+1649,246046	6009,427936
+1648,985151	5911,446799
+1648,724404	5950,923261
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# pip3 install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 25.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/fit.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def parse_data(filename):
+[?2004l[?2004h>     x_list = []
+[?2004l[?2004h>     y_list = []
+[?2004l[?2004h>     with open(filename, 'r') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             line = line.strip()
+[?2004l[?2004h>             if not line:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             parts = line.split()
+[?2004l[?2004h>             if len(parts) >= 2:
+[?2004l[?2004h>                 x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>                 y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>                 x_list.append(x)
+[?2004l[?2004h>                 y_list.append(y)
+[?2004l[?2004h>     return np.array(x_list), np.array(y_list)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = parse_data('/app/graphene.dat')
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort by wavenumber ascending
+[?2004l[?2004h> sort_idx = np.argsort(x)
+[?2004l[?2004h> x = x[sort_idx]
+[?2004l[?2004h> y = y[sort_idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"Wavenumber range: {x.min():.2f} to {x.max():.2f}")
+[?2004l[?2004h> print(f"Intensity range: {y.min():.2f} to {y.max():.2f}")
+[?2004l[?2004h> print(f"Total points: {len(x)}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find G peak (~1580 cm-1)
+[?2004l[?2004h> g_mask = (x > 1450) & (x < 1700)
+[?2004l[?2004h> g_x = x[g_mask]
+[?2004l[?2004h> g_y = y[g_mask]
+[?2004l[?2004h> print(f"\nG peak region ({g_x.min():.1f} - {g_x.max():.1f}): {len(g_x)} points")
+[?2004l[?2004h> print(f"  Max intensity: {g_y.max():.2f} at x={g_x[np.argmax(g_y)]:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find 2D peak (~2700 cm-1)
+[?2004l[?2004h> two_d_mask = (x > 2500) & (x < 3000)
+[?2004l[?2004h> _2d_x = x[two_d_mask]
+[?2004l[?2004h> _2d_y = y[two_d_mask]
+[?2004l[?2004h> print(f"\n2D peak region ({_2d_x.min():.1f} - {_2d_x.max():.1f}): {len(_2d_x)} points")
+[?2004l[?2004h> print(f"  Max intensity: {_2d_y.max():.2f} at x={_2d_x[np.argmax(_2d_y)]:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x, y, x_guess, x_min, x_max):
+[?2004l[?2004h>     mask = (x > x_min) & (x < x_max)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     offset_guess = np.median(y_fit[:10] + y_fit[-10:])
+[?2004l[?2004h>     amp_guess = y_fit.max() - offset_guess
+[?2004l[?2004h>     x0_guess = x_fit[np.argmax(y_fit)]
+[?2004l[?2004h>     gamma_guess = 15.0  # initial guess in cm-1
+[?2004l[?2004h>     
+[?2004l[?2004h>     p0 = [x0_guess, gamma_guess, amp_guess, offset_guess]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, pcov = curve_fit(lorentzian, x_fit, y_fit, p0=p0, maxfev=10000)
+[?2004l[?2004h>         perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>         return popt, perr
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f"  Fit error: {e}")
+[?2004l[?2004h>         return None, None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit G peak
+[?2004l[?2004h> print("\n--- Fitting G peak ---")
+[?2004l[?2004h> g_popt, g_perr = fit_peak(x, y, 1580, 1450, 1700)
+[?2004l[?2004h> if g_popt is not None:
+[?2004l[?2004h>     print(f"  x0={g_popt[0]:.4f} +- {g_perr[0]:.4f}")
+[?2004l[?2004h>     print(f"  gamma={g_popt[1]:.4f} +- {g_perr[1]:.4f}")
+[?2004l[?2004h>     print(f"  amplitude={g_popt[2]:.4f} +- {g_perr[2]:.4f}")
+[?2004l[?2004h>     print(f"  offset={g_popt[3]:.4f} +- {g_perr[3]:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit 2D peak
+[?2004l[?2004h> print("\n--- Fitting 2D peak ---")
+[?2004l[?2004h> _2d_popt, _2d_perr = fit_peak(x, y, 2700, 2500, 3000)
+[?2004l[?2004h> if _2d_popt is not None:
+[?2004l[?2004h>     print(f"  x0={_2d_popt[0]:.4f} +- {_2d_perr[0]:.4f}")
+[?2004l[?2004h>     print(f"  gamma={_2d_popt[1]:.4f} +- {_2d_perr[1]:.4f}")
+[?2004l[?2004h>     print(f"  amplitude={_2d_popt[2]:.4f} +- {_2d_perr[2]:.4f}")
+[?2004l[?2004h>     print(f"  offset={_2d_popt[3]:.4f} +- {_2d_perr[3]:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write results
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> if g_popt is not None:
+[?2004l[?2004h>     results['G'] = {
+[?2004l[?2004h>         'x0': float(g_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(g_popt[1])),
+[?2004l[?2004h>         'amplitude': float(g_popt[2]),
+[?2004l[?2004h>         'offset': float(g_popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> if _2d_popt is not None:
+[?2004l[?2004h>     results['2D'] = {
+[?2004l[?2004h>         'x0': float(_2d_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(_2d_popt[1])),
+[?2004l[?2004h>         'amplitude': float(_2d_popt[2]),
+[?2004l[?2004h>         'offset': float(_2d_popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("\nResults written to /app/results.json")
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/fit.py
+[?2004lWavenumber range: 1648.72 to 47183.55
+Intensity range: 40.09 to 79400.10
+Total points: 3565
+
+G peak region (1648.7 - 1699.9): 187 points
+  Max intensity: 6474.28 at x=1660.07
+
+2D peak region (2500.9 - 2998.6): 413 points
+  Max intensity: 728.89 at x=2892.96
+
+--- Fitting G peak ---
+  x0=1646.1028 +- 9.3234
+  gamma=42.6428 +- 19.4698
+  amplitude=1242.6108 +- 429.6614
+  offset=4896.3343 +- 371.4275
+
+--- Fitting 2D peak ---
+  x0=2765.3030 +- 11.8682
+  gamma=-80.3310 +- 30.9992
+  amplitude=-106.8189 +- 18.9958
+  offset=439.5045 +- 16.4737
+
+Results written to /app/results.json
+{
+  "G": {
+    "x0": 1646.1027864544535,
+    "gamma": 42.642751281217315,
+    "amplitude": 1242.610755941267,
+    "offset": 4896.3343448112155
+  },
+  "2D": {
+    "x0": 2765.3030256876655,
+    "gamma": 80.33096784402728,
+    "amplitude": -106.81890164338931,
+    "offset": 439.5045198359949
+  }
+}
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/analyze.py
+[?2004l
+sig_peaks.sort(key=lambda p: -p[1])  # sort by intensity descending
+
+print(f"\nTop 20 peaks by intensity:")
+for xi, yi in sig_peaks[:20]:
+    print(f"  x={xi:.2f}, intensity={yi:.2f}")
+
+# Also show peaks in range 1500-3500
+print(f"\nAll peaks in x range 1500-3500:")
+peaks_in_range = [(xi, yi) for xi, yi in local_max if 1500 < xi < 3500]
+peaks_in_range.sort(key=lambda p: -p[1])
+for xi, yi in peaks_in_range[:20]:
+    print(f"  x={xi:.2f}, intensity={yi:.2f}")
+
+# Show data around the max
+imax = np.argmax(y)
+print(f"\nData around max (x={x[imax]:.2f}):")
+for i in range(max(0, imax-5), min(len(x), imax+5)):
+    print(f"  x={x[i]:.2f}, y={y[i]:.2f}")
+
+# Check if x-axis might be in different units
+# If x is in some unit, what would G (1580 cm-1) and 2D (2700 cm-1) correspond to?
+# Let's look at the ratio: 2700/1580 = 1.709
+# If G is at position a and 2D is at position b, b/a should be ~1.709
+print(f"\nChecking peak ratios:")
+for i, (x1, y1) in enumerate(sig_peaks[:10]):
+    for j, (x2, y2) in enumerate(sig_peaks[:10]):
+        if i != j and x2 > x1:
+            ratio = x2/x1
+            if 1.6 < ratio < 1.8:
+                print(f"  x={x1:.2f} (int={y1:.0f}) and x={x2:.2f} (int={y2:.0f}), ratio={ratio:.3f}")
+EOF
+python3 /app/analyze.py
+[?2004h> import numpy as np
+[?2004l[?2004h> 
+[?2004l[?2004h> x_list = []
+[?2004l[?2004h> y_list = []
+[?2004l[?2004h> with open('/app/graphene.dat', 'r') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         parts = line.split()
+[?2004l[?2004h>         if len(parts) >= 2:
+[?2004l[?2004h>             x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>             y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>             x_list.append(x)
+[?2004l[?2004h>             y_list.append(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x_list)
+[?2004l[?2004h> y = np.array(y_list)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort by x ascending
+[?2004l[?2004h> idx = np.argsort(x)
+[?2004l[?2004h> x = x[idx]
+[?2004l[?2004h> y = y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"x range: {x.min():.2f} to {x.max():.2f}")
+[?2004l[?2004h> print(f"y range: {y.min():.2f} to {y.max():.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find where max intensity is
+[?2004l[?2004h> print(f"\nMax intensity {y.max():.2f} at x={x[np.argmax(y)]:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find all local maxima (simple: y[i] > y[i-1] and y[i] > y[i+1])
+[?2004l[?2004h> local_max = []
+[?2004l[?2004h> for i in range(1, len(y)-1):
+[?2004l[?2004h>     if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>         local_max.append((x[i], y[i]))
+[?2004l[?2004h> 
+[?2004l[?2004h> # Filter significant peaks (intensity > 1000)
+[?2004l[?2004h> sig_peaks = [(xi, yi) for xi, yi in local_max if yi > 1000]
+[?2004l[?2004h> sig_peaks.sort(key=lambda p: -p[1])  # sort by intensity descending
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"\nTop 20 peaks by intensity:")
+[?2004l[?2004h> for xi, yi in sig_peaks[:20]:
+[?2004l[?2004h>     print(f"  x={xi:.2f}, intensity={yi:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Also show peaks in range 1500-3500
+[?2004l[?2004h> print(f"\nAll peaks in x range 1500-3500:")
+[?2004l[?2004h> peaks_in_range = [(xi, yi) for xi, yi in local_max if 1500 < xi < 3500]
+[?2004l[?2004h> peaks_in_range.sort(key=lambda p: -p[1])
+[?2004l[?2004h> for xi, yi in peaks_in_range[:20]:
+[?2004l[?2004h>     print(f"  x={xi:.2f}, intensity={yi:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Show data around the max
+[?2004l[?2004h> imax = np.argmax(y)
+[?2004l[?2004h> print(f"\nData around max (x={x[imax]:.2f}):")
+[?2004l[?2004h> for i in range(max(0, imax-5), min(len(x), imax+5)):
+[?2004l[?2004h>     print(f"  x={x[i]:.2f}, y={y[i]:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Check if x-axis might be in different units
+[?2004l[?2004h> # If x is in some unit, what would G (1580 cm-1) and 2D (2700 cm-1) correspond to?
+[?2004l[?2004h> # Let's look at the ratio: 2700/1580 = 1.709
+[?2004l[?2004h> # If G is at position a and 2D is at position b, b/a should be ~1.709
+[?2004l[?2004h> print(f"\nChecking peak ratios:")
+[?2004l[?2004h> for i, (x1, y1) in enumerate(sig_peaks[:10]):
+[?2004l[?2004h>     for j, (x2, y2) in enumerate(sig_peaks[:10]):
+[?2004l[?2004h>         if i != j and x2 > x1:
+[?2004l[?2004h>             ratio = x2/x1
+[?2004l[?2004h>             if 1.6 < ratio < 1.8:
+[?2004l[?2004h>                 print(f"  x={x1:.2f} (int={y1:.0f}) and x={x2:.2f} (int={y2:.0f}), ratio={ratio:.3f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/analyze.py
+[?2004lx range: 1648.72 to 47183.55
+y range: 40.09 to 79400.10
+
+Max intensity 79400.10 at x=19139.54
+
+Top 20 peaks by intensity:
+  x=19139.54, intensity=79400.10
+  x=19332.11, intensity=79083.27
+  x=33244.97, intensity=21252.73
+  x=35122.65, intensity=19895.77
+  x=43314.03, intensity=19812.86
+  x=42323.87, intensity=19764.87
+  x=40475.25, intensity=19704.07
+  x=36144.98, intensity=19684.21
+  x=39611.08, intensity=19672.57
+  x=36860.88, intensity=19652.30
+  x=46588.36, intensity=19266.09
+  x=10289.94, intensity=18805.24
+  x=10342.10, intensity=18758.66
+  x=10611.56, intensity=18754.71
+  x=10502.00, intensity=18717.43
+  x=10238.34, intensity=18649.56
+  x=30782.84, intensity=18641.46
+  x=10394.82, intensity=18633.11
+  x=10556.48, intensity=18602.12
+  x=16245.58, intensity=18159.87
+
+All peaks in x range 1500-3500:
+  x=1660.07, intensity=6474.28
+  x=1656.08, intensity=6410.16
+  x=1654.76, intensity=6356.87
+  x=1655.29, intensity=6325.17
+  x=1651.08, intensity=6302.95
+  x=1652.39, intensity=6285.42
+  x=1659.54, intensity=6274.79
+  x=1666.80, intensity=6228.42
+  x=1652.91, intensity=6214.28
+  x=1650.29, intensity=6157.27
+  x=1660.88, intensity=6152.58
+  x=1673.36, intensity=6135.36
+  x=1657.67, intensity=6086.87
+  x=1663.83, intensity=6043.79
+  x=1665.18, intensity=6020.07
+  x=1661.41, intensity=6017.72
+  x=1661.95, intensity=6015.21
+  x=1658.47, intensity=6013.73
+  x=1649.25, intensity=6009.43
+  x=1672.26, intensity=6002.17
+
+Data around max (x=19139.54):
+  x=18675.05, y=40100.87
+  x=18766.08, y=46110.70
+  x=18858.02, y=54280.85
+  x=18950.91, y=65451.69
+  x=19044.74, y=78843.44
+  x=19139.54, y=79400.10
+  x=19235.33, y=78815.24
+  x=19332.11, y=79083.27
+  x=19429.90, y=78849.11
+  x=19528.72, y=67902.85
+
+Checking peak ratios:
+  x=19139.54 (int=79400) and x=33244.97 (int=21253), ratio=1.737
+  x=19332.11 (int=79083) and x=33244.97 (int=21253), ratio=1.720
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/analyze2.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> 
+[?2004l[?2004h> x_list = []
+[?2004l[?2004h> y_list = []
+[?2004l[?2004h> with open('/app/graphene.dat', 'r') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         parts = line.split()
+[?2004l[?2004h>         if len(parts) >= 2:
+[?2004l[?2004h>             x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>             y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>             x_list.append(x)
+[?2004l[?2004h>             y_list.append(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x_list)
+[?2004l[?2004h> y = np.array(y_list)
+[?2004l[?2004h> idx = np.argsort(x)
+[?2004l[?2004h> x = x[idx]
+[?2004l[?2004h> y = y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Look at data around G peak (~19139)
+[?2004l[?2004h> print("=== Data around G peak (x=19139) ===")
+[?2004l[?2004h> g_mask = (x > 17000) & (x < 21000)
+[?2004l[?2004h> g_x = x[g_mask]
+[?2004l[?2004h> g_y = y[g_mask]
+[?2004l[?2004h> print(f"Points: {len(g_x)}, x range: {g_x.min():.1f} to {g_x.max():.1f}")
+[?2004l[?2004h> print(f"y range: {g_y.min():.1f} to {g_y.max():.1f}")
+[?2004l[?2004h> # Print data points
+[?2004l[?2004h> for i in range(0, len(g_x), max(1, len(g_x)//30)):
+[?2004l[?2004h>     print(f"  x={g_x[i]:.1f}, y={g_y[i]:.1f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Look at data around 2D peak (~33245)
+[?2004l[?2004h> print("\n=== Data around 2D peak (x=33245) ===")
+[?2004l[?2004h> d_mask = (x > 31000) & (x < 36000)
+[?2004l[?2004h> d_x = x[d_mask]
+[?2004l[?2004h> d_y = y[d_mask]
+[?2004l[?2004h> print(f"Points: {len(d_x)}, x range: {d_x.min():.1f} to {d_x.max():.1f}")
+[?2004l[?2004h> print(f"y range: {d_y.min():.1f} to {d_y.max():.1f}")
+[?2004l[?2004h> for i in range(0, len(d_x), max(1, len(d_x)//30)):
+[?2004l[?2004h>     print(f"  x={d_x[i]:.1f}, y={d_y[i]:.1f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Check if there are two separate peaks near 19139 and 19332
+[?2004l[?2004h> print("\n=== Detailed data around 19000-19500 ===")
+[?2004l[?2004h> det_mask = (x > 18800) & (x < 19600)
+[?2004l[?2004h> det_x = x[det_mask]
+[?2004l[?2004h> det_y = y[det_mask]
+[?2004l[?2004h> for i in range(len(det_x)):
+[?2004l[?2004h>     print(f"  x={det_x[i]:.2f}, y={det_y[i]:.2f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/analyze2.py
+[?2004l=== Data around G peak (x=19139) ===
+Points: 43, x range: 17029.0 to 20914.9
+y range: 12557.3 to 79400.1
+  x=17029.0, y=17167.6
+  x=17104.1, y=17686.8
+  x=17180.0, y=17693.5
+  x=17256.5, y=18199.4
+  x=17333.7, y=18560.4
+  x=17411.7, y=19004.1
+  x=17490.4, y=19327.4
+  x=17569.8, y=19755.7
+  x=17650.0, y=20340.8
+  x=17731.0, y=20815.0
+  x=17812.7, y=21422.0
+  x=17895.2, y=22176.0
+  x=17978.5, y=23027.7
+  x=18062.6, y=24222.5
+  x=18147.5, y=25202.9
+  x=18233.3, y=26464.2
+  x=18319.9, y=28061.6
+  x=18407.4, y=30376.5
+  x=18495.7, y=32580.5
+  x=18584.9, y=35830.5
+  x=18675.1, y=40100.9
+  x=18766.1, y=46110.7
+  x=18858.0, y=54280.9
+  x=18950.9, y=65451.7
+  x=19044.7, y=78843.4
+  x=19139.5, y=79400.1
+  x=19235.3, y=78815.2
+  x=19332.1, y=79083.3
+  x=19429.9, y=78849.1
+  x=19528.7, y=67902.9
+  x=19628.6, y=46667.6
+  x=19729.5, y=32649.6
+  x=19831.5, y=24480.4
+  x=19934.6, y=19658.8
+  x=20038.8, y=17059.4
+  x=20144.2, y=15190.0
+  x=20250.7, y=14352.2
+  x=20358.3, y=13783.7
+  x=20467.2, y=13238.3
+  x=20577.2, y=12982.8
+  x=20688.5, y=12812.8
+  x=20801.1, y=12670.7
+  x=20914.9, y=12557.3
+
+=== Data around 2D peak (x=33245) ===
+Points: 17, x range: 31037.9 to 35797.5
+y range: 18572.9 to 21252.7
+  x=31037.9, y=18572.9
+  x=31297.3, y=18787.4
+  x=31561.2, y=19007.3
+  x=31829.6, y=19630.2
+  x=32102.8, y=19883.1
+  x=32380.8, y=20339.9
+  x=32663.7, y=20547.1
+  x=32951.7, y=21063.5
+  x=33245.0, y=21252.7
+  x=33543.6, y=21041.2
+  x=33847.7, y=20523.2
+  x=34157.5, y=20285.4
+  x=34473.2, y=19931.5
+  x=34794.8, y=19781.2
+  x=35122.7, y=19895.8
+  x=35456.8, y=19666.3
+  x=35797.5, y=19599.2
+
+=== Detailed data around 19000-19500 ===
+  x=18858.02, y=54280.85
+  x=18950.91, y=65451.69
+  x=19044.74, y=78843.44
+  x=19139.54, y=79400.10
+  x=19235.33, y=78815.24
+  x=19332.11, y=79083.27
+  x=19429.90, y=78849.11
+  x=19528.72, y=67902.85
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/fit2.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def parse_data(filename):
+[?2004l[?2004h>     x_list, y_list = [], []
+[?2004l[?2004h>     with open(filename, 'r') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             line = line.strip()
+[?2004l[?2004h>             if not line:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             parts = line.split()
+[?2004l[?2004h>             if len(parts) >= 2:
+[?2004l[?2004h>                 x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>                 y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>                 x_list.append(x)
+[?2004l[?2004h>                 y_list.append(y)
+[?2004l[?2004h>     return np.array(x_list), np.array(y_list)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = parse_data('/app/graphene.dat')
+[?2004l[?2004h> idx = np.argsort(x)
+[?2004l[?2004h> x = x[idx]
+[?2004l[?2004h> y = y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x, y, x_min, x_max, gamma_guess):
+[?2004l[?2004h>     mask = (x >= x_min) & (x <= x_max)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     x0_guess = x_fit[np.argmax(y_fit)]
+[?2004l[?2004h>     offset_guess = np.percentile(y_fit, 10)  # use 10th percentile as baseline
+[?2004l[?2004h>     amp_guess = y_fit.max() - offset_guess
+[?2004l[?2004h>     
+[?2004l[?2004h>     p0 = [x0_guess, gamma_guess, amp_guess, offset_guess]
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Try fitting
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, x_fit, y_fit, p0=p0, maxfev=50000)
+[?2004l[?2004h>     perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Calculate R-squared
+[?2004l[?2004h>     y_pred = lorentzian(x_fit, *popt)
+[?2004l[?2004h>     ss_res = np.sum((y_fit - y_pred)**2)
+[?2004l[?2004h>     ss_tot = np.sum((y_fit - np.mean(y_fit))**2)
+[?2004l[?2004h>     r_squared = 1 - ss_res/ss_tot
+[?2004l[?2004h>     
+[?2004l[?2004h>     print(f"  x0={popt[0]:.2f} +- {perr[0]:.2f}")
+[?2004l[?2004h>     print(f"  gamma={abs(popt[1]):.2f} +- {perr[1]:.2f}")
+[?2004l[?2004h>     print(f"  amplitude={popt[2]:.2f} +- {perr[2]:.2f}")
+[?2004l[?2004h>     print(f"  offset={popt[3]:.2f} +- {perr[3]:.2f}")
+[?2004l[?2004h>     print(f"  R²={r_squared:.4f}")
+[?2004l[?2004h>     
+[?2004l[?2004h>     return popt, r_squared
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit G peak - centered around 19139, broad peak
+[?2004l[?2004h> print("=== Fitting G peak ===")
+[?2004l[?2004h> g_popt, g_r2 = fit_peak(x, y, 16500, 23000, gamma_guess=500)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit 2D peak - centered around 33245, very broad
+[?2004l[?2004h> print("\n=== Fitting 2D peak ===")
+[?2004l[?2004h> d_popt, d_r2 = fit_peak(x, y, 29000, 38000, gamma_guess=1500)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write results
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     'G': {
+[?2004l[?2004h>         'x0': float(g_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(g_popt[1])),
+[?2004l[?2004h>         'amplitude': float(g_popt[2]),
+[?2004l[?2004h>         'offset': float(g_popt[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     '2D': {
+[?2004l[?2004h>         'x0': float(d_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(d_popt[1])),
+[?2004l[?2004h>         'amplitude': float(d_popt[2]),
+[?2004l[?2004h>         'offset': float(d_popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("\nResults written to /app/results.json")
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/fit2.py
+[?2004l=== Fitting G peak ===
+  x0=19196.97 +- 13.15
+  gamma=401.11 +- 23.15
+  amplitude=73511.28 +- 2423.63
+  offset=12252.63 +- 820.65
+  R²=0.9521
+
+=== Fitting 2D peak ===
+  x0=34442.15 +- 182.26
+  gamma=13071.06 +- 15218.20
+  amplitude=22715.38 +- 46571.86
+  offset=-2296.62 +- 46662.53
+  R²=0.8208
+
+Results written to /app/results.json
+{
+  "G": {
+    "x0": 19196.969812692678,
+    "gamma": 401.11431130578217,
+    "amplitude": 73511.27500452501,
+    "offset": 12252.628029983862
+  },
+  "2D": {
+    "x0": 34442.15271943645,
+    "gamma": 13071.055092487895,
+    "amplitude": 22715.380541563096,
+    "offset": -2296.6165565094984
+  }
+}
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/fit3.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def parse_data(filename):
+[?2004l[?2004h>     x_list, y_list = [], []
+[?2004l[?2004h>     with open(filename, 'r') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             line = line.strip()
+[?2004l[?2004h>             if not line:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             parts = line.split()
+[?2004l[?2004h>             if len(parts) >= 2:
+[?2004l[?2004h>                 x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>                 y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>                 x_list.append(x)
+[?2004l[?2004h>                 y_list.append(y)
+[?2004l[?2004h>     return np.array(x_list), np.array(y_list)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = parse_data('/app/graphene.dat')
+[?2004l[?2004h> idx = np.argsort(x)
+[?2004l[?2004h> x = x[idx]
+[?2004l[?2004h> y = y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> # === G peak fit (already good) ===
+[?2004l[?2004h> print("=== G peak ===")
+[?2004l[?2004h> g_mask = (x >= 16500) & (x <= 23000)
+[?2004l[?2004h> gx, gy = x[g_mask], y[g_mask]
+[?2004l[?2004h> g_popt, _ = curve_fit(lorentzian, gx, gy, p0=[19139, 500, 67000, 12000], maxfev=50000)
+[?2004l[?2004h> y_pred = lorentzian(gx, *g_popt)
+[?2004l[?2004h> ss_res = np.sum((gy - y_pred)**2)
+[?2004l[?2004h> ss_tot = np.sum((gy - gy.mean())**2)
+[?2004l[?2004h> print(f"  x0={g_popt[0]:.2f}, gamma={abs(g_popt[1]):.2f}, amp={g_popt[2]:.2f}, offset={g_popt[3]:.2f}")
+[?2004l[?2004h> print(f"  R²={1-ss_res/ss_tot:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # === 2D peak fit ===
+[?2004l[?2004h> # Let me examine the 2D peak data more carefully
+[?2004l[?2004h> print("\n=== 2D peak data ===")
+[?2004l[?2004h> d_mask = (x >= 31000) & (x <= 36000)
+[?2004l[?2004h> dx, dy = x[d_mask], y[d_mask]
+[?2004l[?2004h> for xi, yi in zip(dx, dy):
+[?2004l[?2004h>     print(f"  x={xi:.1f}, y={yi:.1f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # The 2D peak is very subtle: peak at 33245 (y=21253) on background ~19000-20000
+[?2004l[?2004h> # Let's try fitting with bounds
+[?2004l[?2004h> d_popt, d_pcov = curve_fit(
+[?2004l[?2004h>     lorentzian, dx, dy,
+[?2004l[?2004h>     p0=[33245, 1000, 2000, 19500],
+[?2004l[?2004h>     bounds=([
+[?2004l[?2004h>         32000, 100, 500, 15000
+[?2004l[?2004h>     ], [
+[?2004l[?2004h>         34500, 3000, 10000, 25000
+[?2004l[?2004h>     ]),
+[?2004l[?2004h>     maxfev=100000
+[?2004l[?2004h> )
+[?2004l[?2004h> d_perr = np.sqrt(np.diag(d_pcov))
+[?2004l[?2004h> y_pred_d = lorentzian(dx, *d_popt)
+[?2004l[?2004h> ss_res_d = np.sum((dy - y_pred_d)**2)
+[?2004l[?2004h> ss_tot_d = np.sum((dy - dy.mean())**2)
+[?2004l[?2004h> r2_d = 1 - ss_res_d/ss_tot_d
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"\n  x0={d_popt[0]:.2f} +- {d_perr[0]:.2f}")
+[?2004l[?2004h> print(f"  gamma={abs(d_popt[1]):.2f} +- {d_perr[1]:.2f}")
+[?2004l[?2004h> print(f"  amplitude={d_popt[2]:.2f} +- {d_perr[2]:.2f}")
+[?2004l[?2004h> print(f"  offset={d_popt[3]:.2f} +- {d_perr[3]:.2f}")
+[?2004l[?2004h> print(f"  R²={r2_d:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Also try a wider window
+[?2004l[?2004h> print("\n=== 2D peak with wider window (30000-38000) ===")
+[?2004l[?2004h> dw_mask = (x >= 30000) & (x <= 38000)
+[?2004l[?2004h> dxw, dyw = x[dw_mask], y[dw_mask]
+[?2004l[?2004h> dw_popt, dw_pcov = curve_fit(
+[?2004l[?2004h>     lorentzian, dxw, dyw,
+[?2004l[?2004h>     p0=[33245, 1500, 2500, 19000],
+[?2004l[?2004h>     bounds=([
+[?2004l[?2004h>         31000, 200, 100, 12000
+[?2004l[?2004h>     ], [
+[?2004l[?2004h>         35000, 5000, 20000, 25000
+[?2004l[?2004h>     ]),
+[?2004l[?2004h>     maxfev=100000
+[?2004l[?2004h> )
+[?2004l[?2004h> dw_perr = np.sqrt(np.diag(dw_pcov))
+[?2004l[?2004h> y_pred_dw = lorentzian(dxw, *dw_popt)
+[?2004l[?2004h> ss_res_dw = np.sum((dyw - y_pred_dw)**2)
+[?2004l[?2004h> ss_tot_dw = np.sum((dyw - dyw.mean())**2)
+[?2004l[?2004h> r2_dw = 1 - ss_res_dw/ss_tot_dw
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"  x0={dw_popt[0]:.2f} +- {dw_perr[0]:.2f}")
+[?2004l[?2004h> print(f"  gamma={abs(dw_popt[1]):.2f} +- {dw_perr[1]:.2f}")
+[?2004l[?2004h> print(f"  amplitude={dw_popt[2]:.2f} +- {dw_perr[2]:.2f}")
+[?2004l[?2004h> print(f"  offset={dw_popt[3]:.2f} +- {dw_perr[3]:.2f}")
+[?2004l[?2004h> print(f"  R²={r2_dw:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Use the wider window fit if it's better
+[?2004l[?2004h> if r2_dw > r2_d:
+[?2004l[?2004h>     print("\nUsing wider window fit for 2D")
+[?2004l[?2004h>     best_2d = dw_popt
+[?2004l[?2004h> else:
+[?2004l[?2004h>     print("\nUsing narrower window fit for 2D")
+[?2004l[?2004h>     best_2d = d_popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write results
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     'G': {
+[?2004l[?2004h>         'x0': float(g_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(g_popt[1])),
+[?2004l[?2004h>         'amplitude': float(g_popt[2]),
+[?2004l[?2004h>         'offset': float(g_popt[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     '2D': {
+[?2004l[?2004h>         'x0': float(best_2d[0]),
+[?2004l[?2004h>         'gamma': float(abs(best_2d[1])),
+[?2004l[?2004h>         'amplitude': float(best_2d[2]),
+[?2004l[?2004h>         'offset': float(best_2d[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("\nResults:")
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/fit3.py
+[?2004l=== G peak ===
+  x0=19196.97, gamma=401.11, amp=73511.25, offset=12252.62
+  R²=0.9521
+
+=== 2D peak data ===
+  x=31037.9, y=18572.9
+  x=31297.3, y=18787.4
+  x=31561.2, y=19007.3
+  x=31829.6, y=19630.2
+  x=32102.8, y=19883.1
+  x=32380.8, y=20339.9
+  x=32663.7, y=20547.1
+  x=32951.7, y=21063.5
+  x=33245.0, y=21252.7
+  x=33543.6, y=21041.2
+  x=33847.7, y=20523.2
+  x=34157.5, y=20285.4
+  x=34473.2, y=19931.5
+  x=34794.8, y=19781.2
+  x=35122.7, y=19895.8
+  x=35456.8, y=19666.3
+  x=35797.5, y=19599.2
+
+  x0=33416.24 +- 94.96
+  gamma=1442.68 +- 461.01
+  amplitude=2748.89 +- 556.62
+  offset=18340.42 +- 618.75
+  R²=0.8402
+
+=== 2D peak with wider window (30000-38000) ===
+  x0=33412.54 +- 143.50
+  gamma=1039.57 +- 326.93
+  amplitude=2367.81 +- 356.40
+  offset=18839.31 +- 248.70
+  R²=0.6606
+
+Using narrower window fit for 2D
+
+Results:
+{
+  "G": {
+    "x0": 19196.969939656203,
+    "gamma": 401.114738273876,
+    "amplitude": 73511.25275518208,
+    "offset": 12252.619148475194
+  },
+  "2D": {
+    "x0": 33416.236152159014,
+    "gamma": 1442.682829886083,
+    "amplitude": 2748.8935882079127,
+    "offset": 18340.417930283696
+  }
+}
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/fit_final.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def parse_data(filename):
+[?2004l[?2004h>     x_list, y_list = [], []
+[?2004l[?2004h>     with open(filename, 'r') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             line = line.strip()
+[?2004l[?2004h>             if not line:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             parts = line.split()
+[?2004l[?2004h>             if len(parts) >= 2:
+[?2004l[?2004h>                 x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>                 y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>                 x_list.append(x)
+[?2004l[?2004h>                 y_list.append(y)
+[?2004l[?2004h>     return np.array(x_list), np.array(y_list)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian_linear(x, x0, gamma, amplitude, slope, intercept):
+[?2004l[?2004h>     return intercept + slope*x + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = parse_data('/app/graphene.dat')
+[?2004l[?2004h> idx = np.argsort(x)
+[?2004l[?2004h> x = x[idx]
+[?2004l[?2004h> y = y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> # === G peak fit ===
+[?2004l[?2004h> g_mask = (x >= 16500) & (x <= 23000)
+[?2004l[?2004h> gx, gy = x[g_mask], y[g_mask]
+[?2004l[?2004h> g_popt, g_pcov = curve_fit(lorentzian, gx, gy, p0=[19139, 500, 67000, 12000], maxfev=50000)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Also try with linear background for G
+[?2004l[?2004h> try:
+[?2004l[?2004h>     g_lin_popt, _ = curve_fit(lorentzian_linear, gx, gy, p0=[19139, 500, 67000, 0, 12000], maxfev=50000)
+[?2004l[?2004h>     # At the center of the fit range, the linear background value is:
+[?2004l[?2004h>     x_center = (gx[0] + gx[-1]) / 2
+[?2004l[?2004h>     g_lin_offset = g_lin_popt[3] + g_lin_popt[4] * x_center
+[?2004l[?2004h>     print(f"G Lorentzian: x0={g_popt[0]:.2f}, gamma={abs(g_popt[1]):.2f}, amp={g_popt[2]:.2f}, offset={g_popt[3]:.2f}")
+[?2004l[?2004h>     print(f"G Lorentzian+linear: x0={g_lin_popt[0]:.2f}, gamma={abs(g_lin_popt[1]):.2f}, amp={g_lin_popt[2]:.2f}, offset_at_center={g_lin_offset:.2f}")
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print(f"G linear fit failed: {e}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # === 2D peak fit ===
+[?2004l[?2004h> d_mask = (x >= 31000) & (x <= 36000)
+[?2004l[?2004h> dx, dy = x[d_mask], y[d_mask]
+[?2004l[?2004h> d_popt, d_pcov = curve_fit(
+[?2004l[?2004h>     lorentzian, dx, dy,
+[?2004l[?2004h>     p0=[33245, 1000, 2000, 19500],
+[?2004l[?2004h>     bounds=([32000, 100, 500, 15000], [34500, 3000, 10000, 25000]),
+[?2004l[?2004h>     maxfev=100000
+[?2004l[?2004h> )
+[?2004l[?2004h> 
+[?2004l[?2004h> # Try with linear background for 2D
+[?2004l[?2004h> try:
+[?2004l[?2004h>     d_lin_popt, d_lin_pcov = curve_fit(
+[?2004l[?2004h>         lorentzian_linear, dx, dy,
+[?2004l[?2004h>         p0=[33245, 1000, 2000, 0.5, 17000],
+[?2004l[?2004h>         maxfev=100000
+[?2004l[?2004h>     )
+[?2004l[?2004h>     d_lin_perr = np.sqrt(np.diag(d_lin_pcov))
+[?2004l[?2004h>     y_pred_lin = lorentzian_linear(dx, *d_lin_popt)
+[?2004l[?2004h>     ss_res_lin = np.sum((dy - y_pred_lin)**2)
+[?2004l[?2004h>     ss_tot = np.sum((dy - dy.mean())**2)
+[?2004l[?2004h>     r2_lin = 1 - ss_res_lin/ss_tot
+[?2004l[?2004h>     x_center = (dx[0] + dx[-1]) / 2
+[?2004l[?2004h>     d_lin_offset = d_lin_popt[3] + d_lin_popt[4] * x_center
+[?2004l[?2004h>     print(f"\n2D Lorentzian: x0={d_popt[0]:.2f}, gamma={abs(d_popt[1]):.2f}, amp={d_popt[2]:.2f}, offset={d_popt[3]:.2f}")
+[?2004l[?2004h>     print(f"2D Lorentzian+linear: x0={d_lin_popt[0]:.2f}, gamma={abs(d_lin_popt[1]):.2f}, amp={d_lin_popt[2]:.2f}, offset_at_center={d_lin_offset:.2f}")
+[?2004l[?2004h>     print(f"  R²(linear)={r2_lin:.4f}")
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print(f"2D linear fit failed: {e}")
+[?2004l[?2004h>     d_lin_popt = None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write results - use the standard 4-parameter Lorentzian fit
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     'G': {
+[?2004l[?2004h>         'x0': float(g_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(g_popt[1])),
+[?2004l[?2004h>         'amplitude': float(g_popt[2]),
+[?2004l[?2004h>         'offset': float(g_popt[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     '2D': {
+[?2004l[?2004h>         'x0': float(d_popt[0]),
+[?2004l[?2004h>         'gamma': float(abs(d_popt[1])),
+[?2004l[?2004h>         'amplitude': float(d_popt[2]),
+[?2004l[?2004h>         'offset': float(d_popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("\nFinal results:")
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/fit_final.py
+[?2004lG Lorentzian: x0=19196.97, gamma=401.11, amp=73511.25, offset=12252.62
+G Lorentzian+linear: x0=19206.40, gamma=391.21, amp=73466.59, offset_at_center=664634915.25
+
+2D Lorentzian: x0=33416.24, gamma=1442.68, amp=2748.89, offset=18340.42
+2D Lorentzian+linear: x0=33086.08, gamma=1251.05, amp=2729.06, offset_at_center=311642122.70
+  R²(linear)=0.9825
+
+Final results:
+{
+  "G": {
+    "x0": 19196.969939656203,
+    "gamma": 401.114738273876,
+    "amplitude": 73511.25275518208,
+    "offset": 12252.619148475194
+  },
+  "2D": {
+    "x0": 33416.236152159014,
+    "gamma": 1442.682829886083,
+    "amplitude": 2748.8935882079127,
+    "offset": 18340.417930283696
+  }
+}
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat /app/results.json
+[?2004l{
+  "G": {
+    "x0": 19196.969939656203,
+    "gamma": 401.114738273876,
+    "amplitude": 73511.25275518208,
+    "offset": 12252.619148475194
+  },
+  "2D": {
+    "x0": 33416.236152159014,
+    "gamma": 1442.682829886083,
+    "amplitude": 2748.8935882079127,
+    "offset": 18340.417930283696
+  }
+}[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 -c "import json; d=json.load(open('/app/results.json')); print('Keys:', list(d.keys())); print('G:', d['G']); print('2D:', d['2D']); print('All values are numbers:', all(isinstance(v,(int,float)) for peak in d.values() for v in peak.values()))"
+[?2004lKeys: ['G', '2D']
+G: {'x0': 19196.969939656203, 'gamma': 401.114738273876, 'amplitude': 73511.25275518208, 'offset': 12252.619148475194}
+2D: {'x0': 33416.236152159014, 'gamma': 1442.682829886083, 'amplitude': 2748.8935882079127, 'offset': 18340.417930283696}
+All values are numbers: True
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat << 'EOF' > /app/fit_robust.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def parse_data(filename):
+[?2004l[?2004h>     x_list, y_list = [], []
+[?2004l[?2004h>     with open(filename, 'r') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             line = line.strip()
+[?2004l[?2004h>             if not line:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             parts = line.split()
+[?2004l[?2004h>             if len(parts) >= 2:
+[?2004l[?2004h>                 x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>                 y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>                 x_list.append(x); y_list.append(y)
+[?2004l[?2004h>     return np.array(x_list), np.array(y_list)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return offset + amplitude * gamma**2 / ((x - x0)**2 + gamma**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = parse_data('/app/graphene.dat')
+[?2004l[?2004h> idx = np.argsort(x)
+[?2004l[?2004h> x, y = x[idx], y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> def robust_fit(xc, label):
+[?2004l[?2004h>     best = None
+[?2004l[?2004h>     for half in [2000, 2500, 3000, 3500, 4000]:
+[?2004l[?2004h>         m = (x >= xc-half) & (x <= xc+half)
+[?2004l[?2004h>         xf, yf = x[m], y[m]
+[?2004l[?2004h>         if len(xf) < 8:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         for g0 in [200, 400, 700, 1000, 1500, 2500]:
+[?2004l[?2004h>             off0 = np.percentile(yf, 15)
+[?2004l[?2004h>             amp0 = yf.max() - off0
+[?2004l[?2004h>             p0 = [xf[np.argmax(yf)], g0, amp0, off0]
+[?2004l[?2004h>             try:
+[?2004l[?2004h>                 popt, pcov = curve_fit(lorentzian, xf, yf, p0=p0, maxfev=100000)
+[?2004l[?2004h>             except Exception:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             yp = lorentzian(xf, *popt)
+[?2004l[?2004h>             ssres = np.sum((yf-yp)**2)
+[?2004l[?2004h>             sstot = np.sum((yf-yf.mean())**2)
+[?2004l[?2004h>             r2 = 1 - ssres/sstot
+[?2004l[?2004h>             gamma = abs(popt[1])
+[?2004l[?2004h>             # prefer physically reasonable (positive amp, gamma within window)
+[?2004l[?2004h>             if popt[2] <= 0 or gamma > half:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             score = r2
+[?2004l[?2004h>             if best is None or score > best[0]:
+[?2004l[?2004h>                 best = (score, popt.copy(), half, g0, r2)
+[?2004l[?2004h>     return best
+[?2004l[?2004h> 
+[?2004l[?2004h> # G
+[?2004l[?2004h> print("=== G robust ===")
+[?2004l[?2004h> for i in range(3):
+[?2004l[?2004h>     gb = robust_fit(19139, "G")
+[?2004l[?2004h>     print(f"  run{i}: R2={gb[0]:.4f} x0={gb[1][0]:.2f} gamma={abs(gb[1][1]):.2f} amp={gb[1][2]:.2f} off={gb[1][3]:.2f} (half={gb[2]},g0={gb[3]})")
+[?2004l[?2004h> 
+[?2004l[?2004h> # 2D
+[?2004l[?2004h> print("=== 2D robust ===")
+[?2004l[?2004h> for i in range(3):
+[?2004l[?2004h>     db = robust_fit(33245, "2D")
+[?2004l[?2004h>     print(f"  run{i}: R2={db[0]:.4f} x0={db[1][0]:.2f} gamma={abs(db[1][1]):.2f} amp={db[1][2]:.2f} off={db[1][3]:.2f} (half={db[2]},g0={db[3]})")
+[?2004l[?2004h> 
+[?2004l[?2004h> gb = robust_fit(19139, "G")
+[?2004l[?2004h> db = robust_fit(33245, "2D")
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {
+[?2004l[?2004h>   'G': {'x0': float(gb[1][0]), 'gamma': float(abs(gb[1][1])), 'amplitude': float(gb[1][2]), 'offset': float(gb[1][3])},
+[?2004l[?2004h>   '2D': {'x0': float(db[1][0]), 'gamma': float(abs(db[1][1])), 'amplitude': float(db[1][2]), 'offset': float(db[1][3])}
+[?2004l[?2004h> }
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print("\nFinal:")
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# python3 /app/fit_robust.py
+[?2004l=== G robust ===
+  run0: R2=0.9490 x0=19198.64 gamma=384.91 amp=72730.92 off=13548.52 (half=4000,g0=200)
+  run1: R2=0.9490 x0=19198.64 gamma=384.91 amp=72730.92 off=13548.52 (half=4000,g0=200)
+  run2: R2=0.9490 x0=19198.64 gamma=384.91 amp=72730.92 off=13548.52 (half=4000,g0=200)
+=== 2D robust ===
+  run0: R2=0.9001 x0=33447.77 gamma=2146.18 amp=3942.22 off=17049.73 (half=2500,g0=700)
+  run1: R2=0.9001 x0=33447.77 gamma=2146.18 amp=3942.22 off=17049.73 (half=2500,g0=700)
+  run2: R2=0.9001 x0=33447.77 gamma=2146.18 amp=3942.22 off=17049.73 (half=2500,g0=700)
+
+Final:
+{
+  "G": {
+    "x0": 19198.64083403918,
+    "gamma": 384.90798940484916,
+    "amplitude": 72730.92326743703,
+    "offset": 13548.515548880036
+  },
+  "2D": {
+    "x0": 33447.76949684965,
+    "gamma": 2146.183023180219,
+    "amplitude": 3942.22188596939,
+    "offset": 17049.733025640486
+  }
+}
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# cat /app/results.json && echo "---" && python3 -c "import json; d=json.load(open('/app/results.json')); assert set(d)=={'G','2D'}; assert all(set(v)=={'x0','gamma','amplitude','offset'} for v in d.values()); assert all(isinstance(x,(int,float)) for v in d.values() for x in v.values()); print('VALID JSON, structure OK')"
+[?2004l{
+  "G": {
+    "x0": 19198.64083403918,
+    "gamma": 384.90798940484916,
+    "amplitude": 72730.92326743703,
+    "offset": 13548.515548880036
+  },
+  "2D": {
+    "x0": 33447.76949684965,
+    "gamma": 2146.183023180219,
+    "amplitude": 3942.22188596939,
+    "offset": 17049.733025640486
+  }
+}---
+VALID JSON, structure OK
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3ca-pbrk5ybj-7309a-55z4k:/app# 

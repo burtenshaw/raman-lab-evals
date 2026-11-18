@@ -1,0 +1,3 @@
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Collecting main service artifacts

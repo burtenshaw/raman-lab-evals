@@ -1,0 +1,135 @@
+[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,768.701
+1100.5001,941.867
+1101.0003,726.939
+1101.5004,816.841
+[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# cat << 'EOF' > fit_spectrum.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> df = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': {'center': 1350, 'window': 100},
+[?2004l[?2004h>     'G': {'center': 1580, 'window': 100},
+[?2004l[?2004h>     '2D': {'center': 2690, 'window': 100}
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for peak, params in peaks.items():
+[?2004l[?2004h>     mask = (x > params['center'] - params['window']) & (x < params['center'] + params['window'])
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     p0 = [params['center'], 20, np.max(y_fit) - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     results[peak] = {
+[?2004l[?2004h>         'x0': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# python3 fit_spectrum.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_spectrum.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# pip install numpy pandas scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting pandas
+  Downloading pandas-3.1.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (16 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting python-dateutil>=2.9.0 (from pandas)
+  Downloading python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting tzdata (from python-dateutil>=2.9.0->pandas)
+  Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m203.3 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading pandas-3.1.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.0 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/12.0 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m12.0/12.0 MB[0m [31m246.6 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m213.6 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+Downloading tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+Installing collected packages: tzdata, numpy, scipy, python-dateutil, pandas
+[?25l[2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy]python3 fit_spectrum.py
+[2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas]cat /app/results.json
+[2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m5/5[0m [pandas]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 pandas-3.1.1 python-dateutil-4.0.0 scipy-1.18.1 tzdata-2026.6
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# python3 fit_spectrum.py
+[?2004l[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1353.9738387643029,
+    "gamma": 12.782464055099494,
+    "amplitude": 635.9434718124382,
+    "offset": 838.734776105824
+  },
+  "G": {
+    "x0": 1579.3907043698605,
+    "gamma": 9.066664346630624,
+    "amplitude": 6548.856566533952,
+    "offset": 803.1195310919447
+  },
+  "2D": {
+    "x0": 2688.701584216105,
+    "gamma": 25.58400076867803,
+    "amplitude": 9807.109954895579,
+    "offset": 734.3570217807612
+  },
+  "ID_IG": 0.09710755844955354
+}[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# pip install numpy pandas scipy
+[?2004lRequirement already satisfied: numpy in /usr/local/lib/python3.13/site-packages (2.5.5)
+Requirement already satisfied: pandas in /usr/local/lib/python3.13/site-packages (3.1.1)
+Requirement already satisfied: scipy in /usr/local/lib/python3.13/site-packages (1.18.1)
+Requirement already satisfied: python-dateutil>=2.9.0 in /usr/local/lib/python3.13/site-packages (from pandas) (4.0.0)
+Requirement already satisfied: tzdata in /usr/local/lib/python3.13/site-packages (from python-dateutil>=2.9.0->pandas) (2026.6)
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# python3 fit_spectrum.py
+[?2004l[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1353.9738387643029,
+    "gamma": 12.782464055099494,
+    "amplitude": 635.9434718124382,
+    "offset": 838.734776105824
+  },
+  "G": {
+    "x0": 1579.3907043698605,
+    "gamma": 9.066664346630624,
+    "amplitude": 6548.856566533952,
+    "offset": 803.1195310919447
+  },
+  "2D": {
+    "x0": 2688.701584216105,
+    "gamma": 25.58400076867803,
+    "amplitude": 9807.109954895579,
+    "offset": 734.3570217807612
+  },
+  "ID_IG": 0.09710755844955354
+}[?2004hroot@j-openenv-6afd8781884144d2f44fd41f-svvq9y0p-887dc-btnzb:/app# 

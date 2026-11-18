@@ -1,0 +1,167 @@
+[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# cat > fit_raman.py << 'EOF'
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian + offset model
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(x_center, window=50):
+[?2004l[?2004h>     mask = (x >= x_center - window) & (x <= x_center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max(y)-min(y), gamma ~ 10, x0 ~ x_center, offset ~ min(y)
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = x_center
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except RuntimeError:
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit D, G, 2D peaks
+[?2004l[?2004h> params_D = fit_peak(1350)
+[?2004l[?2004h> params_G = fit_peak(1580)
+[?2004l[?2004h> params_2D = fit_peak(2690)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Build result dictionary
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {
+[?2004l[?2004h>         "x0": float(params_D[2]),
+[?2004l[?2004h>         "gamma": float(params_D[1]),
+[?2004l[?2004h>         "amplitude": float(params_D[0]),
+[?2004l[?2004h>         "offset": float(params_D[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "G": {
+[?2004l[?2004h>         "x0": float(params_G[2]),
+[?2004l[?2004h>         "gamma": float(params_G[1]),
+[?2004l[?2004h>         "amplitude": float(params_G[0]),
+[?2004l[?2004h>         "offset": float(params_G[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "2D": {
+[?2004l[?2004h>         "x0": float(params_2D[2]),
+[?2004l[?2004h>         "gamma": float(params_2D[1]),
+[?2004l[?2004h>         "amplitude": float(params_2D[0]),
+[?2004l[?2004h>         "offset": float(params_2D[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "ID_IG": float(params_D[0] / params_G[0] if params_G[0] != 0 else np.nan)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON file
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# cat > fit_raman_simple.py << 'EOF'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data from CSV
+[?2004l[?2004h> x = []
+[?2004l[?2004h> y = []
+[?2004l[?2004h> with open('spectrum.csv', newline='') as csvfile:
+[?2004l[?2004h>     reader = csv.DictReader(csvfile)
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         y.append(float(row['intensity']))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x)
+[?2004l[?2004h> y = np.array(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> def estimate_lorentzian(x_center, window=50):
+[?2004l[?2004h>     # Select data within the window
+[?2004l[?2004h>     mask = (x >= x_center - window) & (x <= x_center + window)
+[?2004l[?2004h>     x_win = x[mask]
+[?2004l[?2004h>     y_win = y[mask]
+[?2004l[?2004h>     if len(x_win) == 0:
+[?2004l[?2004h>         return np.nan, np.nan, np.nan, np.nan
+[?2004l[?2004h>     # Offset as minimum intensity in window
+[?2004l[?2004h>     offset = float(y_win.min())
+[?2004l[?2004h>     # Amplitude as max - offset
+[?2004l[?2004h>     amplitude = float(y_win.max() - offset)
+[?2004l[?2004h>     # Peak position (x0) as x at maximum intensity
+[?2004l[?2004h>     idx_max = y_win.argmax()
+[?2004l[?2004h>     x0 = float(x_win[idx_max])
+[?2004l[?2004h>     # Half‑maximum level
+[?2004l[?2004h>     half_max = offset + amplitude / 2.0
+[?2004l[?2004h>     # Find left crossing point
+[?2004l[?2004h>     left_idx = np.where(y_win[:idx_max] <= half_max)[0]
+[?2004l[?2004h>     if left_idx.size == 0:
+[?2004l[?2004h>         left_x = x0
+[?2004l[?2004h>     else:
+[?2004l[?2004h>         i = left_idx[-1]
+[?2004l[?2004h>         # Linear interpolation between points i and i+1
+[?2004l[?2004h>         x1, y1 = x_win[i], y_win[i]
+[?2004l[?2004h>         x2, y2 = x_win[i+1], y_win[i+1]
+[?2004l[?2004h>         if y2 != y1:
+[?2004l[?2004h>             left_x = x1 + (half_max - y1) * (x2 - x1) / (y2 - y1)
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             left_x = x1
+[?2004l[?2004h>     # Find right crossing point
+[?2004l[?2004h>     right_idx = np.where(y_win[idx_max:] <= half_max)[0]
+[?2004l[?2004h>     if right_idx.size == 0:
+[?2004l[?2004h>         right_x = x0
+[?2004l[?2004h>     else:
+[?2004l[?2004h>         i = right_idx[0] + idx_max
+[?2004l[?2004h>         x1, y1 = x_win[i-1], y_win[i-1]
+[?2004l[?2004h>         x2, y2 = x_win[i], y_win[i]
+[?2004l[?2004h>         if y2 != y1:
+[?2004l[?2004h>             right_x = x1 + (half_max - y1) * (x2 - x1) / (y2 - y1)
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             right_x = x2
+[?2004l[?2004h>     # Gamma = half of the full width at half maximum
+[?2004l[?2004h>     gamma = float((right_x - left_x) / 2.0)
+[?2004l[?2004h>     return x0, gamma, amplitude, offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Estimate parameters for each peak
+[?2004l[?2004h> x0_D, gamma_D, amp_D, off_D = estimate_lorentzian(1350)
+[?2004l[?2004h> x0_G, gamma_G, amp_G, off_G = estimate_lorentzian(1580)
+[?2004l[?2004h> x0_2D, gamma_2D, amp_2D, off_2D = estimate_lorentzian(2690)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Defect ratio I_D/I_G
+[?2004l[?2004h> ID_IG = float(amp_D / amp_G) if amp_G != 0 else float('nan')
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {"x0": x0_D, "gamma": gamma_D, "amplitude": amp_D, "offset": off_D},
+[?2004l[?2004h>     "G": {"x0": x0_G, "gamma": gamma_G, "amplitude": amp_G, "offset": off_G},
+[?2004l[?2004h>     "2D": {"x0": x0_2D, "gamma": gamma_2D, "amplitude": amp_2D, "offset": off_2D},
+[?2004l[?2004h>     "ID_IG": ID_IG
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# python3 fit_raman_simple.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman_simple.py"[0m, line [35m3[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd886a4643bac7ac634e50-ynsld8dn-4991f-qq9l9:/app# 

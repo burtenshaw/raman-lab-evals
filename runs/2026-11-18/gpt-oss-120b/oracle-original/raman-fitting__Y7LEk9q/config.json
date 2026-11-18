@@ -1,0 +1,12 @@
+{
+    "task": {
+        "name": "terminal-bench/raman-fitting",
+        "ref": "latest"
+    },
+    "trial_name": "raman-fitting__Y7LEk9q",
+    "trials_dir": "/tmp/work/jobs/oracle-original",
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "bfa758cc-dd6d-4a2b-bf26-92134097a508"
+}

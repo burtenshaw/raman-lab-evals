@@ -1,0 +1,19 @@
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s07__GUVpQje/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s07__GUVpQje/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s07__GUVpQje/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s07__GUVpQje/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s07__GUVpQje/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s07__GUVpQje/agent/trajectory.json
+Collecting main service artifacts

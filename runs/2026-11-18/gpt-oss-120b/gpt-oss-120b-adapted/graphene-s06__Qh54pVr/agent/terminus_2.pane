@@ -1,0 +1,106 @@
+[?2004hroot@j-openenv-6afd8a7029e8b7ccfbbb81b4-h3uyq9cv-d45e9-6tfnt:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a7029e8b7ccfbbb81b4-h3uyq9cv-d45e9-6tfnt:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a7029e8b7ccfbbb81b4-h3uyq9cv-d45e9-6tfnt:/app# cat > fit_raman.py << 'EOF'
+[?2004l
+    x_fit = x[mask]
+    y_fit = y[mask]
+    # Initial guesses: amplitude ~ max(y)-min(y), gamma ~ 10, x0 ~ center, offset ~ min(y)
+    amp_guess = y_fit.max() - y_fit.min()
+    gamma_guess = 10.0
+    x0_guess = center
+    offset_guess = y_fit.min()
+    p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+    # Bounds to keep parameters physical
+    bounds = ([0, 0, center - 5, 0], [np.inf, np.inf, center + 5, np.inf])
+    popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=bounds)
+    return {
+        'x0': float(popt[2]),
+        'gamma': float(popt[1]),
+        'amplitude': float(popt[0]),
+        'offset': float(popt[3])
+    }
+
+# Fit each peak
+results = {}
+results['D'] = fit_peak(1350)
+results['G'] = fit_peak(1580)
+results['2D'] = fit_peak(2690)
+# Defect ratio I_D/I_G (amplitude ratio)
+results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+
+# Write to JSON
+with open('results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+
+print('Fitting complete. Results written to results.json')
+EOF
+[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> df = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> # Ensure columns are correctly named (case‑insensitive handling)
+[?2004l[?2004h> if 'raman_shift_cm-1' in df.columns:
+[?2004l[?2004h>     x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> elif 'raman_shift_cm-1' in df.columns.str.lower():
+[?2004l[?2004h>     x = df[df.columns[df.columns.str.lower() == 'raman_shift_cm-1'][0]].values
+[?2004l[?2004h> else:
+[?2004l[?2004h>     raise KeyError('Raman shift column not found')
+[?2004l[?2004h> 
+[?2004l[?2004h> if 'intensity' in df.columns:
+[?2004l[?2004h>     y = df['intensity'].values
+[?2004l[?2004h> elif 'intensity' in df.columns.str.lower():
+[?2004l[?2004h>     y = df[df.columns[df.columns.str.lower() == 'intensity'][0]].values
+[?2004l[?2004h> else:
+[?2004l[?2004h>     raise KeyError('Intensity column not found')
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian with offset
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak given an approximate center and window width
+[?2004l[?2004h> def fit_peak(center, width=50):
+[?2004l[?2004h>     mask = (x >= center - width) & (x <= center + width)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max(y)-min(y), gamma ~ 10, x0 ~ center, offset ~ min(y)
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = center
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     # Bounds to keep parameters physical
+[?2004l[?2004h>     bounds = ([0, 0, center - 5, 0], [np.inf, np.inf, center + 5, np.inf])
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=bounds)
+[?2004l[?2004h>     return {
+[?2004l[?2004h>         'x0': float(popt[2]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit each peak
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> results['D'] = fit_peak(1350)
+[?2004l[?2004h> results['G'] = fit_peak(1580)
+[?2004l[?2004h> results['2D'] = fit_peak(2690)
+[?2004l[?2004h> # Defect ratio I_D/I_G (amplitude ratio)
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a7029e8b7ccfbbb81b4-h3uyq9cv-d45e9-6tfnt:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd8a7029e8b7ccfbbb81b4-h3uyq9cv-d45e9-6tfnt:/app# pip3 install --quiet pandas numpy scipy
+[?2004lpython3 fit_raman.py

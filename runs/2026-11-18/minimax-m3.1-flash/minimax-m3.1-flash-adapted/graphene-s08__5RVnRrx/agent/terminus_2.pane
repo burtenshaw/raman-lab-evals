@@ -1,0 +1,900 @@
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# ls -la /app
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:39 ..
+-rw-r--r--. 1 root root 69871 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# head -5 /app/spectrum.csv; wc -l /app/spectrum.csv; tail -3 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,902.977
+1100.5001,976.662
+1101.0003,906.945
+1101.5004,1014.009
+3801 /app/spectrum.csv
+2998.9997,819.908
+2999.4999,821.811
+3000.0000,791.488
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 --version; which pip3 pip; pip3 --version
+[?2004lPython 3.13.18
+/usr/local/bin/pip3
+/usr/local/bin/pip
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# timeout 60 pip3 install --quiet numpy scipy 2>&1 | tail -5
+[?2004lWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004l2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat > /app/explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = np.array(d['raman_shift_cm1'] if 'raman_shift_cm1' in d.dtype.names else d[d.dtype.names[0]])
+[?2004l[?2004h> y = np.array(d['intensity'])
+[?2004l[?2004h> print(d.dtype.names)
+[?2004l[?2004h> print('n=', x.size, 'x range', x.min(), x.max(), 'dx', np.diff(x)[:3], np.diff(x)[-3:])
+[?2004l[?2004h> print('y min/max/median', y.min(), y.max(), np.median(y))
+[?2004l[?2004h> for lo, hi in [(1100,1250),(1250,1450),(1450,1500),(1500,1660),(1660,1750),(2400,2550),(2550,2800),(2800,3000)]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     print(lo,hi,'min %.1f max %.1f at %.1f median %.1f' % (y[m].min(), y[m].max(), x[m][np.argmax(y[m])], np.median(y[m])))
+[?2004l[?2004h> # local maxima
+[?2004l[?2004h> idx = [i for i in range(1,len(y)-1) if y[i]>y[i-1] and y[i]>=y[i+1]]]
+[?2004l[?2004h> for i in idx:
+[?2004l[?2004h>     if y[i] > 1000:
+[?2004l[?2004h>         print('local max', x[i], y[i])
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 /app/explore.py
+[?2004l  File [35m"/app/explore.py"[0m, line [35m12[0m
+    idx = [i for i in range(1,len(y)-1) if y[i]>y[i-1] and y[i]>=y[i+1]][1;31m][0m
+                                                                        [1;31m^[0m
+[1;35mSyntaxError[0m: [35munmatched ']'[0m
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat > /app/explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> name = d.dtype.names[0]
+[?2004l[?2004h> x = np.array(d[name])
+[?2004l[?2004h> y = np.array(d['intensity'])
+[?2004l[?2004h> print(d.dtype.names)
+[?2004l[?2004h> print('n=', x.size, 'x range', x.min(), x.max())
+[?2004l[?2004h> print('y min/max/median', y.min(), y.max(), np.median(y))
+[?2004l[?2004h> for lo, hi in [(1100,1250),(1250,1450),(1450,1500),(1500,1660),(1660,1750),(2400,2550),(2550,2800),(2800,3000)]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     print(lo,hi,'min %.1f max %.1f at %.1f median %.1f' % (y[m].min(), y[m].max(), x[m][np.argmax(y[m])], np.median(y[m])))
+[?2004l[?2004h> idx = [i for i in range(1,len(y)-1) if y[i]>y[i-1] and y[i]>=y[i+1]]
+[?2004l[?2004h> for i in idx:
+[?2004l[?2004h>     if y[i] > 1000:
+[?2004l[?2004h>         print('local max', round(x[i],3), round(y[i],1))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 /app/explore.py
+[?2004l('raman_shift_cm1', 'intensity')
+n= 3800 x range 1100.0 3000.0
+y min/max/median 725.375 13904.551 953.1435
+1100 1250 min 854.5 max 1107.3 at 1212.5 median 982.4
+1250 1450 min 892.8 max 2325.6 at 1351.1 median 1075.6
+1450 1500 min 916.7 max 1092.9 at 1456.6 median 1000.3
+1500 1660 min 949.9 max 7573.6 at 1581.1 median 1224.4
+1660 1750 min 829.1 max 1086.1 at 1675.2 median 952.0
+2400 2550 min 802.5 max 1105.1 at 2546.9 median 926.4
+2550 2800 min 979.4 max 13904.6 at 2684.4 median 1715.1
+2800 3000 min 725.4 max 1143.5 at 2801.4 median 877.1
+local max 1101.5 1014.0
+local max 1103.001 1016.7
+local max 1105.501 1008.5
+local max 1108.002 1043.4
+local max 1110.003 1024.2
+local max 1112.503 1042.3
+local max 1114.504 1006.9
+local max 1117.004 1015.7
+local max 1118.505 1024.3
+local max 1119.505 1004.3
+local max 1120.505 1009.1
+local max 1121.506 1034.7
+local max 1123.506 1010.8
+local max 1126.507 1040.4
+local max 1127.507 1065.9
+local max 1129.008 1012.9
+local max 1130.508 1022.4
+local max 1131.508 1009.0
+local max 1133.509 1014.0
+local max 1135.009 1029.7
+local max 1137.01 1037.1
+local max 1138.51 1018.5
+local max 1140.01 1009.0
+local max 1148.513 1035.8
+local max 1154.014 1015.5
+local max 1157.515 1004.9
+local max 1158.515 1001.0
+local max 1161.516 1045.0
+local max 1163.517 1002.3
+local max 1165.017 1003.2
+local max 1166.017 1026.3
+local max 1167.018 1027.0
+local max 1168.518 1059.6
+local max 1170.018 1073.6
+local max 1171.519 1018.9
+local max 1173.019 1027.8
+local max 1175.02 1043.2
+local max 1177.02 1027.8
+local max 1180.521 1038.2
+local max 1181.522 1011.4
+local max 1182.522 1044.7
+local max 1185.022 1069.9
+local max 1187.023 1024.9
+local max 1188.023 1028.5
+local max 1189.023 1007.4
+local max 1193.024 1062.7
+local max 1194.025 1022.6
+local max 1195.525 1035.8
+local max 1200.026 1008.1
+local max 1204.027 1041.2
+local max 1206.028 1007.3
+local max 1207.528 1054.8
+local max 1211.529 1013.9
+local max 1212.53 1107.3
+local max 1217.031 1018.8
+local max 1219.031 1028.4
+local max 1220.532 1038.9
+local max 1224.033 1001.8
+local max 1225.533 1029.6
+local max 1226.533 1064.4
+local max 1231.034 1050.6
+local max 1234.035 1099.9
+local max 1237.036 1030.6
+local max 1241.037 1075.8
+local max 1245.538 1026.4
+local max 1249.039 1024.9
+local max 1250.04 1037.6
+local max 1251.54 1046.8
+local max 1252.54 1038.4
+local max 1253.54 1026.3
+local max 1256.541 1035.1
+local max 1259.042 1024.4
+local max 1260.542 1007.9
+local max 1261.542 1078.2
+local max 1265.544 1036.7
+local max 1267.544 1071.7
+local max 1268.544 1017.4
+local max 1269.545 1099.9
+local max 1271.545 1042.0
+local max 1273.546 1050.1
+local max 1274.546 1048.5
+local max 1276.046 1032.1
+local max 1277.047 1039.7
+local max 1278.047 1054.2
+local max 1280.047 1016.8
+local max 1281.048 1077.7
+local max 1282.548 1040.6
+local max 1284.048 1040.6
+local max 1285.549 1081.3
+local max 1287.549 1009.7
+local max 1289.05 1053.2
+local max 1291.05 1087.9
+local max 1292.05 1038.8
+local max 1293.551 1087.5
+local max 1295.051 1019.4
+local max 1297.052 1067.0
+local max 1298.052 1094.7
+local max 1299.552 1122.4
+local max 1301.053 1132.3
+local max 1302.053 1084.4
+local max 1303.053 1097.9
+local max 1304.554 1101.4
+local max 1306.054 1125.3
+local max 1307.555 1138.4
+local max 1308.555 1126.7
+local max 1310.055 1178.9
+local max 1311.556 1161.1
+local max 1313.556 1148.1
+local max 1315.057 1183.9
+local max 1316.057 1180.8
+local max 1317.057 1247.4
+local max 1318.057 1199.8
+local max 1319.058 1215.8
+local max 1320.058 1198.9
+local max 1321.058 1244.6
+local max 1323.059 1289.2
+local max 1324.059 1231.1
+local max 1326.06 1312.6
+local max 1327.56 1341.8
+local max 1330.561 1432.0
+local max 1332.061 1507.6
+local max 1333.061 1570.1
+local max 1334.562 1648.9
+local max 1337.062 1728.6
+local max 1339.063 1849.9
+local max 1340.563 1962.1
+local max 1343.564 2129.0
+local max 1345.565 2270.1
+local max 1346.565 2255.4
+local max 1347.565 2239.3
+local max 1349.066 2278.4
+local max 1350.066 2307.0
+local max 1351.066 2325.6
+local max 1352.066 2257.0
+local max 1353.067 2240.4
+local max 1356.568 1992.0
+local max 1358.568 1934.3
+local max 1360.569 1803.8
+local max 1362.069 1656.6
+local max 1364.07 1618.1
+local max 1365.57 1541.4
+local max 1366.57 1485.1
+local max 1367.57 1509.6
+local max 1370.071 1363.7
+local max 1371.071 1374.3
+local max 1372.072 1346.1
+local max 1373.572 1337.4
+local max 1375.072 1311.5
+local max 1377.073 1258.6
+local max 1378.073 1232.6
+local max 1379.073 1209.5
+local max 1380.574 1209.4
+local max 1381.574 1213.4
+local max 1382.574 1196.0
+local max 1384.575 1174.0
+local max 1385.575 1179.9
+local max 1388.076 1109.8
+local max 1389.076 1105.8
+local max 1390.076 1099.8
+local max 1391.077 1097.6
+local max 1392.077 1063.3
+local max 1393.077 1101.0
+local max 1394.578 1137.4
+local max 1395.578 1125.0
+local max 1396.578 1089.3
+local max 1397.578 1153.8
+local max 1399.079 1127.6
+local max 1401.079 1111.1
+local max 1403.58 1107.1
+local max 1405.58 1103.2
+local max 1407.581 1039.2
+local max 1408.581 1053.7
+local max 1409.582 1046.9
+local max 1412.582 1031.1
+local max 1414.083 1038.5
+local max 1415.083 1016.2
+local max 1416.583 1077.8
+local max 1418.084 1038.7
+local max 1419.084 1113.8
+local max 1420.084 1046.6
+local max 1421.585 1086.7
+local max 1423.085 1048.6
+local max 1425.086 1017.7
+local max 1426.086 1032.1
+local max 1428.086 1045.4
+local max 1429.587 1102.4
+local max 1431.587 1068.2
+local max 1433.088 1039.9
+local max 1434.088 1033.3
+local max 1437.089 1024.7
+local max 1439.089 1026.2
+local max 1440.59 1047.3
+local max 1442.09 1061.9
+local max 1444.091 1013.7
+local max 1446.091 1055.2
+local max 1447.592 1046.5
+local max 1450.092 1048.5
+local max 1451.592 1054.6
+local max 1452.593 1016.8
+local max 1453.593 1043.4
+local max 1456.594 1092.9
+local max 1459.094 1017.0
+local max 1461.095 1066.4
+local max 1463.096 1028.5
+local max 1465.096 1026.2
+local max 1466.096 1047.0
+local max 1467.597 1037.6
+local max 1472.598 1024.8
+local max 1475.599 1043.8
+local max 1476.599 1060.6
+local max 1478.6 1053.8
+local max 1480.1 1026.7
+local max 1481.6 1033.5
+local max 1483.601 1013.3
+local max 1485.101 1000.6
+local max 1486.102 1047.6
+local max 1487.602 1047.8
+local max 1489.102 1028.4
+local max 1491.603 1077.5
+local max 1493.604 1015.5
+local max 1496.104 1089.1
+local max 1497.104 1056.3
+local max 1498.605 1066.0
+local max 1500.105 1035.1
+local max 1501.106 1066.4
+local max 1502.106 1060.6
+local max 1505.107 1093.5
+local max 1506.607 1070.4
+local max 1508.107 1098.9
+local max 1509.608 1055.7
+local max 1511.108 1101.1
+local max 1512.108 1111.5
+local max 1513.609 1014.3
+local max 1514.609 1067.9
+local max 1516.61 1084.8
+local max 1518.11 1036.3
+local max 1520.611 1084.7
+local max 1521.611 1083.2
+local max 1522.611 1065.8
+local max 1524.112 1108.2
+local max 1525.112 1103.5
+local max 1526.612 1095.7
+local max 1527.612 1134.0
+local max 1530.113 1161.1
+local max 1531.614 1208.0
+local max 1533.114 1184.7
+local max 1534.114 1143.9
+local max 1536.115 1227.1
+local max 1537.115 1225.1
+local max 1538.615 1242.2
+local max 1540.616 1284.8
+local max 1541.616 1314.7
+local max 1542.616 1292.7
+local max 1544.117 1269.4
+local max 1545.117 1292.3
+local max 1546.117 1408.8
+local max 1548.118 1343.5
+local max 1549.118 1401.4
+local max 1551.619 1504.6
+local max 1553.619 1552.4
+local max 1555.62 1626.8
+local max 1558.621 1794.1
+local max 1560.121 1896.3
+local max 1564.622 2377.2
+local max 1581.127 7573.6
+local max 1598.131 2296.8
+local max 1599.632 2100.7
+local max 1600.632 2045.5
+local max 1601.632 1928.7
+local max 1602.632 1874.1
+local max 1605.133 1697.0
+local max 1607.134 1556.6
+local max 1608.134 1511.7
+local max 1609.634 1502.8
+local max 1611.134 1421.5
+local max 1614.135 1388.7
+local max 1615.136 1349.1
+local max 1616.636 1337.0
+local max 1618.636 1363.2
+local max 1619.637 1218.8
+local max 1620.637 1268.1
+local max 1622.638 1232.8
+local max 1623.638 1190.9
+local max 1625.638 1182.5
+local max 1627.139 1204.6
+local max 1628.639 1141.1
+local max 1630.64 1136.1
+local max 1632.64 1208.5
+local max 1634.141 1102.2
+local max 1636.141 1156.1
+local max 1637.141 1112.5
+local max 1638.142 1182.9
+local max 1639.142 1090.6
+local max 1641.142 1105.1
+local max 1643.643 1172.0
+local max 1645.144 1034.6
+local max 1647.144 1064.0
+local max 1649.144 1117.0
+local max 1650.145 1095.6
+local max 1651.145 1084.2
+local max 1653.146 1072.6
+local max 1654.646 1020.4
+local max 1656.146 1022.7
+local max 1657.647 1076.7
+local max 1659.147 1026.0
+local max 1661.148 1056.8
+local max 1662.148 1036.7
+local max 1663.648 1038.3
+local max 1666.649 1039.7
+local max 1667.649 1010.5
+local max 1672.651 1034.0
+local max 1674.151 1006.4
+local max 1675.151 1086.1
+local max 1677.652 1006.7
+local max 1678.652 1010.9
+local max 1679.652 1007.7
+local max 1681.653 1013.9
+local max 1685.154 1046.7
+local max 1686.154 1011.6
+local max 1688.155 1039.4
+local max 1691.156 1019.7
+local max 1694.656 1020.2
+local max 1706.66 1002.2
+local max 1708.16 1019.3
+local max 1712.161 1025.5
+local max 1715.162 1000.1
+local max 1717.662 1000.0
+local max 1723.164 1003.8
+local max 1725.164 1007.4
+local max 1780.179 1008.6
+local max 1785.68 1026.0
+local max 1791.182 1001.5
+local max 1793.182 1002.4
+local max 1803.685 1008.0
+local max 1813.188 1027.3
+local max 1817.689 1047.0
+local max 2475.362 1002.4
+local max 2499.368 1001.0
+local max 2500.368 1007.2
+local max 2512.372 1019.9
+local max 2515.372 1009.9
+local max 2520.874 1035.0
+local max 2522.374 1041.4
+local max 2524.375 1085.5
+local max 2525.375 1036.5
+local max 2527.876 1029.2
+local max 2529.376 1015.9
+local max 2532.877 1003.8
+local max 2534.878 1051.9
+local max 2537.378 1014.3
+local max 2538.879 1039.2
+local max 2539.879 1020.5
+local max 2541.379 1029.1
+local max 2543.88 1039.7
+local max 2545.38 1005.9
+local max 2546.881 1105.1
+local max 2548.881 1002.0
+local max 2550.382 1053.9
+local max 2551.882 1081.5
+local max 2552.882 1040.0
+local max 2553.883 1028.9
+local max 2554.883 1109.9
+local max 2555.883 1105.3
+local max 2556.883 1039.7
+local max 2558.384 1075.6
+local max 2559.884 1061.9
+local max 2561.385 1149.1
+local max 2562.885 1095.7
+local max 2564.886 1133.1
+local max 2565.886 1132.6
+local max 2567.386 1110.9
+local max 2568.886 1078.0
+local max 2569.887 1148.6
+local max 2571.887 1136.6
+local max 2572.888 1123.2
+local max 2575.388 1171.2
+local max 2576.388 1173.4
+local max 2577.389 1198.8
+local max 2578.889 1179.1
+local max 2579.889 1178.1
+local max 2581.89 1169.4
+local max 2582.89 1235.2
+local max 2584.891 1223.2
+local max 2586.391 1257.5
+local max 2587.391 1277.9
+local max 2588.392 1216.2
+local max 2589.392 1265.7
+local max 2590.892 1230.4
+local max 2591.893 1245.5
+local max 2592.893 1267.5
+local max 2593.893 1263.5
+local max 2594.893 1296.0
+local max 2595.894 1309.5
+local max 2597.394 1291.9
+local max 2598.394 1313.6
+local max 2600.895 1391.7
+local max 2602.395 1407.9
+local max 2603.896 1421.1
+local max 2605.896 1388.0
+local max 2606.897 1464.2
+local max 2608.397 1485.7
+local max 2609.897 1491.1
+local max 2611.398 1528.9
+local max 2612.398 1532.4
+local max 2613.398 1524.2
+local max 2614.398 1604.6
+local max 2615.899 1616.4
+local max 2617.399 1669.7
+local max 2618.4 1645.2
+local max 2620.4 1704.7
+local max 2623.401 1814.9
+local max 2626.402 1916.2
+local max 2628.402 1922.9
+local max 2630.403 2006.6
+local max 2632.903 2124.1
+local max 2636.404 2330.4
+local max 2637.905 2317.6
+local max 2639.905 2453.2
+local max 2649.408 3300.2
+local max 2653.409 3806.8
+local max 2681.916 13559.1
+local max 2684.417 13904.6
+local max 2685.417 13891.9
+local max 2686.418 13762.3
+local max 2712.924 4319.3
+local max 2721.427 3144.3
+local max 2722.427 3118.9
+local max 2724.428 2843.8
+local max 2728.428 2564.3
+local max 2730.929 2371.3
+local max 2731.93 2349.2
+local max 2734.43 2223.7
+local max 2736.931 2072.5
+local max 2738.431 2046.2
+local max 2740.932 1937.5
+local max 2742.932 1827.9
+local max 2744.433 1844.9
+local max 2745.433 1800.2
+local max 2748.434 1725.4
+local max 2749.934 1652.9
+local max 2750.934 1695.0
+local max 2751.935 1640.5
+local max 2753.935 1589.7
+local max 2754.936 1518.7
+local max 2757.436 1520.4
+local max 2758.937 1453.5
+local max 2760.937 1478.0
+local max 2761.937 1435.5
+local max 2763.938 1461.8
+local max 2765.438 1398.6
+local max 2766.438 1396.8
+local max 2767.439 1288.0
+local max 2768.439 1301.9
+local max 2769.439 1312.3
+local max 2771.44 1332.5
+local max 2773.44 1300.4
+local max 2774.441 1256.4
+local max 2775.941 1300.8
+local max 2776.941 1255.4
+local max 2777.942 1325.7
+local max 2779.442 1239.5
+local max 2780.442 1242.9
+local max 2781.442 1256.6
+local max 2782.443 1261.1
+local max 2783.943 1218.6
+local max 2785.944 1171.9
+local max 2787.444 1180.8
+local max 2790.445 1168.5
+local max 2792.445 1173.7
+local max 2793.946 1108.2
+local max 2794.946 1132.7
+local max 2795.946 1123.9
+local max 2798.447 1092.9
+local max 2801.448 1143.5
+local max 2804.448 1111.6
+local max 2806.449 1066.8
+local max 2807.449 1085.4
+local max 2808.45 1084.4
+local max 2810.45 1055.9
+local max 2811.95 1131.1
+local max 2813.451 1052.4
+local max 2814.451 1104.3
+local max 2816.952 1021.7
+local max 2817.952 1032.4
+local max 2819.953 1005.7
+local max 2820.953 1057.6
+local max 2821.953 1023.9
+local max 2828.455 1023.1
+local max 2833.956 1013.5
+local max 2838.958 1034.0
+local max 2848.46 1016.6
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat > /app/fit_test.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = np.array(d[d.dtype.names[0]])
+[?2004l[?2004h> y = np.array(d['intensity'])
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, x0, gamma, amp, off):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(lo, hi, guess):
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     p, cov = curve_fit(lor, xs, ys, p0=guess, maxfev=100000)
+[?2004l[?2004h>     res = lor(xs, *p) - ys
+[?2004l[?2004h>     rms = np.sqrt(np.mean(res**2))
+[?2004l[?2004h>     return p, rms, len(xs)
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>  'D':  [(1200,1500),(1250,1470),(1280,1450),(1300,1420),(1150,1550)],
+[?2004l[?2004h>  'G':  [(1450,1700),(1480,1680),(1500,1660),(1400,1750)],
+[?2004l[?2004h>  '2D': [(2450,2950),(2500,2900),(2550,2850),(2400,3000),(2600,2780)],
+[?2004l[?2004h> }
+[?2004l[?2004h> guess = {'D': (1350,15,1400,950), 'G': (1581,15,6600,950), '2D': (2685,15,13000,900)}
+[?2004l[?2004h> for name, wins in peaks.items():
+[?2004l[?2004h>     print('===', name)
+[?2004l[?2004h>     for (lo,hi) in wins:
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             p, rms, n = fit(lo,hi,guess[name])
+[?2004l[?2004h>             print('win %6.1f-%6.1f n=%4d  x0=%9.3f gamma=%8.3f amp=%10.2f off=%8.2f rms=%8.3f' % (lo,hi,n,p[0],p[1],p[2],p[3],rms))
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             print('win', lo, hi, 'FAILED', e)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 /app/fit_test.py
+[?2004l=== D
+win 1200.0-1500.0 n= 600  x0= 1349.236 gamma=  13.461 amp=   1312.54 off=  974.18 rms=  40.604
+win 1250.0-1470.0 n= 440  x0= 1349.234 gamma=  13.472 amp=   1312.45 off=  973.97 rms=  39.297
+win 1280.0-1450.0 n= 340  x0= 1349.232 gamma=  13.523 amp=   1313.07 off=  972.29 rms=  39.147
+win 1300.0-1420.0 n= 240  x0= 1349.231 gamma=  13.534 amp=   1312.95 off=  972.11 rms=  39.104
+win 1150.0-1550.0 n= 800  x0= 1349.238 gamma=  12.665 amp=   1303.42 off= 1000.66 rms=  70.485
+=== G
+win 1450.0-1700.0 n= 500  x0= 1581.130 gamma=   8.434 amp=   6596.40 off=  942.59 rms=  40.886
+win 1480.0-1680.0 n= 400  x0= 1581.130 gamma=   8.440 amp=   6596.73 off=  941.17 rms=  39.372
+win 1500.0-1660.0 n= 320  x0= 1581.130 gamma=   8.435 amp=   6596.18 off=  942.52 rms=  38.732
+win 1400.0-1750.0 n= 700  x0= 1581.129 gamma=   8.411 amp=   6595.29 off=  947.92 rms=  47.040
+=== 2D
+win 2450.0-2950.0 n=1000  x0= 2684.730 gamma=  17.013 amp=  13066.75 off=  806.21 rms=  41.990
+win 2500.0-2900.0 n= 800  x0= 2684.730 gamma=  17.012 amp=  13066.86 off=  806.30 rms=  41.098
+win 2550.0-2850.0 n= 600  x0= 2684.731 gamma=  17.016 amp=  13067.60 off=  804.99 rms=  39.983
+win 2400.0-3000.0 n=1200  x0= 2684.730 gamma=  17.012 amp=  13066.56 off=  806.65 rms=  42.883
+win 2600.0-2780.0 n= 360  x0= 2684.731 gamma=  17.002 amp=  13066.00 off=  808.84 rms=  39.805
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat > /app/diag.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = np.array(d[d.dtype.names[0]])
+[?2004l[?2004h> y = np.array(d['intensity'])
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, x0, gamma, amp, off):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def fitwin(lo, hi, g):
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     p, _ = curve_fit(lor, xs, ys, p0=g, maxfev=100000)
+[?2004l[?2004h>     r = ys - lor(xs, *p)
+[?2004l[?2004h>     return p, xs, r
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, (lo,hi), g in [('D',(1250,1470),(1350,14,1400,950)),
+[?2004l[?2004h>                           ('G',(1480,1680),(1581,9,6600,950)),
+[?2004l[?2004h>                           ('2D',(2500,2900),(2685,17,13000,900))]:
+[?2004l[?2004h>     p, xs, r = fitwin(lo,hi,g)
+[?2004l[?2004h>     print('===',name,'x0=%.4f gamma=%.4f amp=%.3f off=%.3f rms=%.3f'%(p[0],p[1],p[2],p[3],np.sqrt(np.mean(r**2))))
+[?2004l[?2004h>     # binned residuals
+[?2004l[?2004h>     nb = 12
+[?2004l[?2004h>     edges = np.linspace(xs.min(), xs.max(), nb+1)
+[?2004l[?2004h>     for i in range(nb):
+[?2004l[?2004h>         m = (xs>=edges[i])&(xs<edges[i+1] if i<nb-1 else xs<=edges[i+1])
+[?2004l[?2004h>         if m.sum()>0:
+[?2004l[?2004h>             print('  %7.1f-%7.1f  n=%4d  mean resid=%+8.2f  std=%7.2f'%(edges[i],edges[i+1],m.sum(),r[m].mean(),r[m].std()))
+[?2004l[?2004h> 
+[?2004l[?2004h> # baseline regions away from peaks
+[?2004l[?2004h> for lo,hi in [(1100,1250),(1450,1500),(1700,2400),(2900,3000)]:
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     print('baseline %d-%d: mean=%.1f median=%.1f std=%.1f'%(lo,hi,y[m].mean(),np.median(y[m]),y[m].std()))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 /app/diag.py
+[?2004l=== D x0=1349.2342 gamma=13.4723 amp=1312.451 off=973.972 rms=39.297
+   1250.0- 1268.3  n=  37  mean resid=   +0.41  std=  39.04
+   1268.3- 1286.6  n=  37  mean resid=   -5.49  std=  38.22
+   1286.6- 1304.9  n=  36  mean resid=   -1.95  std=  32.92
+   1304.9- 1323.2  n=  37  mean resid=   +3.12  std=  33.25
+   1323.2- 1341.5  n=  36  mean resid=   -5.03  std=  39.72
+   1341.5- 1359.8  n=  37  mean resid=   -2.46  std=  41.95
+   1359.8- 1378.1  n=  37  mean resid=   +7.58  std=  40.79
+   1378.1- 1396.4  n=  36  mean resid=   -8.67  std=  39.77
+   1396.4- 1414.7  n=  37  mean resid=   -3.71  std=  38.96
+   1414.7- 1433.0  n=  36  mean resid=   +1.58  std=  44.65
+   1433.0- 1451.3  n=  37  mean resid=   +4.29  std=  38.76
+   1451.3- 1469.6  n=  37  mean resid=   +9.96  std=  37.74
+=== G x0=1581.1298 gamma=8.4397 amp=6596.732 off=941.169 rms=39.372
+   1480.1- 1496.7  n=  34  mean resid=  +10.14  std=  40.43
+   1496.7- 1513.4  n=  33  mean resid=  +16.62  std=  38.06
+   1513.4- 1530.0  n=  33  mean resid=   -4.60  std=  23.01
+   1530.0- 1546.6  n=  33  mean resid=  +14.39  std=  46.26
+   1546.6- 1563.2  n=  34  mean resid=   -3.36  std=  33.22
+   1563.2- 1579.9  n=  33  mean resid=   +3.68  std=  32.41
+   1579.9- 1596.5  n=  33  mean resid=   +2.29  std=  28.68
+   1596.5- 1613.1  n=  33  mean resid=   -9.48  std=  38.59
+   1613.1- 1629.8  n=  34  mean resid=  -10.91  std=  46.06
+   1629.8- 1646.4  n=  33  mean resid=   +2.17  std=  44.86
+   1646.4- 1663.0  n=  33  mean resid=   -4.39  std=  42.13
+   1663.0- 1679.7  n=  34  mean resid=  -15.95  std=  36.56
+=== 2D x0=2684.7302 gamma=17.0122 amp=13066.862 off=806.299 rms=41.098
+   2500.4- 2533.7  n=  67  mean resid=  +26.54  std=  35.73
+   2533.7- 2567.0  n=  67  mean resid=  +18.06  std=  40.22
+   2567.0- 2600.3  n=  66  mean resid=   +8.76  std=  35.95
+   2600.3- 2633.6  n=  67  mean resid=  +17.27  std=  36.67
+   2633.6- 2666.9  n=  66  mean resid=   +2.09  std=  33.88
+   2666.9- 2700.2  n=  67  mean resid=   +0.89  std=  36.57
+   2700.2- 2733.5  n=  67  mean resid=   -4.95  std=  40.37
+   2733.5- 2766.8  n=  66  mean resid=   -6.09  std=  43.79
+   2766.8- 2800.1  n=  67  mean resid=  -14.12  std=  41.53
+   2800.1- 2833.4  n=  66  mean resid=  -12.14  std=  37.23
+   2833.4- 2866.7  n=  67  mean resid=  -20.72  std=  37.50
+   2866.7- 2900.0  n=  67  mean resid=  -15.72  std=  41.00
+baseline 1100-1250: mean=982.7 median=982.4 std=38.9
+baseline 1450-1500: mean=1002.2 median=1000.3 std=41.3
+baseline 1700-2400: mean=897.0 median=895.5 std=43.5
+baseline 2900-3000: mean=837.8 median=838.5 std=40.9
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat > /app/diag2.py << 'EOF'
+[?2004l rms=%.2f'%np.sqrt(np.mean(r**2)))
+
+def lor_lin(x,x0,gamma,amp,off,slope):
+    return amp*gamma**2/((x-x0)**2+gamma**2)+off+slope*(x-x0)
+print('--- per-peak fits with linear background')
+for name,(lo,hi),g in [('D',(1250,1470),(1350,14,1400,950,0)),('G',(1480,1680),(1581,9,6600,950,0)),('2D',(2500,2900),(2685,17,13000,900,0))]:
+    m=(x>=lo)&(x<=hi); xs,ys=x[m],y[m]
+    pp,_=curve_fit(lor_lin,xs,ys,p0=g,maxfev=100000)
+    print('%s lin: x0=%.3f gamma=%.3f amp=%.2f off=%.2f slope=%.5f'%(name,pp[0],pp[1],pp[2],pp[3],pp[4]))
+EOF
+python3 /app/diag2.py
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = np.array(d[d.dtype.names[0]])
+[?2004l[?2004h> y = np.array(d['intensity'])
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, x0, gamma, amp, off):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor3(x, x0d, gd, ad, x0g, gg, ag, x02, g2, a2, off):
+[?2004l[?2004h>     return lor(x,x0d,gd,ad,0)+lor(x,x0g,gg,ag,0)+lor(x,x02,g2,a2,0)+off
+[?2004l[?2004h> 
+[?2004l[?2004h> # binned medians over full range
+[?2004l[?2004h> print('--- binned medians (100 cm-1 bins)')
+[?2004l[?2004h> for lo in range(1100, 3000, 100):
+[?2004l[?2004h>     m=(x>=lo)&(x<lo+100)
+[?2004l[?2004h>     print('%5d-%5d med=%8.1f mean=%8.1f std=%6.1f'%(lo,lo+100,np.median(y[m]),y[m].mean(),y[m].std()))
+[?2004l[?2004h> 
+[?2004l[?2004h> p,c = curve_fit(lor3, x, y, p0=[1349,13.5,1312,1581,8.4,6596,2685,17,13000,900], maxfev=200000)
+[?2004l[?2004h> print('--- global 3-peak + constant fit')
+[?2004l[?2004h> print('D  x0=%.3f gamma=%.3f amp=%.2f'%tuple(p[0:3]))
+[?2004l[?2004h> print('G  x0=%.3f gamma=%.3f amp=%.2f'%tuple(p[3:6]))
+[?2004l[?2004h> print('2D x0=%.3f gamma=%.3f amp=%.2f'%tuple(p[6:9]))
+[?2004l[?2004h> print('off=%.2f'%p[9])
+[?2004l[?2004h> r = y-lor3(x,*p)
+[?2004l[?2004h> print('global rms=%.2f'%np.sqrt(np.mean(r**2)))
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor_lin(x,x0,gamma,amp,off,slope):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2)+off+slope*(x-x0)
+[?2004l[?2004h> print('--- per-peak fits with linear background')
+[?2004l[?2004h> for name,(lo,hi),g in [('D',(1250,1470),(1350,14,1400,950,0)),('G',(1480,1680),(1581,9,6600,950,0)),('2D',(2500,2900),(2685,17,13000,900,0))]:
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi); xs,ys=x[m],y[m]
+[?2004l[?2004h>     pp,_=curve_fit(lor_lin,xs,ys,p0=g,maxfev=100000)
+[?2004l[?2004h>     print('%s lin: x0=%.3f gamma=%.3f amp=%.2f off=%.2f slope=%.5f'%(name,pp[0],pp[1],pp[2],pp[3],pp[4]))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 /app/diag2.py
+[?2004l--- binned medians (100 cm-1 bins)
+ 1100- 1200 med=   982.8 mean=   983.1 std=  37.4
+ 1200- 1300 med=   998.7 mean=   999.0 std=  44.9
+ 1300- 1400 med=  1278.8 mean=  1437.1 std= 386.0
+ 1400- 1500 med=  1013.3 mean=  1009.8 std=  42.9
+ 1500- 1600 med=  1394.8 mean=  2401.5 std=1883.8
+ 1600- 1700 med=  1047.2 mean=  1126.0 std= 229.3
+ 1700- 1800 med=   932.9 mean=   931.2 std=  42.0
+ 1800- 1900 med=   907.9 mean=   909.9 std=  38.5
+ 1900- 2000 med=   899.1 mean=   899.8 std=  39.2
+ 2000- 2100 med=   893.8 mean=   892.4 std=  42.8
+ 2100- 2200 med=   880.2 mean=   880.0 std=  38.4
+ 2200- 2300 med=   880.2 mean=   880.5 std=  40.7
+ 2300- 2400 med=   882.5 mean=   885.2 std=  37.6
+ 2400- 2500 med=   903.0 mean=   903.4 std=  41.6
+ 2500- 2600 med=  1034.8 mean=  1061.0 std= 107.4
+ 2600- 2700 med=  3367.8 mean=  5500.9 std=4317.3
+ 2700- 2800 med=  1633.2 mean=  2325.7 std=1588.7
+ 2800- 2900 med=   930.1 mean=   940.1 std=  69.9
+ 2900- 3000 med=   838.7 mean=   838.1 std=  40.9
+--- global 3-peak + constant fit
+D  x0=1349.178 gamma=17.380 amp=1312.94
+G  x0=1581.132 gamma=8.711 amp=6602.54
+2D x0=2684.730 gamma=16.700 amp=13056.08
+off=873.88
+global rms=62.68
+--- per-peak fits with linear background
+D lin: x0=1349.217 gamma=13.493 amp=1312.81 off=973.19 slope=0.03636
+G lin: x0=1581.135 gamma=8.441 amp=6596.82 off=940.91 slope=-0.12325
+2D lin: x0=2684.740 gamma=17.000 amp=13065.80 off=809.43 slope=-0.12241
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat > /app/final_fit.py << 'EOF'
+[?2004lfloat(p[0]), 'gamma': float(p[1]), 'amplitude': float(p[2]), 'offset': float(p[3])}
+
+res['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']
+print('ID_IG = %.6f' % res['ID_IG'])
+
+with open('/app/results.json', 'w') as f:
+    json.dump(res, f, indent=2)
+    f.write('\n')
+EOF
+python3 /app/final_fit.py
+[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = np.array(d[d.dtype.names[0]])
+[?2004l[?2004h> y = np.array(d['intensity'])
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, x0, gamma, amp, off):
+[?2004l[?2004h>     return amp*gamma**2/((x-x0)**2+gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> cfg = {
+[?2004l[?2004h>   'D':  dict(win=(1250.0, 1470.0), p0=(1350.0, 14.0, 1400.0, 950.0)),
+[?2004l[?2004h>   'G':  dict(win=(1480.0, 1680.0), p0=(1581.0,  9.0, 6600.0, 950.0)),
+[?2004l[?2004h>   '2D': dict(win=(2500.0, 2900.0), p0=(2685.0, 17.0, 13000.0, 900.0)),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> res = {}
+[?2004l[?2004h> for name, c in cfg.items():
+[?2004l[?2004h>     lo, hi = c['win']
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     p, cov = curve_fit(lor, xs, ys, p0=c['p0'], maxfev=200000)
+[?2004l[?2004h>     err = np.sqrt(np.diag(cov))
+[?2004l[?2004h>     r = ys - lor(xs, *p)
+[?2004l[?2004h>     print('%-3s win[%.0f,%.0f] n=%d  x0=%.4f+-%.4f  gamma=%.4f+-%.4f  amp=%.3f+-%.3f  off=%.3f+-%.3f  rms=%.3f'
+[?2004l[?2004h>           % (name, lo, hi, xs.size, p[0], err[0], p[1], err[1], p[2], err[2], p[3], err[3], np.sqrt(np.mean(r**2))))
+[?2004l[?2004h>     res[name] = {'x0': float(p[0]), 'gamma': float(p[1]), 'amplitude': float(p[2]), 'offset': float(p[3])}
+[?2004l[?2004h> 
+[?2004l[?2004h> res['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']
+[?2004l[?2004h> print('ID_IG = %.6f' % res['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(res, f, indent=2)
+[?2004l[?2004h>     f.write('\n')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 /app/final_fit.py
+[?2004lD   win[1250,1470] n=440  x0=1349.2342+-0.0881  gamma=13.4723+-0.1540  amp=1312.451+-8.631  off=973.972+-2.825  rms=39.297
+G   win[1480,1680] n=400  x0=1581.1298+-0.0139  gamma=8.4397+-0.0227  amp=6596.732+-10.886  off=941.169+-2.610  rms=39.372
+2D  win[2500,2900] n=800  x0=2684.7302+-0.0104  gamma=17.0122+-0.0169  amp=13066.862+-7.984  off=806.299+-1.925  rms=41.098
+ID_IG = 0.198955
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1349.2342334335406,
+    "gamma": 13.472284869487078,
+    "amplitude": 1312.4506494795228,
+    "offset": 973.9719274037674
+  },
+  "G": {
+    "x0": 1581.1297886270615,
+    "gamma": 8.439692868830548,
+    "amplitude": 6596.731837042126,
+    "offset": 941.1686603076104
+  },
+  "2D": {
+    "x0": 2684.730151283685,
+    "gamma": 17.012158533539615,
+    "amplitude": 13066.861943525479,
+    "offset": 806.2988755988808
+  },
+  "ID_IG": 0.19895467663393843
+}
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# python3 -c "import json;r=json.load(open('/app/results.json'));print(sorted(r));print(r['ID_IG']);print(r['D']);print(r['G']);print(r['2D'])"
+[?2004l['2D', 'D', 'G', 'ID_IG']
+0.19895467663393843
+{'x0': 1349.2342334335406, 'gamma': 13.472284869487078, 'amplitude': 1312.4506494795228, 'offset': 973.9719274037674}
+{'x0': 1581.1297886270615, 'gamma': 8.439692868830548, 'amplitude': 6596.731837042126, 'offset': 941.1686603076104}
+{'x0': 2684.730151283685, 'gamma': 17.012158533539615, 'amplitude': 13066.861943525479, 'offset': 806.2988755988808}
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# rm -f /app/explore.py /app/fit_test.py /app/diag.py /app/diag2.py; ls -la /app
+[?2004ltotal 80
+drwxr-xr-x. 2 root root    66 Nov 18 11:42 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:39 ..
+-rw-r--r--. 1 root root  1267 Nov 18 11:42 final_fit.py
+-rw-r--r--. 1 root root   471 Nov 18 11:42 results.json
+-rw-r--r--. 1 root root 69871 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1349.2342334335406,
+    "gamma": 13.472284869487078,
+    "amplitude": 1312.4506494795228,
+    "offset": 973.9719274037674
+  },
+  "G": {
+    "x0": 1581.1297886270615,
+    "gamma": 8.439692868830548,
+    "amplitude": 6596.731837042126,
+    "offset": 941.1686603076104
+  },
+  "2D": {
+    "x0": 2684.730151283685,
+    "gamma": 17.012158533539615,
+    "amplitude": 13066.861943525479,
+    "offset": 806.2988755988808
+  },
+  "ID_IG": 0.19895467663393843
+}
+[?2004hroot@j-openenv-6afd8e59e5cad0e4dc3e6e5b-luwjxfkd-fb0a5-vmfcv:/app# 

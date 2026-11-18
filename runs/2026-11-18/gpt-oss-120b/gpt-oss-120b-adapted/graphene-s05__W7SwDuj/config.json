@@ -1,0 +1,19 @@
+{
+    "task": {
+        "path": "/tmp/work/datasets/raman-lab/graphene-s05",
+        "source": "raman-lab"
+    },
+    "trial_name": "graphene-s05__W7SwDuj",
+    "trials_dir": "/tmp/work/jobs/gpt-oss-120b-adapted",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/openai/gpt-oss-120b:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "1508089b-8cc3-4406-b7dc-a96bffda9f8f"
+}

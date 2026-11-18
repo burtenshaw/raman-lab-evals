@@ -1,0 +1,225 @@
+[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:06 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:14 ..
+-rw-r--r--. 1 root root 69871 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# cat > fit_peaks.py << 'EOF'
+[?2004l[?2004h> import pandas as pd, numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> df = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> # Ensure columns are correct
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(x_center, window=100):
+[?2004l[?2004h>     mask = (x >= x_center - window) & (x <= x_center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = x_center
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     return popt  # amplitude, gamma, x0, offset
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {}
+[?2004l[?2004h> for name, center in [('D', 1350), ('G', 1580), ('2D', 2690)]:
+[?2004l[?2004h>     amp, gamma, x0, offset = fit_peak(center, window=120)
+[?2004l[?2004h>     peaks[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G (using amplitudes)
+[?2004l[?2004h> ID_IG = peaks['D']['amplitude'] / peaks['G']['amplitude'] if peaks['G']['amplitude'] != 0 else None
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': peaks['D'],
+[?2004l[?2004h>     'G': peaks['G'],
+[?2004l[?2004h>     '2D': peaks['2D'],
+[?2004l[?2004h>     'ID_IG': float(ID_IG) if ID_IG is not None else None
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# python3 fit_peaks.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_peaks.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd, numpy as np, json
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd88954643bac7ac634e71-zfw31f9v-916be-jlx8k:/app# cat > fit_peaks_simple.py << 'EOF'
+[?2004l) & (x <= center + window)
+        x_fit = x[mask]
+        y_fit = y[mask]
+    else:
+        x_fit = [xi for xi in x if center - window <= xi <= center + window]
+        y_fit = [yi for xi, yi in zip(x, y) if center - window <= xi <= center + window]
+    return x_fit, y_fit
+
+results = {}
+peaks_info = {'D': 1350, 'G': 1580, '2D': 2690}
+
+for name, ctr in peaks_info.items():
+    x_fit, y_fit = fit_peak_region(ctr, window=120)
+    # Initial guesses
+    if len(y_fit) == 0:
+        # No data, skip
+        results[name] = {'x0': None, 'gamma': None, 'amplitude': None, 'offset': None}
+        continue
+    y_min = min(y_fit)
+    y_max = max(y_fit)
+    amp_guess = y_max - y_min
+    gamma_guess = 10.0
+    x0_guess = x_fit[y_fit.index(y_max)] if isinstance(y_fit, list) else x_fit[np.argmax(y_fit)]
+    offset_guess = y_min
+    p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+
+    if have_curve_fit:
+        try:
+            popt, _ = curve_fit(lorentzian, np.array(x_fit), np.array(y_fit), p0=p0)
+            amplitude,[?2004h> import csv, json, math, sys
+[?2004l[?2004h> 
+[?2004l[?2004h> # Try to import numpy and scipy
+[?2004l[?2004h> try:
+[?2004l
+with[?2004h>     import numpy as np
+[?2004l[?2004h> except ImportError:
+[?2004l[?2004h>     np = None
+[?2004l[?2004h> 
+[?2004l,[?2004h> try:
+[?2004l[?2004h>     from scipy.optimize import curve_fit
+[?2004l[?2004h>     have_curve_fit = True
+[?2004l[?2004h> except ImportError:
+[?2004l[?2004h>     have_curve_fit = False
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data from CSV using csv module
+[?2004l[?2004h> x_vals = []
+[?2004l[?2004h> y_vals = []
+[?2004l[?2004h> with open('spectrum.csv', newline='') as csvfile:
+[?2004l[?2004h>     reader = csv.DictReader(csvfile)
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             x_vals.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>             y_vals.append(float(row['intensity']))
+[?2004l[?2004h>         except (KeyError, ValueError):
+[?2004l[?2004h>             # Skip malformed rows
+[?2004l[?2004h>             continue
+[?2004l[?2004h> 
+[?2004l[?2004h> if np is not None:
+[?2004l[?2004h>     x = np.array(x_vals)
+[?2004l[?2004h>     y = np.array(y_vals)
+[?2004l[?2004h> else:
+[?2004l[?2004h>     x = x_vals
+[?2004l[?2004h>     y = y_vals
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak_region(center, window=120):
+[?2004l[?2004h>     # Select data within window
+[?2004l[?2004h>     if np is not None:
+[?2004l[?2004h>         mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>         x_fit = x[mask]
+[?2004l[?2004h>         y_fit = y[mask]
+[?2004l[?2004h>     else:
+[?2004l[?2004h>         x_fit = [xi for xi in x if center - window <= xi <= center + window]
+[?2004l[?2004h>         y_fit = [yi for xi, yi in zip(x, y) if center - window <= xi <= center + window]
+[?2004l[?2004h>     return x_fit, y_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peaks_info = {'D': 1350, 'G': 1580, '2D': 2690}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, ctr in peaks_info.items():
+[?2004l[?2004h>     x_fit, y_fit = fit_peak_region(ctr, window=120)
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     if len(y_fit) == 0:
+[?2004l[?2004h>         # No data, skip
+[?2004l[?2004h>         results[name] = {'x0': None, 'gamma': None, 'amplitude': None, 'offset': None}
+[?2004l[?2004h>         continue
+[?2004l[?2004h>     y_min = min(y_fit)
+[?2004l[?2004h>     y_max = max(y_fit)
+[?2004l[?2004h>     amp_guess = y_max - y_min
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = x_fit[y_fit.index(y_max)] if isinstance(y_fit, list) else x_fit[np.argmax(y_fit)]
+[?2004l[?2004h>     offset_guess = y_min
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h> 
+[?2004l[?2004h>     if have_curve_fit:
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             popt, _ = curve_fit(lorentzian, np.array(x_fit), np.array(y_fit), p0=p0)
+[?2004l[?2004h>             amplitude, gamma, x0, offset = popt
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             # Fallback to heuristic if fitting fails
+[?2004l[?2004h>             have_curve_fit = False
+[?2004l[?2004h>     if not have_curve_fit:
+[?2004l[?2004h>         # Simple heuristic estimation
+[?2004l[?2004h>         amplitude = amp_guess
+[?2004l[?2004h>         offset = offset_guess
+[?2004l[?2004h>         x0 = x0_guess
+[?2004l[?2004h>         # Estimate gamma as half-width at half-maximum (approximate)
+[?2004l[?2004h>         half_max = offset + amplitude / 2.0
+[?2004l[?2004h>         # Find points on each side of the peak where y crosses half_max
+[?2004l[?2004h>         left_gamma = None
+[?2004l[?2004h>         right_gamma = None
+[?2004l[?2004h>         # Ensure data is sorted by x
+[?2004l[?2004h>         if np is not None:
+[?2004l[?2004h>             sorted_idx = np.argsort(x_fit)
+[?2004l[?2004h>             x_sorted = x_fit[sorted_idx]
+[?2004l[?2004h>             y_sorted = y_fit[sorted_idx]
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             combined = sorted(zip(x_fit, y_fit))
+[?2004l[?2004h>             x_sorted, y_sorted = zip(*combined) if combined else ([], [])
+[?2004l[?2004h>         # Scan for crossing points
+[?2004l[?2004h>         for i in range(1, len(x_sorted)):
+[?2004l[?2004h>             if (y_sorted[i-1] - half_max) * (y_sorted[i] - half_max) <= 0:
+[?2004l[?2004h>                 # Linear interpolation for crossing point
+[?2004l[?2004h>                 x1, y1 = x_sorted[i-1], y_sorted[i-1]
+[?2004l[?2004h>                 x2, y2 = x_sorted[i], y_sorted[i]
+[?2004l[?2004h>                 if y2 != y1:
+[?2004l[?2004h>                     x_cross = x1 + (half_max - y1) * (x2 - x1) / (y2 - y1)
+[?2004l[?2004h>                 else:
+[?2004l[?2004h>                     x_cross = x1
+[?2004l[?2004h>                 if x_cross < x0 and left_gamma is None:
+[?2004l[?2004h>                     left_gamma = abs(x0 - x_cross)
+[?2004l[?2004h>                 elif x_cross > x0 and right_gamma is None:
+[?2004l[?2004h>                     right_gamma = abs(x_cross - x0)
+[?2004l[?2004h>         if left_gamma is not None and right_gamma is not None:
+[?2004l[?2004h>             gamma = (left_gamma + right_gamma) / 2.0
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             gamma = gamma_guess
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amplitude),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G using amplitudes (avoid division by zero)
+[?2004l[?2004h> amp_D = results['D']['amplitude']
+[?2004l[?2004h> amp_G = results['G']['amplitude']
+[?2004l[?2004h> ID_IG = amp_D / amp_G if amp_G not in (0, None) else None
+[?2004l[?2004h> results['ID_IG'] = float(ID_IG) if ID_IG is not None else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOFpython3 fit_peaks_simple.py
+[?2004l[?2004h> cat results.json
+[?2004l[?2004h> 

@@ -1,0 +1,317 @@
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# ls -l /app/spectrum.csv
+[?2004l-rw-r--r--. 1 root root 72012 Nov 18 11:07 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1018.716
+1100.5001,1054.576
+1101.0003,963.467
+1101.5004,965.532
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> df = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': {'x0': 1350, 'gamma': 20, 'amplitude': np.max(y), 'offset': np.min(y), 'range': (1200, 1450)},
+[?2004l[?2004h>     'G': {'x0': 1580, 'gamma': 20, 'amplitude': np.max(y), 'offset': np.min(y), 'range': (1500, 1650)},
+[?2004l[?2004h>     '2D': {'x0': 2690, 'gamma': 40, 'amplitude': np.max(y), 'offset': np.min(y), 'range': (2600, 2800)}
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, params in peaks.items():
+[?2004l[?2004h>     mask = (x >= params['range'][0]) & (x <= params['range'][1])
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Improve initial guess for amplitude and offset based on local window
+[?2004l[?2004h>     local_max = np.max(y_fit)
+[?2004l[?2004h>     local_min = np.min(y_fit)
+[?2004l[?2004h>     p0 = [params['x0'], params['gamma'], local_max - local_min, local_min]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results saved to /app/results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import csv
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data using csv module
+[?2004l[?2004h> x = []
+[?2004l[?2004h> y = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader)  # skip header
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x.append(float(row[0]))
+[?2004l[?2004h>         y.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x)
+[?2004l[?2004h> y = np.array(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': {'x0': 1350, 'gamma': 20, 'range': (1200, 1450)},
+[?2004l[?2004h>     'G': {'x0': 1580, 'gamma': 20, 'range': (1500, 1650)},
+[?2004l[?2004h>     '2D': {'x0': 2690, 'gamma': 40, 'range': (2600, 2800)}
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, params in peaks.items():
+[?2004l[?2004h>     mask = (x >= params['range'][0]) & (x <= params['range'][1])
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     local_max = np.max(y_fit)
+[?2004l[?2004h>     local_min = np.min(y_fit)
+[?2004l[?2004h>     p0 = [params['x0'], params['gamma'], local_max - local_min, local_min]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results saved to /app/results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m2[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import csv
+[?2004l       JTJ = [[0.0]*4 for _ in range(4)]
+        JTr = [0.0]*4
+        for i in range(len(x_data)):
+            for r in range(4):
+                for c in range(4):
+                    JTJ[r][c] += jac[i][r] * jac[i][c]
+                JTr[r] += jac[i][r] * res[i]
+        
+        try:
+            delta = solve_linear(JTJ, JTr)
+        except ZeroDivisionError:
+            break
+            
+        params = [params[i] + delta[i] for i in range(4)]
+        if sum(abs(d) for d in delta) < 1e-6:
+            break
+    return params
+
+# Load data
+x_all = []
+y_all = []
+with open('/app/spectrum.csv', 'r') as f:
+    reader = csv.reader(f)
+    next(reader)
+    for row in reader:
+        x_all.append(float(row[0]))
+        y_all.append(float(row[1]))
+
+peaks_config = {
+    'D': {'x0': 1350, 'gamma': 20, 'range': (1200, 1450)},
+    'G': {'x0': 1580, 'gamma': 20, 'range': (1500, 1650)},
+    '2D': {'x0': 2690, 'gamma': 40, 'range': (2600, 2800)}
+}
+
+results = {}
+for name, conf in peaks_config.items():
+    x_fit = [x for x in x_all if conf['range'][0] <= x <= conf['range'][1]]
+    y_fit = [y for x, y in zip(x_all, y_all) if conf['range'][0] <= x <= conf['range'][1]]
+    
+    popt = fit_peak(x_fit, y_fit, conf['x0'], conf['gamma'])
+    results[name] = {
+        'x0': popt[0],
+        'gamma': popt[1],
+        'amplitude': popt[2],
+        'offset': popt[3]
+    }
+
+results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+[?2004h> import math
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amp, offset):
+[?2004l[?2004h>     return amp * (gamma**2) / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def get_residuals(x_data, y_data, params):
+[?2004l[?2004h>     x0, gamma, amp, offset = params
+[?2004l[?2004h>     return [y_data[i] - lorentzian(x_data[i], x0, gamma, amp, offset) for i in range(len(x_data))]
+[?2004l[?2004h> 
+[?2004l[?2004h> def get_jacobian(x_data, y_data, params):
+[?2004l[?2004h>     x0, gamma, amp, offset = params
+[?2004l[?2004h>     jac = []
+[?2004l[?2004h>     for x in x_data:
+[?2004l[?2004h>         diff = x - x0
+[?2004l[?2004h>         denom = diff**2 + gamma**2
+[?2004l[?2004h>         # dI/dx0
+[?2004l[?2004h>         dfdx0 = amp * gamma**2 * (2 * diff) / (denom**2)
+[?2004l[?2004h>         # dI/dgamma
+[?2004l[?2004h>         dfdgamma = amp * (2 * gamma * denom - 2 * gamma * gamma**2) / (denom**2)
+[?2004l[?2004h>         # dI/damp
+[?2004l[?2004h>         dfdamp = gamma**2 / denom
+[?2004l[?2004h>         # dI/doffset
+[?2004l[?2004h>         dfdoffset = 1.0
+[?2004l[?2004h>         jac.append([dfdx0, dfdgamma, dfdamp, dfdoffset])
+[?2004l[?2004h>     return jac
+[?2004l[?2004h> 
+[?2004l[?2004h> def solve_linear(A, b):
+[?2004l[?2004h>     # Solves Ax = b for 4x4 using Gaussian elimination
+[?2004l[?2004h>     n = len(b)
+[?2004l[?2004h>     for i in range(n):
+[?2004l[?2004h>         max_row = i
+[?2004l[?2004h>         for k in range(i+1, n):
+[?2004l[?2004h>             if abs(A[k][i]) > abs(A[max_row][i]):
+[?2004l[?2004h>                 max_row = k
+[?2004l[?2004h>         A[i], A[max_row] = A[max_row], A[i]
+[?2004l[?2004h>         b[i], b[max_row] = b[max_row], b[i]
+[?2004l[?2004h> 
+[?2004l[?2004h>         for k in range(i+1, n):
+[?2004l[?2004h>             c = -A[k][i] / A[i][i]
+[?2004l[?2004h>             for j in range(i, n):
+[?2004l[?2004h>                 if i == j:
+[?2004l[?2004h>                     A[k][j] = 0
+[?2004l[?2004h>                 else:
+[?2004l[?2004h>                     A[k][j] += c * A[i][j]
+[?2004l[?2004h>             b[k] += c * b[i]
+[?2004l[?2004h> 
+[?2004l[?2004h>     x = [0 for _ in range(n)]
+[?2004l[?2004h>     for i in range(n-1, -1, -1):
+[?2004l[?2004h>         x[i] = (b[i] - sum(A[i][j] * x[j] for j in range(i+1, n))) / A[i][i]
+[?2004l[?2004h>     return x
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x_data, y_data, x0_init, gamma_init):
+[?2004l[?2004h>     # Initial guess: x0, gamma, amplitude, offset
+[?2004l[?2004h>     amp_init = max(y_data) - min(y_data)
+[?2004l[?2004h>     offset_init = min(y_data)
+[?2004l[?2004h>     params = [x0_init, gamma_init, amp_init, offset_init]
+[?2004l[?2004h> 
+[?2004l[?2004h>     for iteration in range(50):
+[?2004l[?2004h>         res = get_residuals(x_data, y_data, params)
+[?2004l[?2004h>         jac = get_jacobian(x_data, y_data, params)
+[?2004l[?2004h>         
+[?2004l[?2004h>         # Construct Normal Equations: (J^T J) delta = J^T res
+[?2004l[?2004h>         JTJ = [[0.0]*4 for _ in range(4)]
+[?2004l[?2004h>         JTr = [0.0]*4
+[?2004l[?2004h>         for i in range(len(x_data)):
+[?2004l[?2004h>             for r in range(4):
+[?2004l[?2004h>                 for c in range(4):
+[?2004l[?2004h>                     JTJ[r][c] += jac[i][r] * jac[i][c]
+[?2004l[?2004h>                 JTr[r] += jac[i][r] * res[i]
+[?2004l[?2004h>         
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             delta = solve_linear(JTJ, JTr)
+[?2004l[?2004h>         except ZeroDivisionError:
+[?2004l[?2004h>             break
+[?2004l[?2004h>             
+[?2004l[?2004h>         params = [params[i] + delta[i] for i in range(4)]
+[?2004l[?2004h>         if sum(abs(d) for d in delta) < 1e-6:
+[?2004l[?2004h>             break
+[?2004l[?2004h>     return params
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> x_all = []
+[?2004l[?2004h> y_all = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader)
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x_all.append(float(row[0]))
+[?2004l[?2004h>         y_all.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks_config = {
+[?2004l[?2004h>     'D': {'x0': 1350, 'gamma': 20, 'range': (1200, 1450)},
+[?2004l[?2004h>     'G': {'x0': 1580, 'gamma': 20, 'range': (1500, 1650)},
+[?2004l[?2004h>     '2D': {'x0': 2690, 'gamma': 40, 'range': (2600, 2800)}
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, conf in peaks_config.items():
+[?2004l[?2004h>     x_fit = [x for x in x_all if conf['range'][0] <= x <= conf['range'][1]]
+[?2004l[?2004h>     y_fit = [y for x, y in zip(x_all, y_all) if conf['range'][0] <= x <= conf['range'][1]]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt = fit_peak(x_fit, y_fit, conf['x0'], conf['gamma'])
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': popt[0],
+[?2004l[?2004h>         'gamma': popt[1],
+[?2004l[?2004h>         'amplitude': popt[2],
+[?2004l[?2004h>         'offset': popt[3]
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# python3 fit_raman.py
+[?2004l[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.3946507058445,
+    "gamma": 17.11815820448261,
+    "amplitude": 2353.162966951353,
+    "offset": 1007.6891363952909
+  },
+  "G": {
+    "x0": 1582.1930913018664,
+    "gamma": 8.982501286383506,
+    "amplitude": 7869.79256472256,
+    "offset": 1033.6870996896503
+  },
+  "2D": {
+    "x0": 2692.700866348862,
+    "gamma": 24.142761438916164,
+    "amplitude": 16032.181844457837,
+    "offset": 1073.506667481287
+  },
+  "ID_IG": 0.2990120702164036
+}[?2004hroot@j-openenv-6afd88254643bac7ac634e36-6yukb0a9-aeb29-hgsmm:/app# 

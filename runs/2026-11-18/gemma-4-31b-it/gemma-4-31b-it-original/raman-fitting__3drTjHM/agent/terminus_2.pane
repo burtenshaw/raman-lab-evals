@@ -1,0 +1,502 @@
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# ls -la
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# head -n 20 graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat << 'EOF' > fit_peaks.py
+[?2004la p: p[0])
+
+# More robust: separate regions for G and 2D
+# G is ~1580, 2D is ~2670. Let's find the global maxima in two separated regions
+# Since we don't know the units, let's just pick the two highest peaks that are far apart
+top_peaks = []
+if len(peaks) > 0:
+    top_peaks.append(peaks[0])
+    for p in peaks[1:]:
+        if abs(p[0] - top_peaks[0][0]) > (np.max(x) - np.min(x)) * 0.1:
+            top_peaks.append(p)
+            break
+
+# Sort by x coordinate: G first, then 2D
+top_peaks = sorted(top_peaks, key=lambda p: p[0])
+
+results = {}
+peak_names = ['G', '2D']
+for i in range(min(2, len(top_peaks))):
+    p_x, p_y = top_peaks[i]
+    # Define a fit range around the peak
+    mask = (x > p_x - 50) & (x < p_x + 50)
+    x_fit = x[mask]
+    y_fit = y[mask]
+    
+    try:
+        # Initial guess: x0=p_x, gamma=10, amp=p_y-offset, offset=min(y_fit)
+        p0 = [p_x, 10, p_y - np.min(y_fit), np.min(y_fit)]
+        popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+        results[peak_names[i]] = {
+            'x0': float(popt[0]),
+            'gamma': float(popt[1]),
+            'amplitude': float(popt[2]),
+            'offset': float(popt[3])
+        }
+    except Exception as e:
+        print(f'Fit failed for {peak_names[i]}: {e}')
+
+with open('results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amp, offset):
+[?2004l[?2004h>     return amp * (gamma/2)**2 / ((x - x0)**2 + (gamma/2)**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> lines = open('graphene.dat').readlines()
+[?2004l[?2004h> data = []
+[?2004l[?2004h> for line in lines:
+[?2004l[?2004h>     parts = line.split()
+[?2004l[?2004h>     if len(parts) == 2:
+[?2004l[?2004h>         x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>         y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>         data.append([x, y])
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.array(data)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find peaks by searching for local maxima
+[?2004l[?2004h> # We look for the two most prominent peaks
+[?2004l[?2004h> # First, subtract baseline or just look for peaks
+[?2004l[?2004h> # We'll search for the G and 2D peaks
+[?2004l[?2004h> # Let's sort peaks by amplitude
+[?2004l[?2004h> peaks = []
+[?2004l[?2004h> for i in range(1, len(y) - 1):
+[?2004l[?2004h>     if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>         peaks.append((x[i], y[i]))
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = sorted(peaks, key=lambda p: p[1], reverse=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> # We assume the two highest peaks are G and 2D
+[?2004l[?2004h> # G is usually lower shift than 2D
+[?2004l[?2004h> peak_candidates = sorted(peaks[:5], key=lambda p: p[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> # More robust: separate regions for G and 2D
+[?2004l[?2004h> # G is ~1580, 2D is ~2670. Let's find the global maxima in two separated regions
+[?2004l[?2004h> # Since we don't know the units, let's just pick the two highest peaks that are far apart
+[?2004l[?2004h> top_peaks = []
+[?2004l[?2004h> if len(peaks) > 0:
+[?2004l[?2004h>     top_peaks.append(peaks[0])
+[?2004l[?2004h>     for p in peaks[1:]:
+[?2004l[?2004h>         if abs(p[0] - top_peaks[0][0]) > (np.max(x) - np.min(x)) * 0.1:
+[?2004l[?2004h>             top_peaks.append(p)
+[?2004l[?2004h>             break
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort by x coordinate: G first, then 2D
+[?2004l[?2004h> top_peaks = sorted(top_peaks, key=lambda p: p[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peak_names = ['G', '2D']
+[?2004l[?2004h> for i in range(min(2, len(top_peaks))):
+[?2004l[?2004h>     p_x, p_y = top_peaks[i]
+[?2004l[?2004h>     # Define a fit range around the peak
+[?2004l[?2004h>     mask = (x > p_x - 50) & (x < p_x + 50)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         # Initial guess: x0=p_x, gamma=10, amp=p_y-offset, offset=min(y_fit)
+[?2004l[?2004h>         p0 = [p_x, 10, p_y - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>         results[peak_names[i]] = {
+[?2004l[?2004h>             'x0': float(popt[0]),
+[?2004l[?2004h>             'gamma': float(popt[1]),
+[?2004l[?2004h>             'amplitude': float(popt[2]),
+[?2004l[?2004h>             'offset': float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for {peak_names[i]}: {e}')
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# python3 fit_peaks.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_peaks.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# pip install numpy scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m322.4 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m393.1 MB/s[0m  [33m0:00:00[0m
+[?25hInstalling collected packages: numpy, scipy
+[?25l[2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/2[0m [scipy]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 scipy-1.18.1
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m25.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat << 'EOF' > fit_peaks.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amp, offset):
+[?2004l[?2004h>     return amp * (gamma/2)**2 / ((x - x0)**2 + (gamma/2)**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> lines = open('graphene.dat').readlines()
+[?2004l[?2004h> data = []
+[?2004l[?2004h> for line in lines:
+[?2004l[?2004h>     parts = line.split()
+[?2004l[?2004h>     if len(parts) == 2:
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>             y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>             data.append([x, y])
+[?2004l[?2004h>         except ValueError:
+[?2004l[?2004h>             continue
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.array(data)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find peaks by searching for local maxima
+[?2004l[?2004h> peaks = []
+[?2004l[?2004h> for i in range(1, len(y) - 1):
+[?2004l[?2004h>     if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>         peaks.append((x[i], y[i]))
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = sorted(peaks, key=lambda p: p[1], reverse=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> top_peaks = []
+[?2004l[?2004h> if len(peaks) > 0:
+[?2004l[?2004h>     top_peaks.append(peaks[0])
+[?2004l[?2004h>     for p in peaks[1:]:
+[?2004l[?2004h>         if abs(p[0] - top_peaks[0][0]) > (np.max(x) - np.min(x)) * 0.1:
+[?2004l[?2004h>             top_peaks.append(p)
+[?2004l[?2004h>             break
+[?2004l[?2004h> 
+[?2004l[?2004h> top_peaks = sorted(top_peaks, key=lambda p: p[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peak_names = ['G', '2D']
+[?2004l[?2004h> for i in range(min(2, len(top_peaks))):
+[?2004l[?2004h>     p_x, p_y = top_peaks[i]
+[?2004l[?2004h>     mask = (x > p_x - 100) & (x < p_x + 100)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         p0 = [p_x, 10, p_y - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>         results[peak_names[i]] = {
+[?2004l[?2004h>             'x0': float(popt[0]),
+[?2004l[?2004h>             'gamma': float(popt[1]),
+[?2004l[?2004h>             'amplitude': float(popt[2]),
+[?2004l[?2004h>             'offset': float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for {peak_names[i]}: {e}')
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# python3 fit_peaks.py
+[?2004lFit failed for G: The number of func parameters=4 must not exceed the number of data points=3
+Fit failed for 2D: Improper input: func input vector length N=4 must not exceed func output vector length M=1
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat /app/results.json
+[?2004l{}[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat << 'EOF' > fit_peaks.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amp, offset):
+[?2004l[?2004h>     return amp * (gamma/2)**2 / ((x - x0)**2 + (gamma/2)**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> lines = open('graphene.dat').readlines()
+[?2004l[?2004h> data = []
+[?2004l[?2004h> for line in lines:
+[?2004l[?2004h>     parts = line.split()
+[?2004l[?2004h>     if len(parts) == 2:
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>             y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>             data.append([x, y])
+[?2004l[?2004h>         except ValueError:
+[?2004l[?2004h>             continue
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.array(data)
+[?2004l[?2004h> # Sort by x to be sure
+[?2004l[?2004h> idx = np.argsort(data[:, 0])
+[?2004l[?2004h> x = data[idx, 0]
+[?2004l[?2004h> y = data[idx, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find peaks by searching for local maxima
+[?2004l[?2004h> peaks = []
+[?2004l[?2004h> for i in range(1, len(y) - 1):
+[?2004l[?2004h>     if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>         peaks.append((x[i], y[i]))
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = sorted(peaks, key=lambda p: p[1], reverse=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> top_peaks = []
+[?2004l[?2004h> if len(peaks) > 0:
+[?2004l[?2004h>     top_peaks.append(peaks[0])
+[?2004l[?2004h>     for p in peaks[1:]:
+[?2004l[?2004h>         # Use a larger separation for the 2D peak search
+[?2004l[?2004h>         if abs(p[0] - top_peaks[0][0]) > (np.max(x) - np.min(x)) * 0.1:
+[?2004l[?2004h>             top_peaks.append(p)
+[?2004l[?2004h>             break
+[?2004l[?2004h> 
+[?2004l[?2004h> top_peaks = sorted(top_peaks, key=lambda p: p[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peak_names = ['G', '2D']
+[?2004l[?2004h> # Use a wider window for fitting, e.g., 1000 units given the X range
+[?2004l[?2004h> window = 1000 
+[?2004l[?2004h> 
+[?2004l[?2004h> for i in range(min(2, len(top_peaks))):
+[?2004l[?2004h>     p_x, p_y = top_peaks[i]
+[?2004l[?2004h>     mask = (x > p_x - window) & (x < p_x + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     if len(x_fit) < 10:
+[?2004l[?2004h>         print(f'Not enough points for {peak_names[i]}')
+[?2004l[?2004h>         continue
+[?2004l[?2004h> 
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         # Guess gamma as something reasonable for the scale
+[?2004l[?2004h>         p0 = [p_x, 200, p_y - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>         results[peak_names[i]] = {
+[?2004l[?2004h>             'x0': float(popt[0]),
+[?2004l[?2004h>             'gamma': float(popt[1]),
+[?2004l[?2004h>             'amplitude': float(popt[2]),
+[?2004l[?2004h>             'offset': float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for {peak_names[i]}: {e}')
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# python3 fit_peaks.py
+[?2004lNot enough points for 2D
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat /app/results.json
+[?2004l{
+  "G": {
+    "x0": 19200.83207480722,
+    "gamma": 895.907476359971,
+    "amplitude": 76982.38898783896,
+    "offset": 7665.351473609006
+  }
+}[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# python3 -c "import numpy as np; data = np.array([line.replace(',', '.').split() for line in open('graphene.dat')], dtype=float); print('Min X:', np.min(data[:,0])); print('Max X:', np.max(data[:,0])); print('Y max:', np.max(data[:,1]))"
+[?2004lcat << 'EOF' > fit_peaks.py
+import numpy as np
+import json
+from scipy.optimize import curve_fit
+
+def lorentzian(x, x0, gamma, amp, offset):
+    return amp * (gamma/2)**2 / ((x - x0)**2 + (gamma/2)**2) + offset
+
+# Load data
+lines = open('graphene.dat').readlines()
+data = []
+for line in lines:
+    parts = line.split()
+    if len(parts) == 2:
+        try:
+            x = float(parts[0].replace(',', '.'))
+            y = float(parts[1].replace(',', '.'))
+            data.append([x, y])
+        except ValueError:
+            continue
+
+data = np.array(data)
+idx = np.argsort(data[:, 0])
+x = data[idx, 0]
+y = data[idx, 1]
+
+# Find all local maxima
+peaks = []
+for i in range(1, len(y) - 1):
+    if y[i] > y[i-1] and y[i] > y[i+1]:
+        peaks.append((x[i], y[i]))
+
+# Sort peaks by amplitude to find the most prominent ones
+peaks = sorted(peaks, key=lambda p: p[1], reverse=True)
+
+top_peaks = []
+if len(peaks) > 0:
+    top_peaks.append(peaks[0])
+    for p in peaks[1:]:
+        # Use a smaller fraction of the range to find the second peak
+        if abs(p[0] - top_peaks[0][0]) > (np.max(x) - np.min(x)) * 0.05:
+            top_peaks.append(p)
+            break
+
+top_peaks = sorted(top_peaks, key=lambda p: p[0])
+
+results = {}
+peak_names = ['G', '2D']
+# Increased window size significantly to ensure enough points are captured
+window = 5000 
+
+for i in range(min(2, len(top_peaks))):
+    p_x, p_y = top_peaks[i]
+    mask = (x > p_x - window) & (x < p_x + window)
+    x_fit = x[mask]
+    y_fit = y[mask]
+    
+    if len(x_fit) < 5:
+        print(f'Not enough points for {peak_names[i]}')
+        continue
+
+    try:
+        # Guess gamma based on the X range if the default 200 is too small
+        p0 = [p_x, 500, p_y - np.min(y_fit), np.min(y_fit)]
+        popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+        results[peak_names[i]] = {
+            'x0': float(popt[0]),
+            'gamma': float(popt[1]),
+            'amplitude': float(popt[2]),
+            'offset': float(popt[3])
+        }
+    except Exception as e:
+        print(f'Fit failed for {peak_names[i]}: {e}')
+
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+Min X: 1648.724404
+Max X: 47183.554644
+Y max: 79400.095085
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat << 'EOF' > fit_peaks.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amp, offset):
+[?2004l[?2004h>     return amp * (gamma/2)**2 / ((x - x0)**2 + (gamma/2)**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> lines = open('graphene.dat').readlines()
+[?2004l[?2004h> data = []
+[?2004l[?2004h> for line in lines:
+[?2004l[?2004h>     parts = line.split()
+[?2004l[?2004h>     if len(parts) == 2:
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             x = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>             y = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>             data.append([x, y])
+[?2004l[?2004h>         except ValueError:
+[?2004l[?2004h>             continue
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.array(data)
+[?2004l[?2004h> idx = np.argsort(data[:, 0])
+[?2004l[?2004h> x = data[idx, 0]
+[?2004l[?2004h> y = data[idx, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find all local maxima
+[?2004l[?2004h> peaks = []
+[?2004l[?2004h> for i in range(1, len(y) - 1):
+[?2004l[?2004h>     if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>         peaks.append((x[i], y[i]))
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort peaks by amplitude to find the most prominent ones
+[?2004l[?2004h> peaks = sorted(peaks, key=lambda p: p[1], reverse=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> top_peaks = []
+[?2004l[?2004h> if len(peaks) > 0:
+[?2004l[?2004h>     top_peaks.append(peaks[0])
+[?2004l[?2004h>     for p in peaks[1:]:
+[?2004l[?2004h>         # Use a smaller fraction of the range to find the second peak
+[?2004l[?2004h>         if abs(p[0] - top_peaks[0][0]) > (np.max(x) - np.min(x)) * 0.05:
+[?2004l[?2004h>             top_peaks.append(p)
+[?2004l[?2004h>             break
+[?2004l[?2004h> 
+[?2004l[?2004h> top_peaks = sorted(top_peaks, key=lambda p: p[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> peak_names = ['G', '2D']
+[?2004l[?2004h> # Increased window size significantly to ensure enough points are captured
+[?2004l[?2004h> window = 5000 
+[?2004l[?2004h> 
+[?2004l[?2004h> for i in range(min(2, len(top_peaks))):
+[?2004l[?2004h>     p_x, p_y = top_peaks[i]
+[?2004l[?2004h>     mask = (x > p_x - window) & (x < p_x + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     if len(x_fit) < 5:
+[?2004l[?2004h>         print(f'Not enough points for {peak_names[i]}')
+[?2004l[?2004h>         continue
+[?2004l[?2004h> 
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         # Guess gamma based on the X range if the default 200 is too small
+[?2004l[?2004h>         p0 = [p_x, 500, p_y - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>         results[peak_names[i]] = {
+[?2004l[?2004h>             'x0': float(popt[0]),
+[?2004l[?2004h>             'gamma': float(popt[1]),
+[?2004l[?2004h>             'amplitude': float(popt[2]),
+[?2004l[?2004h>             'offset': float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for {peak_names[i]}: {e}')
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# python3 fit_peaks.py
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# cat /app/results.json
+[?2004l{
+  "G": {
+    "x0": 19198.881850398575,
+    "gamma": 765.8296161360985,
+    "amplitude": 72650.35654212585,
+    "offset": 13696.74547581334
+  },
+  "2D": {
+    "x0": 34423.199574095735,
+    "gamma": 16651.759072799974,
+    "amplitude": 10587.794461345791,
+    "offset": 9863.903602403316
+  }
+}[?2004hroot@j-openenv-6afd86ec4643bac7ac634d54-zy536aow-9e37b-k4gzz:/app# 

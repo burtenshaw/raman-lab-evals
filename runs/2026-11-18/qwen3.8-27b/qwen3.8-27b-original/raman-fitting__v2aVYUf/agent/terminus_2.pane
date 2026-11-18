@@ -1,0 +1,200 @@
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# ls -la /app
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# for f in /app/*; do echo '=== '$f' ==='; head -n 10 "$f"; done 2>/dev/null | head -n 200
+[?2004l=== /app/graphene.dat ===
+47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# python3 -c "import sys, numpy, scipy; print(sys.version); print(numpy.__version__, scipy.__version__)" 2>&1
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport sys, numpy, scipy[0m; print(sys.version); print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# wc -l /app/graphene.dat
+[?2004l3565 /app/graphene.dat
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# tail -n 5 /app/graphene.dat
+[?2004l1649,768294	6062,725860
+1649,507095	6005,066261
+1649,246046	6009,427936
+1648,985151	5911,446799
+1648,724404	5950,923261
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# python3 - <<'PY'
+[?2004l[?2004h> import sys, numpy, scipy
+[?2004l[?2004h> print('python ok', numpy.__version__, scipy.__version__)
+[?2004l[?2004h> data = np.genfromtxt('/app/graphene.dat', delimiter=' ', converters={0: lambda s: float(s.decode().replace(',', '.')), 1: lambda s: float(s.decode().replace(',', '.'))}, encoding='utf-8')
+[?2004l[?2004h> print('shape', data.shape)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> print('x min/max', x.min(), x.max(), 'monotonic decreasing', np.all(np.diff(x) < 0), 'increasing', np.all(np.diff(x) > 0))
+[?2004l[?2004h> print('y min/max', y.min(), y.max())
+[?2004l[?2004h> idx_max = np.argsort(y)[-10:][::-1]
+[?2004l[?2004h> print('top 10 by y:')
+[?2004l[?2004h> for i in idx_max:
+[?2004l[?2004h>     print(i, x[i], y[i])
+[?2004l[?2004h> # simple local peaks
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> # if x decreasing, work in order; use y as is
+[?2004l[?2004h> peaks, props = find_peaks(y, prominence=(y.max()-y.min())*0.05, distance=10)
+[?2004l[?2004h> print('num peaks', len(peaks))
+[?2004l[?2004h> for p in peaks:
+[?2004l[?2004h>     print('peak index', p, 'x', x[p], 'y', y[p])
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# python3 - <<'PY'
+[?2004l[?2004h> import math
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line=line.strip()
+[?2004l[?2004h>         if not line: continue
+[?2004l[?2004h>         a,b=line.split()
+[?2004l[?2004h>         xs.append(float(a.replace(',', '.')))
+[?2004l[?2004h>         ys.append(float(b.replace(',', '.')))n
+[?2004l[?2004h> n=len(xs)
+[?2004l[?2004h> print('n',n)
+[?2004l[?2004h> print('x min/max', min(xs), max(xs))
+[?2004l[?2004h> print('y min/max', min(ys), max(ys))
+[?2004l[?2004h> # top 20 by intensity
+[?2004l[?2004h> idx=sorted(range(n), key=lambda i: ys[i], reverse=True)[:20]
+[?2004l[?2004h> print('top 20:')
+[?2004l[?2004h> for i in idx:
+[?2004l[?2004h>     print(i, xs[i], ys[i])
+[?2004l[?2004h> # moving average smooth
+[?2004l[?2004h> def smooth(y, w=31):
+[?2004l[?2004h>     res=[]
+[?2004l[?2004h>     half=w//2
+[?2004l[?2004h>     for i in range(len(y)):
+[?2004l[?2004h>         l=max(0,i-half); r=min(len(y),i+half+1)
+[?2004l[?2004h>         res.append(sum(y[l:r])/(r-l))
+[?2004l[?2004h>     return res
+[?2004l[?2004h> ysm=smooth(ys,31)
+[?2004l[?2004h> # local maxima in expected regions
+[?2004l[?2004h> def peaks_in_region(x0,x1,sm,raw, dist=50):
+[?2004l[?2004h>     out=[]
+[?2004l[?2004h>     for i in range(1,len(xs)-1):
+[?2004l[?2004h>         if x0 <= xs[i] <= x1 and sm[i] >= sm[i-1] and sm[i] >= sm[i+1]:
+[?2004l[?2004h>             out.append((xs[i], sm[i], raw[i], i))
+[?2004l[?2004h>     # non-maximum suppression by simple: choose max in 200 cm-1
+[?2004l[?2004h>     out.sort(key=lambda t: t[1], reverse=True)
+[?2004l[?2004h>     sup=[]
+[?2004l[?2004h>     for p in out:
+[?2004l[?2004h>         if all(abs(p[0]-q[0])>200 for q in sup):
+[?2004l[?2004h>             sup.append(p)
+[?2004l[?2004h>     return sup
+[?2004l[?2004h> print('G region peaks:', peaks_in_region(1400,1800,ysm,ys))
+[?2004l[?2004h> print('2D region peaks:', peaks_in_region(2500,2900,ysm,ys))
+[?2004l[?2004h> # print some stats around expected
+[?2004l[?2004h> for a,b in [(1500,1700),(2600,2800)]:
+[?2004l[?2004h>     sub=[(xs[i],ys[i]) for i in range(n) if a<=xs[i]<=b]
+[?2004l[?2004h>     if sub:
+[?2004l[?2004h>         maxy=max(sub,key=lambda p:p[1])
+[?2004l[?2004h>         print(f'region {a}-{b}: max {maxy}, miny {min(p[1] for p in sub)}, len {len(sub)}')
+[?2004l[?2004h> PY
+[?2004l  File [35m"<stdin>"[0m, line [35m9[0m
+    ys.append(float(b.replace(',', '.')))[1;31mn[0m
+                                         [1;31m^[0m
+[1;35mSyntaxError[0m: [35minvalid syntax[0m
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# python3 - <<'PY'
+[?2004l[?2004h> import math
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line=line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         a,b=line.split()
+[?2004l[?2004h>         xs.append(float(a.replace(',', '.')))
+[?2004l[?2004h>         ys.append(float(b.replace(',', '.')))
+[?2004l[?2004h> n=len(xs)
+[?2004l[?2004h> print('n', n)
+[?2004l[?2004h> print('x min/max', min(xs), max(xs))
+[?2004l[?2004h> print('y min/max', min(ys), max(ys))
+[?2004l[?2004h> order=sorted(range(n), key=lambda i: xs[i])
+[?2004l[?2004h> xs_sorted=[xs[i] for i in order]
+[?2004l[?2004h> ys_sorted=[ys[i] for i in order]
+[?2004l[?2004h> idx=sorted(range(n), key=lambda i: ys[i], reverse=True)[:20]
+[?2004l[?2004h> print('top 20 raw:')
+[?2004l[?2004h> for i in idx:
+[?2004l[?2004h>     print(i, xs[i], ys[i])
+[?2004l[?2004h> def smooth(y, w=51):
+[?2004l[?2004h>     half=w//2
+[?2004l[?2004h>     res=[]
+[?2004l[?2004h>     for i in range(len(y)):
+[?2004l[?2004h>         l=max(0, i-half)
+[?2004l[?2004h>         r=min(len(y), i+half+1)
+[?2004l[?2004h>         res.append(sum(y[l:r])/(r-l))
+[?2004l[?2004h>     return res
+[?2004l[?2004h> ysm=smooth(ys_sorted, 51)
+[?2004l[?2004h> range_y=max(ys_sorted)-min(ys_sorted)
+[?2004l[?2004h> prom_th=0.05*range_y
+[?2004l[?2004h> peaks=[]
+[?2004l[?2004h> for i in range(1, len(xs_sorted)-1):
+[?2004l[?2004h>     if ysm[i] > ysm[i-1] and ysm[i] >= ysm[i+1]:
+[?2004l[?2004h>         l=max(0, i-500)
+[?2004l[?2004h>         r=min(len(ysm), i+501)
+[?2004l[?2004h>         base=min(ysm[l:r])
+[?2004l[?2004h>         prom=ysm[i]-base
+[?2004l[?2004h>         if prom > prom_th:
+[?2004l[?2004h>             peaks.append((xs_sorted[i], ysm[i], ys_sorted[i], i, prom))
+[?2004l[?2004h> peaks.sort(key=lambda t: t[1], reverse=True)
+[?2004l[?2004h> print('candidate peaks smoothed:')
+[?2004l[?2004h> for p in peaks[:20]:
+[?2004l[?2004h>     print(p)
+[?2004l[?2004h> for a,b in [(1500,1700),(2600,2800),(15000,17000),(26000,28000)]:
+[?2004l[?2004h>     sub=[(xs_sorted[i], ys_sorted[i], ysm[i]) for i in range(n) if a <= xs_sorted[i] <= b]
+[?2004l[?2004h>     if sub:
+[?2004l[?2004h>         maxraw=max(sub, key=lambda t: t[1])
+[?2004l[?2004h>         maxsm=max(sub, key=lambda t: t[2])
+[?2004l[?2004h>         print(f'region {a}-{b}: len {len(sub)}, max raw {maxraw}, max sm {maxsm}')
+[?2004l[?2004h> PY
+[?2004ln 3565
+x min/max 1648.724404 47183.554644
+y min/max 40.090842 79400.095085
+top 20 raw:
+117 19139.543541 79400.095085
+115 19332.10702 79083.274479
+114 19429.899168 78849.112582
+118 19044.741659 78843.436812
+116 19235.326894 78815.242369
+113 19528.720039 67902.852608
+119 18950.906256 65451.691837
+120 18858.022288 54280.853574
+112 19628.585164 46667.59831
+121 18766.075724 46110.702034
+122 18675.052462 40100.873585
+123 18584.938335 35830.543821
+111 19729.511943 32649.627563
+124 18495.720146 32580.490254
+125 18407.384277 30376.526447
+126 18319.918054 28061.588018
+127 18233.308382 26464.237154
+128 18147.543082 25202.871601
+110 19831.516591 24480.441467
+129 18062.609557 24222.518962
+candidate peaks smoothed:
+(17730.956704, 30216.868852, 20814.979914, 3431, 25378.932596137252)
+(40921.863181, 19785.618934473685, 19626.19178, 3552, 13330.317363120743)
+(10583.945596, 15053.725389803922, 18580.169951, 3280, 11637.08626964706)
+(6458.43426, 7621.361328137255, 6415.592013, 3024, 5631.48451154902)
+(3747.731161, 6598.627535372549, 12904.654055, 2485, 6244.106720137254)
+region 1500-1700: len 187, max raw (1660.073734, 6474.278695, 6039.685521921569), max sm (1650.291141, 6157.269473, 6134.41344378125)
+region 2600-2800: len 171, max raw (2716.330474, 601.84765, 372.4229663529412), max sm (2603.120714, 276.903306, 431.6066366666667)
+region 15000-17000: len 30, max raw (16245.583577, 18159.869519, 17435.67169745098), max sm (16954.540925, 17175.13937, 23067.464478470585)
+region 26000-28000: len 10, max raw (27818.225478, 16763.433695, 17132.614960588235), max sm (27818.225478, 16763.433695, 17132.614960588235)
+[?2004hroot@j-openenv-6afd86eb4643bac7ac634d51-rq1hkply-188f5-zhf2s:/app# 

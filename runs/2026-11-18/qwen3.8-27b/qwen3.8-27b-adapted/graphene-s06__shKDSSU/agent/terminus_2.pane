@@ -1,0 +1,129 @@
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# head -5 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,814.711
+1100.5001,823.937
+1101.0003,835.751
+1101.5004,907.570
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# tail -3 /app/spectrum.csv
+[?2004l2998.9997,1139.563
+2999.4999,1209.713
+3000.0000,1181.205
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# cat << 'EOF' > /app/fit_peaks.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, amplitude, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D':  (1350, 1250, 1480),   # center, window_lo, window_hi
+[?2004l[?2004h>     'G':  (1580, 1480, 1700),
+[?2004l[?2004h>     '2D': (2690, 2550, 2850),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (center, lo, hi) in peaks.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[mask], y[mask]
+[?2004l[?2004h>     # initial guesses
+[?2004l[?2004h>     offset0 = np.percentile(yw, 10)
+[?2004l[?2004h>     amp0 = yw.max() - offset0
+[?2004l[?2004h>     x0_0 = xw[np.argmax(yw)]
+[?2004l[?2004h>     gamma0 = 25.0
+[?2004l[?2004h>     p0 = [x0_0, amp0, gamma0, offset0]
+[?2004l[?2004h>     bounds = ([lo, 0, 1, 0], [hi, amp0*10, 200, max(yw)*3])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, xw, yw, p0=p0, bounds=bounds, maxfev=100000)
+[?2004l[?2004h>     x0, amp, gamma, offset = popt
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h>     print(f"{name}: x0={x0:.3f}, gamma={gamma:.3f}, amp={amp:.3f}, offset={offset:.3f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> id_ig = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> results['ID_IG'] = float(id_ig)
+[?2004l[?2004h> print(f"ID/IG = {id_ig:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print("Written to /app/results.json")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# python3 /app/fit_peaks.py
+[?2004lD: x0=1346.718, gamma=14.985, amp=4849.509, offset=883.702
+G: x0=1579.566, gamma=9.954, amp=8863.445, offset=902.494
+2D: x0=2693.422, gamma=29.035, amp=18461.691, offset=1004.294
+ID/IG = 0.5471
+Written to /app/results.json
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.7176089225377,
+    "gamma": 14.984838302833605,
+    "amplitude": 4849.5091591206865,
+    "offset": 883.7017784523031
+  },
+  "G": {
+    "x0": 1579.5664041666191,
+    "gamma": 9.953518652752514,
+    "amplitude": 8863.445335144772,
+    "offset": 902.494338246026
+  },
+  "2D": {
+    "x0": 2693.421650824131,
+    "gamma": 29.035362568382887,
+    "amplitude": 18461.690978328115,
+    "offset": 1004.2935201444889
+  },
+  "ID_IG": 0.5471359020957369
+}[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# cat << 'EOF' > /app/verify.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, amplitude, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> peaks = {'D':(1250,1480),'G':(1480,1700),'2D':(2550,2850)}
+[?2004l[?2004h> params = {'D':[1346.7176,4849.509,14.985,883.702],
+[?2004l[?2004h>           'G':[1579.566,8863.445,9.954,902.494],
+[?2004l[?2004h>           '2D':[2693.422,18461.691,29.035,1004.294]}
+[?2004l[?2004h> for name,(lo,hi) in peaks.items():
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     p=params[name]
+[?2004l[?2004h>     yfit=lorentzian(x[m],*p)
+[?2004l[?2004h>     ss_res=np.sum((y[m]-yfit)**2)
+[?2004l[?2004h>     ss_tot=np.sum((y[m]-y[m].mean())**2)
+[?2004l[?2004h>     r2=1-ss_res/ss_tot
+[?2004l[?2004h>     rmse=np.sqrt(ss_res/len(x[m]))
+[?2004l[?2004h>     print(f"{name}: R2={r2:.5f}, RMSE={rmse:.2f}, npts={m.sum()}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# python3 /app/verify.py
+[?2004lD: R2=0.99798, RMSE=56.47, npts=460
+G: R2=0.99950, RMSE=45.80, npts=440
+2D: R2=0.99991, RMSE=49.56, npts=600
+[?2004hroot@j-openenv-6afd8b33e5cad0e4dc3e6c21-6qyvhk2e-42cc3-bmjsh:/app# 

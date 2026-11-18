@@ -1,0 +1,111 @@
+[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# ls -l
+[?2004ltotal 72
+-rw-r--r--. 1 root root 72012 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# cat > fit_peaks.py << 'EOF'
+[?2004l for {name}: {e}\n')
+        popt = [np.nan]*4
+    results[name] = {
+        'amplitude': float(popt[0]),
+        'gamma': float(popt[1]),
+        'x0': float(popt[2]),
+        'offset': float(popt[3])
+    }
+
+# Compute defect ratio I_D/I_G using amplitudes
+ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else np.nan
+results['ID_IG'] = float(ID_IG)
+
+# Write JSON
+with open('results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+
+EOF
+[?2004h> import numpy as np, pandas as pd, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define fitting windows for each peak
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D': (1200, 1500),
+[?2004l[?2004h>     'G': (1500, 1700),
+[?2004l[?2004h>     '2D': (2500, 2850)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (xmin, xmax) in windows.items():
+[?2004l[?2004h>     mask = (x >= xmin) & (x <= xmax)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max(y)-min(y), gamma ~ 10, x0 ~ position of max, offset ~ min(y)
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = x_fit[np.argmax(y_fit)]
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         sys.stderr.write(f'Fit failed for {name}: {e}\n')
+[?2004l[?2004h>         popt = [np.nan]*4
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'x0': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G using amplitudes
+[?2004l[?2004h> ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else np.nan
+[?2004l[?2004h> results['ID_IG'] = float(ID_IG)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# python3 fit_peaks.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_peaks.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np, pandas as pd, json, sys
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# pip3 install --quiet numpy pandas scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# python3 fit_peaks.py
+[?2004l[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 2343.7993482647494,
+    "gamma": 16.75510855818653,
+    "x0": 1346.3992115453484,
+    "offset": 1027.2979967695976
+  },
+  "G": {
+    "amplitude": 7870.66843676835,
+    "gamma": 8.987702969507811,
+    "x0": 1582.19297709629,
+    "offset": 1031.886882245776
+  },
+  "2D": {
+    "amplitude": 16035.246761939567,
+    "gamma": 24.157776062973483,
+    "x0": 2692.702396717154,
+    "offset": 1068.679287336339
+  },
+  "ID_IG": 0.29778910992051644
+}[?2004hroot@j-openenv-6afd88b829e8b7ccfbbb7f88-i27rc5wn-4c0bd-kfmpw:/app# 

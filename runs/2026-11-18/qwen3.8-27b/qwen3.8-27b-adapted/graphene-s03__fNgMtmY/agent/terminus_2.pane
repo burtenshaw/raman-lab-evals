@@ -1,0 +1,717 @@
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# ls -la /app
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:40 ..
+-rw-r--r--. 1 root root 70340 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# head -5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,954.992
+1100.5001,989.534
+1101.0003,1110.132
+1101.5004,1024.330
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# cat > /app/inspect.py << '
+[?2004l[?2004h> '
+[?2004l[?2004h> import csv, statistics
+[?2004l[?2004h> 
+[?2004l350,1580,2690]:
+    idx=[i for i,x in enumerate(xs) if abs(x-c)<200]
+    subx=[xs[i] for i in idx]; suby=[ys[i] for i in idx]
+    base=statistics.median([ys[i] for i in idx[:20]+idx[-20:]])
+    imax=idx[suby.index(max(suby))]
+    peak=ys[imax]
+    half=base+(peak-base)/2
+    left=None; right=None
+    for i in range(idx.index(imax), -1, -1):
+        if ys[i] <= half:
+            left=xs[i]; break
+    for i in range(idx.index(imax), len(idx)):
+        if ys[i] <= half:
+            right=xs[i]; break
+    print(f'peak {c}: peak={peak:.3f}@{xs[imax]:.2f}, base={base:.3f}, half={half:.3f}, FWHM approx={right-left if left and right else None:.3f}')
+'
+python3 /app/inspect.py
+[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> print('n',len(xs),'xmin',xs[0],'xmax',xs[-1])
+[?2004l[?2004h> print('ymin',min(ys),'ymax',max(ys))
+[?2004l[?2004h> 
+[?2004l[?2004h> def stats(a,b):
+[?2004l[?2004h>     idx=[i for i,x in enumerate(xs) if a<=x<=b]
+[?2004l[?2004h>     if not idx: return
+[?2004l[?2004h>     subx=[xs[i] for i in idx]; suby=[ys[i] for i in idx]
+[?2004l[?2004h>     imax=idx[suby.index(max(suby))]
+[?2004l[?2004h>     imin=idx[suby.index(min(suby))]
+[?2004l[?2004h>     # baseline from outer 10% of window
+[?2004l[?2004h>     n=len(idx)
+[?2004l[?2004h>     edge=idx[:max(1,n//10)]+idx[-max(1,n//10):]
+[?2004l[?2004h>     base=statistics.median([ys[i] for i in edge])
+[?2004l[?2004h>     half=max(suby[imax.index? if False else 0],0) # placeholder not run
+[?2004l[?2004h>     print(f'window {a}-{b}: max={max(suby):.3f}@{xs[imax]:.2f}, min={min(suby):.3f}@{xs[imin]:.2f}, base={base:.3f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> for a,b in [(1200,1500),(1400,1750),(2400,2900),(1250,1450),(1480,1680),(2550,2850)]:
+[?2004l[?2004h>     stats(a,b)
+[?2004l[?2004h> 
+[?2004l[?2004h> # rough half max around each
+[?2004l[?2004h> for c in [1350,1580,2690]:
+[?2004l[?2004h>     idx=[i for i,x in enumerate(xs) if abs(x-c)<200]
+[?2004l[?2004h>     subx=[xs[i] for i in idx]; suby=[ys[i] for i in idx]
+[?2004l[?2004h>     base=statistics.median([ys[i] for i in idx[:20]+idx[-20:]])
+[?2004l[?2004h>     imax=idx[suby.index(max(suby))]
+[?2004l[?2004h>     peak=ys[imax]
+[?2004l[?2004h>     half=base+(peak-base)/2
+[?2004l[?2004h>     left=None; right=None
+[?2004l[?2004h>     for i in range(idx.index(imax), -1, -1):
+[?2004l[?2004h>         if ys[i] <= half:
+[?2004l[?2004h>             left=xs[i]; break
+[?2004l[?2004h>     for i in range(idx.index(imax), len(idx)):
+[?2004l[?2004h>         if ys[i] <= half:
+[?2004l[?2004h>             right=xs[i]; break
+[?2004l[?2004h>     print(f'peak {c}: peak={peak:.3f}@{xs[imax]:.2f}, base={base:.3f}, half={half:.3f}, FWHM approx={right-left if left and right else None:.3f}')
+[?2004l[?2004h> '
+[?2004l[?2004h> python3 /app/inspect.py
+[?2004l[?2004h> ^C[?2004l[?2004h[?2004l
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# pwd
+[?2004l/app
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# cat > /app/inspect.py << 'EOF'
+[?2004listics.median([ys[i] for i in idx[:20]+idx[-20:]])
+    imax=idx[suby.index(max(suby))]
+    peak=ys[imax]
+    half=base+(peak-base)/2
+    left=None; right=None
+    for i in range(idx.index(imax), -1, -1):
+        if ys[i] <= half:
+            left=xs[i]; break
+    for i in range(idx.index(imax), len(idx)):
+        if ys[i] <= half:
+            right=xs[i]; break
+    print(f'peak {c}: peak={peak:.3f}@{xs[imax]:.2f}, base={base:.3f}, half={half:.3f}, FWHM approx={right-left if left and right else None:.3f}')
+EOF
+python3 /app/inspect.py
+[?2004h> import csv, statistics
+[?2004l[?2004h> 
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> print('n',len(xs),'xmin',xs[0],'xmax',xs[-1])
+[?2004l[?2004h> print('ymin',min(ys),'ymax',max(ys))
+[?2004l[?2004h> 
+[?2004l[?2004h> def stats(a,b):
+[?2004l[?2004h>     idx=[i for i,x in enumerate(xs) if a<=x<=b]
+[?2004l[?2004h>     if not idx: return
+[?2004l[?2004h>     subx=[xs[i] for i in idx]; suby=[ys[i] for i in idx]
+[?2004l[?2004h>     imax=idx[suby.index(max(suby))]
+[?2004l[?2004h>     imin=idx[suby.index(min(suby))]
+[?2004l[?2004h>     n=len(idx)
+[?2004l[?2004h>     edge=idx[:max(1,n//10)]+idx[-max(1,n//10):]
+[?2004l[?2004h>     base=statistics.median([ys[i] for i in edge])
+[?2004l[?2004h>     print(f'window {a}-{b}: max={max(suby):.3f}@{xs[imax]:.2f}, min={min(suby):.3f}@{xs[imin]:.2f}, base={base:.3f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> for a,b in [(1200,1500),(1400,1750),(2400,2900),(1250,1450),(1480,1680),(2550,2850)]:
+[?2004l[?2004h>     stats(a,b)
+[?2004l[?2004h> 
+[?2004l[?2004h> for c in [1350,1580,2690]:
+[?2004l[?2004h>     idx=[i for i,x in enumerate(xs) if abs(x-c)<200]
+[?2004l[?2004h>     subx=[xs[i] for i in idx]; suby=[ys[i] for i in idx]
+[?2004l[?2004h>     base=statistics.median([ys[i] for i in idx[:20]+idx[-20:]])
+[?2004l[?2004h>     imax=idx[suby.index(max(suby))]
+[?2004l[?2004h>     peak=ys[imax]
+[?2004l[?2004h>     half=base+(peak-base)/2
+[?2004l[?2004h>     left=None; right=None
+[?2004l[?2004h>     for i in range(idx.index(imax), -1, -1):
+[?2004l[?2004h>         if ys[i] <= half:
+[?2004l[?2004h>             left=xs[i]; break
+[?2004l[?2004h>     for i in range(idx.index(imax), len(idx)):
+[?2004l[?2004h>         if ys[i] <= half:
+[?2004l[?2004h>             right=xs[i]; break
+[?2004l[?2004h>     print(f'peak {c}: peak={peak:.3f}@{xs[imax]:.2f}, base={base:.3f}, half={half:.3f}, FWHM approx={right-left if left and right else None:.3f}')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 /app/inspect.py
+[?2004ln 3800 xmin 1100.0 xmax 3000.0
+ymin 617.042 ymax 10870.124
+window 1200-1500: max=6954.939@1353.57, min=770.260@1206.03, base=1062.405
+window 1400-1750: max=8517.512@1582.63, min=749.773@1715.16, base=1119.340
+window 2400-2900: max=10870.124@2676.91, min=735.928@2412.35, base=958.579
+window 1250-1450: max=6954.939@1353.57, min=942.496@1250.54, base=1170.624
+window 1480-1680: max=8517.512@1582.63, min=806.470@1675.15, base=1054.108
+window 2550-2850: max=10870.124@2676.91, min=869.710@2842.46, base=1218.335
+peak 1350: peak=6954.939@1353.57, base=1185.966, half=4070.452, FWHM approx=0.000
+peak 1580: peak=8517.512@1582.63, base=1617.386, half=5067.449, FWHM approx=0.000
+peak 2690: peak=10870.124@2676.91, base=1006.352, half=5938.238, FWHM approx=0.000
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# cat > /app/peak.py << 'EOF'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> for c in [1353.5,1582.6,2676.9]:
+[?2004l[?2004h>     print('=== around',c,'===')
+[?2004l[?2004h>     for i,x in enumerate(xs):
+[?2004l[?2004h>         if abs(x-c)<40 and i%2==0:
+[?2004l[?2004h>             print(f'{x:.2f} {ys[i]:.1f}')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 /app/peak.py
+[?2004l=== around 1353.5 ===
+1314.06 1828.7
+1315.06 1949.3
+1316.06 2144.9
+1317.06 2159.0
+1318.06 2197.9
+1319.06 2248.6
+1320.06 2394.0
+1321.06 2380.5
+1322.06 2282.5
+1323.06 2460.3
+1324.06 2468.1
+1325.06 2651.9
+1326.06 2679.9
+1327.06 2812.5
+1328.06 2831.4
+1329.06 3013.6
+1330.06 3070.5
+1331.06 3181.1
+1332.06 3309.9
+1333.06 3382.2
+1334.06 3542.0
+1335.06 3705.5
+1336.06 3785.8
+1337.06 4128.1
+1338.06 4214.5
+1339.06 4292.4
+1340.06 4635.9
+1341.06 4695.7
+1342.06 4864.0
+1343.06 5201.6
+1344.06 5375.7
+1345.06 5620.1
+1346.06 5661.5
+1347.07 5952.7
+1348.07 6198.8
+1349.07 6464.2
+1350.07 6624.0
+1351.07 6813.3
+1352.07 6697.5
+1353.07 6874.6
+1354.07 6757.7
+1355.07 6902.4
+1356.07 6893.0
+1357.07 6920.5
+1358.07 6793.1
+1359.07 6658.2
+1360.07 6634.9
+1361.07 6390.1
+1362.07 6064.2
+1363.07 5836.5
+1364.07 5749.6
+1365.07 5351.9
+1366.07 5275.5
+1367.07 5125.7
+1368.07 4908.0
+1369.07 4812.5
+1370.07 4503.9
+1371.07 4378.0
+1372.07 4165.5
+1373.07 3985.3
+1374.07 3931.2
+1375.07 3718.9
+1376.07 3406.2
+1377.07 3467.3
+1378.07 3246.5
+1379.07 2966.9
+1380.07 3071.3
+1381.07 2986.2
+1382.07 2818.4
+1383.07 2681.0
+1384.07 2598.6
+1385.08 2695.2
+1386.08 2398.8
+1387.08 2361.9
+1388.08 2421.2
+1389.08 2276.1
+1390.08 2248.2
+1391.08 2175.3
+1392.08 2194.5
+1393.08 2054.0
+=== around 1582.6 ===
+1543.12 1459.8
+1544.12 1469.5
+1545.12 1496.5
+1546.12 1489.5
+1547.12 1506.1
+1548.12 1624.4
+1549.12 1601.7
+1550.12 1647.7
+1551.12 1760.1
+1552.12 1854.6
+1553.12 1748.8
+1554.12 1793.1
+1555.12 1938.2
+1556.12 1913.3
+1557.12 1997.7
+1558.12 2185.3
+1559.12 2303.3
+1560.12 2419.9
+1561.12 2304.3
+1562.12 2362.7
+1563.12 2599.9
+1564.12 2779.8
+1565.12 2847.0
+1566.12 3065.3
+1567.12 3357.8
+1568.12 3535.6
+1569.12 3762.6
+1570.12 4013.0
+1571.12 4210.3
+1572.12 4447.9
+1573.12 4990.5
+1574.12 5192.8
+1575.12 5655.8
+1576.13 6168.2
+1577.13 6563.3
+1578.13 6985.7
+1579.13 7496.0
+1580.13 7804.7
+1581.13 7917.0
+1582.13 8343.6
+1583.13 8310.9
+1584.13 8348.3
+1585.13 8217.2
+1586.13 7962.8
+1587.13 7615.8
+1588.13 7370.5
+1589.13 6828.7
+1590.13 6347.6
+1591.13 5987.8
+1592.13 5511.4
+1593.13 5119.0
+1594.13 4739.2
+1595.13 4400.9
+1596.13 4195.3
+1597.13 3762.3
+1598.13 3581.3
+1599.13 3336.9
+1600.13 3268.4
+1601.13 3086.0
+1602.13 2868.9
+1603.13 2588.8
+1604.13 2507.1
+1605.13 2474.7
+1606.13 2181.0
+1607.13 2195.4
+1608.13 2132.7
+1609.13 1955.1
+1610.13 2059.1
+1611.13 1821.5
+1612.13 1948.7
+1613.13 1924.9
+1614.14 1835.5
+1615.14 1813.7
+1616.14 1679.5
+1617.14 1811.8
+1618.14 1571.6
+1619.14 1489.2
+1620.14 1594.0
+1621.14 1467.2
+1622.14 1338.9
+=== around 2676.9 ===
+2637.40 4191.5
+2638.40 4252.4
+2639.41 4476.1
+2640.41 4801.4
+2641.41 4898.4
+2642.41 4959.9
+2643.41 4873.7
+2644.41 5131.4
+2645.41 5287.1
+2646.41 5409.5
+2647.41 5672.8
+2648.41 5828.2
+2649.41 5979.1
+2650.41 6199.3
+2651.41 6427.5
+2652.41 6587.2
+2653.41 6699.3
+2654.41 6938.5
+2655.41 7237.6
+2656.41 7295.6
+2657.41 7609.4
+2658.41 8012.4
+2659.41 8129.9
+2660.41 8354.5
+2661.41 8517.4
+2662.41 8633.2
+2663.41 8918.3
+2664.41 9407.8
+2665.41 9542.6
+2666.41 9548.1
+2667.41 9824.3
+2668.41 10007.0
+2669.41 10183.5
+2670.41 10393.8
+2671.41 10445.5
+2672.41 10559.0
+2673.41 10653.1
+2674.41 10656.5
+2675.41 10783.4
+2676.41 10768.0
+2677.42 10692.0
+2678.42 10767.0
+2679.42 10685.0
+2680.42 10681.8
+2681.42 10498.4
+2682.42 10346.0
+2683.42 10199.6
+2684.42 10114.4
+2685.42 9849.3
+2686.42 9738.5
+2687.42 9511.3
+2688.42 9214.1
+2689.42 9096.7
+2690.42 8927.2
+2691.42 8594.7
+2692.42 8490.4
+2693.42 8298.2
+2694.42 7875.9
+2695.42 7675.8
+2696.42 7418.2
+2697.42 7403.2
+2698.42 7082.8
+2699.42 6901.4
+2700.42 6782.4
+2701.42 6323.0
+2702.42 6305.3
+2703.42 6019.7
+2704.42 5889.4
+2705.42 5465.5
+2706.42 5438.0
+2707.42 5409.7
+2708.42 5314.5
+2709.42 5019.6
+2710.42 4987.7
+2711.42 4829.1
+2712.42 4519.8
+2713.42 4429.4
+2714.42 4396.1
+2715.43 4222.1
+2716.43 4073.6
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# pip install numpy scipy 2>&1 | tail -5 &
+[?2004l[1] 624
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# Successfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import csv, json, math
+[?2004l[?2004h> 
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> 
+[?2004l[?2004h> def model(x, A, x0, g, C):
+[?2004l[?2004h>     d=(x-x0)**2 + g*g
+[?2004l[?2004h>     return A*g*g/d + C
+[?2004l[?2004h> 
+[?2004l[?2004h> def solve4(A, b):
+[?2004l[?2004h>     # A: 4x4, b: len4 ; gaussian elimination with partial pivoting
+[?2004l[?2004h>     M=[list(A[i])+[b[i]] for i in range(4)]
+[?2004l[?2004h>     for col in range(4):
+[?2004l[?2004h>         piv=max(range(col,4), key=lambda i: abs(M[i][col]))
+[?2004l[?2004h>         M[col],M[piv]=M[piv],M[col]
+[?2004l[?2004h>         pv=M[col][col]
+[?2004l[?2004h>         for r2 in range(col+1,4):
+[?2004l[?2004h>             f=M[r2][col]/pv
+[?2004l[?2004h>             for c2 in range(col,5):
+[?2004l[?2004h>                 M[r2][c2]-=f*M[col][c2]
+[?2004l[?2004h>     x=[0.0]*4
+[?2004l[?2004h>     for i in range(3,-1,-1):
+[?2004l[?2004h>         s=M[i][4]
+[?2004l[?2004h>         for c2 in range(i+1,4):
+[?2004l[?2004h>             s-=M[i][c2]*x[c2]
+[?2004l[?2004h>         x[i]=s/M[i][i]
+[?2004l[?2004h>     return x
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(win_lo, win_hi):
+[?2004l[?2004h>     idx=[i for i,x in enumerate(xs) if win_lo<=x<=win_hi]
+[?2004l[?2004h>     X=[xs[i] for i in idx]; Y=[ys[i] for i in idx]
+[?2004l[?2004h>     n=len(X)
+[?2004l[?2004h>     # initial guesses
+[?2004l[?2004h>     imax=X.index(max(X))
+[?2004l[?2004h>     imaxy=Y.index(max(Y))
+[?2004l[?2004h>     x0_0=X[imaxy]
+[?2004l[?2004h>     edges=Y[:max(3,n//8)]+Y[-max(3,n//8):]
+[?2004l[?2004h>     edges_sorted=sorted(edges)
+[?2004l[?2004h>     C0=edges_sorted[len(edges_sorted)//2]
+[?2004l[?2004h>     A0=max(Y)-C0
+[?2004l[?2004h>     # FWHM estimate
+[?2004l[?2004h>     half=C0+(max(Y)-C0)/2
+[?2004l[?2004h>     li=None; ri=None
+[?2004l[?2004h>     for i in range(imaxy,-1,-1):
+[?2004l[?2004h>         if Y[i]<=half: li=X[i]; break
+[?2004l[?2004h>     for i in range(imaxy,n):
+[?2004l[?2004h>         if Y[i]<=half: ri=X[i]; break
+[?2004l[?2004h>     if li is None: li=x0_0-20
+[?2004l[?2004h>     if ri is None: ri=x0_0+20
+[?2004l[?2004h>     g0=max(2.0,(ri-li)/2.0)
+[?2004l[?2004h>     p=[A0, x0_0, g0, C0]
+[?2004l[?2004h>     # Gauss-Newton
+[?2004l[?2004h>     for it in range(200):
+[?2004l[?2004h>         # residuals and Jacobian
+[?2004l[?2004h>         rres=[]; J=[[0.0]*4 for _ in range(n)]
+[?2004l[?2004h>         for i in range(n):
+[?2004l[?2004h>             x=X[i]
+[?2004l[?2004h>             f=model(x,*p)
+[?2004l[?2004h>             rres.append(Y[i]-f)
+[?2004l[?2004h>             A,x0,g,C=p
+[?2004l[?2004h>             den=(x-x0)**2 + g*g
+[?2004l[?2004h>             L=1.0/den            # 1/den
+[?2004l[?2004h>             dAdx = g*g*den         # d/dA
+[?2004l[?2004h>             # d f / dA = g^2/den
+[?2004l[?2004h>             J[i][0]=g*g*den        # placeholder
+[?2004l[?2004h>             # correct:
+[?2004l[?2004h>             J[i][0]=g*g/den
+[?2004l[?2004h>             # d f / dx0 = A*g^2 * d(1/den)/dx0 ; d(1/den)/dx0 = - (1/den^2)* d(den)/dx0 ; d(den)/dx0 = -2(x-x0)
+[?2004l[?2004h>             J[i][1]=A*g*g*(-1.0)/(den*den)*(-2*(x-x0))
+[?2004l[?2004h>             # d f / dg = A * d(g^2/den)/dg = A*(2g*den - g^2*2g)/(den^2) = A*(2g*den - 2g^3)/den^2 = 2A g (den - g^2)/den^2
+[?2004l[?2004h>             J[i][2]=A*(2.0*g*den - 2.0*g*g*g)/(den*den)
+[?2004l[?2004h>             J[i][3]=1.0
+[?2004l[?2004h>         # build JtJ (4x4) and Jtr
+[?2004l[?2004h>         JtJ=[[0.0]*4 for _ in range(4)]
+[?2004l[?2004h>         Jtr=[0.0]*4
+[?2004l[?2004h>         for i in range(n):
+[?2004l[?2004h>             ri=rres[i]
+[?2004l[?2004h>             for a in range(4):
+[?2004l[?2004h>                 Jtr[a]+=J[i][a]*ri
+[?2004l[?2004h>                 for b in range(4):
+[?2004l[?2004h>                     JtJ[a][b]+=J[i][a]*J[i][b]
+[?2004l[?2004h>         # add small regularization
+[?2004l[?2004h>         lam=1e-6
+[?2004l[?2004h>         for a in range(4): JtJ[a][a]+=lam
+[?2004l[?2004h>         dp=solve4(JtJ,Jtr)
+[?2004l[?2004h>         # step, ensure gamma positive
+[?2004l[?2004h>         newg=p[2]+dp[2]
+[?2004l[?2004h>         scale=1.0
+[?2004l[?2004h>         if newg<=0.1:
+[?2004l[?2004h>             scale=0.5
+[?2004l[?2004h>             while p[2]+scale*dp[2]<=0.1 and scale>1e-4:
+[?2004l[?2004h>                 scale*=0.5
+[?2004l[?2004h>         # accept
+[?2004l[?2004h>         p=[p[k]+scale*dp[k] for k in range(4)]
+[?2004l[?2004h>         if max(abs(scale*dp[k]) for k in range(4))<1e-9:
+[?2004l[?2004h>             break
+[?2004l[?2004h>     # final fit quality
+[?2004l[?2004h>     ssr=sum((Y[i]-model(X[i],*p))**2 for i in range(n))
+[?2004l[?2004h>     return p,ssr
+[?2004l[?2004h> 
+[?2004l[?2004h> windows={'D':(1250,1450),'G':(1480,1690),'2D':(2540,2820)}
+[?2004l[?2004h> res={}
+[?2004l[?2004h> for name,(lo,hi) in windows.items():
+[?2004l[?2004h>     p,ssr=fit(lo,hi)
+[?2004l[?2004h>     A,x0,g,C=p
+[?2004l[?2004h>     res[name]={'x0':float(x0),'gamma':float(g),'amplitude':float(A),'offset':float(C)}
+[?2004l[?2004h>     print(f'{name}: x0={x0:.4f} gamma={g:.4f} A={A:.4f} C={C:.4f} ssr={ssr:.4f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> res['ID_IG']=res['D']['amplitude']/res['G']['amplitude']
+[?2004l[?2004h> print('ID_IG',res['ID_IG'])
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(res,f,indent=2)
+[?2004l[?2004h> print('written')
+[?2004l[?2004h> EOF
+[?2004l[1]+  Done                    pip install numpy scipy 2>&1 | tail -5
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 /app/fit.py
+[?2004lD: x0=1354.9097 gamma=18.5759 A=6000.1035 C=914.3541 ssr=2315347.2723
+G: x0=1583.3960 gamma=10.9137 A=7486.2047 C=931.5745 ssr=3014835.0570
+2D: x0=2676.5341 gamma=28.5189 A=9969.5784 C=792.3959 ssr=3778597.7255
+ID_IG 0.8014880336038988
+written
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# cat > /app/fit_scipy.py << 'EOF'
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data=np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> xs=data['raman_shift_cm-1']; ys=data['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, A, x0, g, C):
+[?2004l[?2004h>     return A*g*g/((x-x0)**2 + g*g) + C
+[?2004l[?2004h> 
+[?2004l[?2004h> windows={'D':(1250,1450),'G':(1480,1690),'2D':(2540,2820)}
+[?2004l[?2004h> res={}
+[?2004l[?2004h> for name,(lo,hi) in windows.items():
+[?2004l[?2004h>     m=(xs>=lo)&(xs<=hi)
+[?2004l[?2004h>     X=xs[m]; Y=ys[m]
+[?2004l[?2004h>     i=np.argmax(Y)
+[?2004l[?2004h>     x0_0=X[i]
+[?2004l[?2004h>     C0=np.median(np.concatenate([Y[:10],Y[-10:]]))
+[?2004l[?2004h>     A0=Y.max()-C0
+[?2004l[?2004h>     half=C0+(Y.max()-C0)/2
+[?2004l[?2004h>     li=ri=None
+[?2004l[?2004h>     for j in range(i,-1,-1):
+[?2004l[?2004h>         if Y[j]<=half: li=X[j]; break
+[?2004l[?2004h>     for j in range(i,len(X)):
+[?2004l[?2004h>         if Y[j]>=half and (ri is None):
+[?2004l[?2004h>             pass
+[?2004l[?2004h>     # find right crossing above half after peak descending
+[?2004l[?2004h>     for j in range(i,len(X)):
+[?2004l[?2004h>         if Y[j]<=half: ri=X[j]; break
+[?2004l[?2004h>     g0=(ri-li)/2.0 if (li is not None and ri is not None) else 15.0
+[?2004l[?2004h>     p0=[A0,x0_0,g0,C0]
+[?2004l[?2004h>     bounds=([0,lo,-1,0],[np.inf,hi,200,1e6])
+[?2004l[?2004h>     popt,pcov=curve_fit(lorentz,X,Y,p0=p0,bounds=bounds,maxfev=100000)
+[?2004l[?2004h>     A,x0,g,C=popt
+[?2004l[?2004h>     Yp=lorentz(X,*popt)
+[?2004l[?2004h>     ssr=((Y-Yp)**2).sum(); sst=((Y-Y.mean())**2).sum()
+[?2004l[?2004h>     r2=1-ssr/sst
+[?2004l[?2004h>     res[name]={'x0':float(x0),'gamma':float(abs(g)),'amplitude':float(A),'offset':float(C)}
+[?2004l[?2004h>     print(f'{name}: x0={x0:.4f} gamma={g:.4f} A={A:.4f} C={C:.4f} R2={r2:.5f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> res['ID_IG']=res['D']['amplitude']/res['G']['amplitude']
+[?2004l[?2004h> print('ID_IG',res['ID_IG'])
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(res,f,indent=2)
+[?2004l[?2004h> print('written')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 /app/fit_scipy.py
+[?2004ln 3800 xmin 1100.0 xmax 3000.0
+ymin 617.042 ymax 10870.124
+window 1200-1500: max=6954.939@1353.57, min=770.260@1206.03, base=1062.405
+window 1400-1750: max=8517.512@1582.63, min=749.773@1715.16, base=1119.340
+window 2400-2900: max=10870.124@2676.91, min=735.928@2412.35, base=958.579
+window 1250-1450: max=6954.939@1353.57, min=942.496@1250.54, base=1170.624
+window 1480-1680: max=8517.512@1582.63, min=806.470@1675.15, base=1054.108
+window 2550-2850: max=10870.124@2676.91, min=869.710@2842.46, base=1218.335
+peak 1350: peak=6954.939@1353.57, base=1185.966, half=4070.452, FWHM approx=0.000
+peak 1580: peak=8517.512@1582.63, base=1617.386, half=5067.449, FWHM approx=0.000
+peak 2690: peak=10870.124@2676.91, base=1006.352, half=5938.238, FWHM approx=0.000
+Traceback (most recent call last):
+  File [35m"/app/fit_scipy.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np, json
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/__init__.py"[0m, line [35m109[0m, in [35m<module>[0m
+    from numpy.__config__ import show_config
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/__config__.py"[0m, line [35m4[0m, in [35m<module>[0m
+    from numpy._core._multiarray_umath import (
+    ...<3 lines>...
+    )
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/_core/__init__.py"[0m, line [35m24[0m, in [35m<module>[0m
+    from . import multiarray
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/_core/multiarray.py"[0m, line [35m115[0m, in [35m<module>[0m
+    @[31marray_function_from_c_func_and_dispatcher[0m[1;31m(_multiarray_umath.empty_like)[0m
+     [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/_core/overrides.py"[0m, line [35m185[0m, in [35mdecorator[0m
+    return [31marray_function_dispatch([0m
+           [31m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+        [31mdispatcher, module, verify=verify,[0m
+        [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+        [31mdocs_from_dispatcher=docs_from_dispatcher)[0m[1;31m(implementation)[0m
+        [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^[0m
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/_core/overrides.py"[0m, line [35m161[0m, in [35mdecorator[0m
+    doc = [1;31minspect.cleandoc[0m(dispatcher.__doc__)
+          [1;31m^^^^^^^^^^^^^^^^[0m
+[1;35mAttributeError[0m: [35mmodule 'inspect' has no attribute 'cleandoc' (consider renaming '/app/inspect.py' since it has the same name as the standard library module named 'inspect' and prevents importing that standard library module)[0m
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# rm -f /app/inspect.py; rm -rf /app/__pycache__; ls /app
+[?2004lfit.py	fit_scipy.py  peak.py  results.json  spectrum.csv
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 /app/fit_scipy.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_scipy.py"[0m, line [35m5[0m, in [35m<module>[0m
+    xs=[31mdata[0m[1;31m['raman_shift_cm-1'][0m; ys=data['intensity']
+       [31m~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mValueError[0m: [35mno field of name raman_shift_cm-1[0m
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# cat > /app/fit_scipy.py << 'EOF'
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data=np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1, usecols=(0,1))
+[?2004l[?2004h> xs=data[:,0]; ys=data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, A, x0, g, C):
+[?2004l[?2004h>     return A*g*g/((x-x0)**2 + g*g) + C
+[?2004l[?2004h> 
+[?2004l[?2004h> windows={'D':(1250,1450),'G':(1480,1690),'2D':(2540,2820)}
+[?2004l[?2004h> res={}
+[?2004l[?2004h> for name,(lo,hi) in windows.items():
+[?2004l[?2004h>     m=(xs>=lo)&(xs<=hi)
+[?2004l[?2004h>     X=xs[m]; Y=ys[m]
+[?2004l[?2004h>     i=int(np.argmax(Y))
+[?2004l[?2004h>     x0_0=X[i]
+[?2004l[?2004h>     C0=float(np.median(np.concatenate([Y[:10],Y[-10:]])))
+[?2004l[?2004h>     A0=float(Y.max()-C0)
+[?2004l[?2004h>     half=C0+(Y.max()-C0)/2.0
+[?2004l[?2004h>     li=ri=None
+[?2004l[?2004h>     for j in range(i,-1,-1):
+[?2004l[?2004h>         if Y[j]<=half: li=X[j]; break
+[?2004l[?2004h>     for j in range(i,len(X)):
+[?2004l[?2004h>         if Y[j]<=half: ri=X[j]; break
+[?2004l[?2004h>     g0=(ri-li)/2.0 if (li is not None and ri is not None) else 15.0
+[?2004l[?2004h>     p0=[A0,x0_0,g0,C0]
+[?2004l[?2004h>     bounds=([0,lo,0.5,0],[np.inf,hi,200,1e6])
+[?2004l[?2004h>     popt,pcov=curve_fit(lorentz,X,Y,p0=p0,bounds=bounds,maxfev=100000)
+[?2004l[?2004h>     A,x0,g,C=popt
+[?2004l[?2004h>     Yp=lorentz(X,*popt)
+[?2004l[?2004h>     ssr=float(((Y-Yp)**2).sum()); sst=float(((Y-Y.mean())**2).sum())
+[?2004l[?2004h>     r2=1-ssr/sst
+[?2004l[?2004h>     res[name]={'x0':float(x0),'gamma':float(abs(g)),'amplitude':float(A),'offset':float(C)}
+[?2004l[?2004h>     print(f'{name}: x0={x0:.4f} gamma={g:.4f} A={A:.4f} C={C:.4f} R2={r2:.5f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> res['ID_IG']=res['D']['amplitude']/res['G']['amplitude']
+[?2004l[?2004h> print('ID_IG',res['ID_IG'])
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(res,f,indent=2)
+[?2004l[?2004h> print('written')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 /app/fit_scipy.py
+[?2004lD: x0=1354.9097 gamma=18.5759 A=6000.1035 C=914.3541 R2=0.99797
+G: x0=1583.3960 gamma=10.9137 A=7486.2047 C=931.5745 R2=0.99781
+2D: x0=2676.5341 gamma=28.5189 A=9969.5784 C=792.3959 R2=0.99917
+ID_IG 0.8014880326200352
+written
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1354.9096984267117,
+    "gamma": 18.57593058450119,
+    "amplitude": 6000.103463998297,
+    "offset": 914.354115533279
+  },
+  "G": {
+    "x0": 1583.396014024606,
+    "gamma": 10.91369117620256,
+    "amplitude": 7486.2046840352405,
+    "offset": 931.5744861081314
+  },
+  "2D": {
+    "x0": 2676.5341206691396,
+    "gamma": 28.518886399679115,
+    "amplitude": 9969.578433009317,
+    "offset": 792.3959056649372
+  },
+  "ID_IG": 0.8014880326200352
+}[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# python3 -c "import json; d=json.load(open('/app/results.json')); print('valid'); print('keys', list(d.keys())); [print(k, {kk:(round(vv,4) if isinstance(vv,float) else vv) for kk,vv in d[k].items()}) for k in ['D','G','2D']]; print('ID_IG', d['ID_IG'])" M[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K"
+[?2004lvalid
+keys ['D', 'G', '2D', 'ID_IG']
+D {'x0': 1354.9097, 'gamma': 18.5759, 'amplitude': 6000.1035, 'offset': 914.3541}
+G {'x0': 1583.396, 'gamma': 10.9137, 'amplitude': 7486.2047, 'offset': 931.5745}
+2D {'x0': 2676.5341, 'gamma': 28.5189, 'amplitude': 9969.5784, 'offset': 792.3959}
+ID_IG 0.8014880326200352
+[?2004hroot@j-openenv-6afd8e9329e8b7ccfbbb8447-2c4hzlyc-bc90a-l7rvm:/app# 

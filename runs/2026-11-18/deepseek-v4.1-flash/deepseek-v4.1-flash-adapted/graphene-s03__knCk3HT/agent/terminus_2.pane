@@ -1,0 +1,207 @@
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# pwd && ls -la /app
+[?2004l/app
+total 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:31 ..
+-rw-r--r--. 1 root root 70340 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# head -5 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,954.992
+1100.5001,989.534
+1101.0003,1110.132
+1101.5004,1024.330
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# python3 - <<'PY'
+[?2004l[?2004h> import sys
+[?2004l[?2004h> try:
+[?2004l[?2004h>     import numpy as np
+[?2004l[?2004h>     import scipy
+[?2004l[?2004h>     print('numpy', np.__version__)
+[?2004l[?2004h>     print('scipy', scipy.__version__)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('IMPORT_ERROR', repr(e))
+[?2004l[?2004h> PY
+[?2004lIMPORT_ERROR ModuleNotFoundError("No module named 'numpy'")
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# python3 -m pip --version 2>&1 || true
+[?2004lcommand -v octave || true; command -v R || true; command -v gnuplot || true
+python3 - <<'PY'
+import csv, math
+path='/app/spectrum.csv'
+rows=[]
+with open(path, newline='') as f:
+    r=csv.reader(f)
+    header=next(r)
+    for row in r:
+        if len(row)>=2:
+            rows.append((float(row[0]), float(row[1])))
+print('header', header, 'n', len(rows), 'x range', rows[0][0], rows[-1][0])
+for name, lo, hi in [('D',1300,1400),('G',1530,1630),('2D',2600,2780)]:
+    win=[(x,y) for x,y in rows if lo<=x<=hi]
+    xm, ym=max(win, key=lambda p:p[1])
+    print(name, 'max', xm, ym)
+    # print values every ~10 cm-1 near max
+    for x,y in win[::20]:
+        if abs(x-xm)<=60:
+            print(f'  {x:.2f} {y:.1f}')
+PY
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# command -v octave || true; command -v R || true; command -v gnuplot || true
+[?2004l[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l[?2004h> path='/app/spectrum.csv'
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> with open(path, newline='') as f:
+[?2004l[?2004h>     r=csv.reader(f)
+[?2004l[?2004h>     header=next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         if len(row)>=2:
+[?2004l[?2004h>             rows.append((float(row[0]), float(row[1])))
+[?2004l[?2004h> print('header', header, 'n', len(rows), 'x range', rows[0][0], rows[-1][0])
+[?2004l[?2004h> for name, lo, hi in [('D',1300,1400),('G',1530,1630),('2D',2600,2780)]:
+[?2004l[?2004h>     win=[(x,y) for x,y in rows if lo<=x<=hi]
+[?2004l[?2004h>     xm, ym=max(win, key=lambda p:p[1])
+[?2004l[?2004h>     print(name, 'max', xm, ym)
+[?2004l[?2004h>     # print values every ~10 cm-1 near max
+[?2004l[?2004h>     for x,y in win[::20]:
+[?2004l[?2004h>         if abs(x-xm)<=60:
+[?2004l[?2004h>             print(f'  {x:.2f} {y:.1f}')
+[?2004l[?2004h> PY
+[?2004lheader ['raman_shift_cm-1', 'intensity'] n 3800 x range 1100.0 3000.0
+D max 1353.5667 6954.939
+  1300.05 1554.8
+  1310.06 1706.2
+  1320.06 2394.0
+  1330.06 3070.5
+  1340.06 4635.9
+  1350.07 6624.0
+  1360.07 6634.9
+  1370.07 4503.9
+  1380.07 3071.3
+  1390.08 2248.2
+G max 1582.627 8517.512
+  1530.11 1365.4
+  1540.12 1486.1
+  1550.12 1647.7
+  1560.12 2419.9
+  1570.12 4013.0
+  1580.13 7804.7
+  1590.13 6347.6
+  1600.13 3268.4
+  1610.13 2059.1
+  1620.14 1594.0
+2D max 2676.915 10870.124
+  2620.40 2838.4
+  2630.40 3518.5
+  2640.41 4801.4
+  2650.41 6199.3
+  2660.41 8354.5
+  2670.41 10393.8
+  2680.42 10681.8
+  2690.42 8927.2
+  2700.42 6782.4
+  2710.42 4987.7
+  2720.43 3824.1
+  2730.43 3008.6
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# ^C[?2004l[?2004h[?2004l
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# echo READY
+[?2004lREADY
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# python3 -m pip install numpy scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m174.5 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m206.2 MB/s[0m  [33m0:00:00[0m
+[?25hInstalling collected packages: numpy, scipy
+[?25l[2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/2[0m [scipy]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 scipy-1.18.1
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> path = '/app/spectrum.csv'
+[?2004l[?2004h> x, y = [], []
+[?2004l[?2004h> with open(path, newline='') as f:
+[?2004l[?2004h>     r = csv.reader(f)
+[?2004l[?2004h>     header = next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         if len(row) >= 2:
+[?2004l[?2004h>             x.append(float(row[0]))
+[?2004l[?2004h>             y.append(float(row[1]))
+[?2004l[?2004h> x = np.array(x)
+[?2004l[?2004h> y = np.array(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1280.0, 1430.0, 1353.6),
+[?2004l[?2004h>     'G':  (1510.0, 1660.0, 1582.6),
+[?2004l[?2004h>     '2D': (2590.0, 2780.0, 2676.9),
+[?2004l[?2004h> }
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi, x0_guess) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[mask], y[mask]
+[?2004l[?2004h>     offset_guess = float(np.median(np.r_[yw[:20], yw[-20:]]))
+[?2004l[?2004h>     amp_guess = float(np.max(yw) - offset_guess)
+[?2004l[?2004h>     p0 = [x0_guess, 15.0, amp_guess, offset_guess]
+[?2004l[?2004h>     bounds = ([lo, 1.0, 0.0, -np.inf], [hi, 100.0, np.inf, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz, xw, yw, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     x0, gamma, amplitude, offset = map(float, popt)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': x0,
+[?2004l[?2004h>         'gamma': gamma,
+[?2004l[?2004h>         'amplitude': amplitude,
+[?2004l[?2004h>         'offset': offset,
+[?2004l[?2004h>     }
+[?2004l[?2004h>     yfit = lorentz(xw, *popt)
+[?2004l[?2004h>     rms = float(np.sqrt(np.mean((yw - yfit)**2)))
+[?2004l[?2004h>     print(f'{name}: x0={x0:.6f} gamma={gamma:.6f} amplitude={amplitude:.6f} offset={offset:.6f} rms={rms:.3f}')
+[?2004l[?2004h>     print('  stderr', perr)
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> PY
+[?2004lD: x0=1354.906839 gamma=18.653030 amplitude=6007.785001 offset=902.280110 rms=76.952
+  stderr [ 0.04447809  0.10074977 15.47404687 10.54699929]
+G: x0=1583.398001 gamma=10.955852 amplitude=7491.353381 offset=920.476427 rms=81.205
+  stderr [ 0.02882613  0.05278101 19.91606503  7.70812077]
+2D: x0=2676.536823 gamma=28.504835 amplitude=9969.256717 offset=793.837249 rms=82.272
+  stderr [ 0.03543065  0.08911438 14.46590498 11.89594825]
+{
+  "D": {
+    "x0": 1354.906839369444,
+    "gamma": 18.653030355663073,
+    "amplitude": 6007.7850007617135,
+    "offset": 902.2801099334094
+  },
+  "G": {
+    "x0": 1583.3980012486252,
+    "gamma": 10.955852158664742,
+    "amplitude": 7491.353380948909,
+    "offset": 920.476427462927
+  },
+  "2D": {
+    "x0": 2676.5368226914206,
+    "gamma": 28.50483518334684,
+    "amplitude": 9969.256716594964,
+    "offset": 793.8372488232354
+  },
+  "ID_IG": 0.801962568744918
+}
+[?2004hroot@j-openenv-6afd8c7929e8b7ccfbbb8316-3kelkmyt-e7f40-gwvwc:/app# 

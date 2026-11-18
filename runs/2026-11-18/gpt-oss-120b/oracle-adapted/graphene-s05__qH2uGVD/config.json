@@ -1,0 +1,12 @@
+{
+    "task": {
+        "path": "/tmp/work/datasets/raman-lab/graphene-s05",
+        "source": "raman-lab"
+    },
+    "trial_name": "graphene-s05__qH2uGVD",
+    "trials_dir": "/tmp/work/jobs/oracle-adapted",
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "0d155eb6-1b46-439c-821c-7e22d4a24b45"
+}

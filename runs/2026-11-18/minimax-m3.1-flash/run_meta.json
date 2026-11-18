@@ -1,0 +1,12 @@
+{
+  "model": "MiniMaxAI/MiniMax-M3.1-Flash",
+  "provider": "together",
+  "k": 3,
+  "router_pricing": {
+    "input": 0.15,
+    "output": 0.6
+  },
+  "harbor": "0.25.0",
+  "agent": "terminus-2",
+  "sandbox_namespace": "openenv"
+}

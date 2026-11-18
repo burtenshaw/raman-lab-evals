@@ -1,0 +1,12 @@
+{
+  "model": "google/gemma-4-31B-it",
+  "provider": "deepinfra",
+  "k": 3,
+  "router_pricing": {
+    "input": 0.2,
+    "output": 0.4
+  },
+  "harbor": "0.25.0",
+  "agent": "terminus-2",
+  "sandbox_namespace": "openenv"
+}

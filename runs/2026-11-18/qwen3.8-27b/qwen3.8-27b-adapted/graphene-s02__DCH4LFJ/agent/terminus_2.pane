@@ -1,0 +1,111 @@
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# cd /app && head -5 spectrum.csv && wc -l spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1018.716
+1100.5001,1054.576
+1101.0003,963.467
+1101.5004,965.532
+3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# python3 -c 'import sys, numpy, scipy; print(sys.version); print(numpy.__version__, scipy.__version__)'
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport sys, numpy, scipy[0m; print(sys.version); print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# pip3 install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json, csv
+[?2004l[?2004h> 
+[?2004l[?2004h> xs, ys = [], []
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r = csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> x = np.array(xs)
+[?2004l[?2004h> y = np.array(ys)
+[?2004l[?2004h> print('x range:', x.min(), x.max(), 'n:', len(x))
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {}
+[?2004l[?2004h> for name, center, half in [('D', 1350, 150), ('G', 1580, 150), ('2D', 2690, 200)]:
+[?2004l[?2004h>     m = (x >= center - half) & (x <= center + half)
+[?2004l[?2004h>     xi, yi = x[m], y[m]
+[?2004l[?2004h>     off0 = float(np.median(yi))
+[?2004l[?2004h>     i_pk = int(np.argmax(yi))
+[?2004l[?2004h>     x00 = float(xi[i_pk])
+[?2004l[?2004h>     amp0 = float(yi[i_pk]) - off0
+[?2004l[?2004h>     p0 = [amp0, x00, 30.0, off0]
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz, xi, yi, p0=p0,
+[?2004l[?2004h>                            bounds=([0, center-half, 1.0, -np.inf],
+[?2004l[?2004h>                                    [np.inf, center+half, 500.0, np.inf]),
+[?2004l[?2004h>                            maxfev=100000)
+[?2004l[?2004h>     amp, x0, gam, off = popt
+[?2004l[?2004h>     err = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     resid = yi - lorentz(xi, *popt)
+[?2004l[?2004h>     print(f'{name}: max={yi.max():.1f} @ {x00:.1f} | amp={amp:.3f}+/-{err[0]:.2f} x0={x0:.3f}+/-{err[1]:.3f} gamma={gam:.3f}+/-{err[2]:.3f} offset={off:.3f}+/-{err[3]:.2f} RMS={np.sqrt(np.mean(resid**2)):.2f}')
+[?2004l[?2004h>     result[name] = {'x0': float(x0), 'gamma': float(gam), 'amplitude': float(amp), 'offset': float(off)}
+[?2004l[?2004h> 
+[?2004l[?2004h> result['ID_IG'] = float(result['D']['amplitude'] / result['G']['amplitude'])
+[?2004l[?2004h> print('ID/IG =', result['ID_IG'])
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('written')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# python3 /app/fit.py
+[?2004lx range: 1100.0 3000.0 n: 3800
+D: max=3414.7 @ 1345.6 | amp=2343.799+/-12.48 x0=1346.399+/-0.089 gamma=16.755+/-0.152 offset=1027.298+/-3.77 RMS=63.55
+G: max=8944.0 @ 1582.1 | amp=7867.325+/-17.28 x0=1582.193+/-0.020 gamma=8.951+/-0.031 offset=1042.544+/-3.21 RMS=64.54
+2D: max=17124.6 @ 2692.9 | amp=16035.841+/-9.86 x0=2692.702+/-0.015 gamma=24.162+/-0.026 offset=1067.477+/-3.19 RMS=60.27
+ID/IG = 0.2979156463069082
+written
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.3992104361514,
+    "gamma": 16.75511310118324,
+    "amplitude": 2343.799148654869,
+    "offset": 1027.2979335547734
+  },
+  "G": {
+    "x0": 1582.1926751076712,
+    "gamma": 8.950557530454324,
+    "amplitude": 7867.324787098703,
+    "offset": 1042.5438385945604
+  },
+  "2D": {
+    "x0": 2692.7023213491275,
+    "gamma": 24.162317082242723,
+    "amplitude": 16035.840760090596,
+    "offset": 1067.4768179061716
+  },
+  "ID_IG": 0.2979156463069082
+}[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# python3 -c "
+[?2004l[?2004h> import numpy as np, csv
+[?2004l[?2004h> xs, ys = [], []
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r = csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> x = np.array(xs); y = np.array(ys)
+[?2004l[?2004h> for lo, hi in [(1150,1200),(2000,2100),(2900,2980)]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     print(lo, hi, 'noise std:', np.std(y[m], ddof=1))
+[?2004l[?2004h> "
+[?2004l1150 1200 noise std: 59.71183433022978
+2000 2100 noise std: 57.39885620835783
+2900 2980 noise std: 68.97532023897492
+[?2004hroot@j-openenv-6afd8c3529e8b7ccfbbb82ee-a9y9f6yr-6fb29-qmcp2:/app# 

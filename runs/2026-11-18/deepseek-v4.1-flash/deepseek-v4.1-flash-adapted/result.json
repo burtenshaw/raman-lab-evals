@@ -1,0 +1,178 @@
+{
+    "id": "d6851b7e-9bbf-49f1-9f41-d0835d797787",
+    "started_at": "2026-11-18T11:22:48.094881",
+    "updated_at": "2026-11-18T11:37:50.948382",
+    "finished_at": "2026-11-18T11:37:50.948382",
+    "n_total_trials": 24,
+    "stats": {
+        "n_completed_trials": 24,
+        "n_errored_trials": 0,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "terminus-2__deepseek-ai/DeepSeek-V4.1-Flash:deepinfra__raman-lab": {
+                "n_trials": 24,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "2d_fit": 1.0,
+                        "d_fit": 1.0,
+                        "g_fit": 1.0,
+                        "id_ig": 1.0,
+                        "reward": 1.0
+                    }
+                ],
+                "pass_at_k": {},
+                "reward_stats": {
+                    "d_fit": {
+                        "1.0": [
+                            "graphene-s01__YE2xcJi",
+                            "graphene-s02__whdyhda",
+                            "graphene-s03__DhubX24",
+                            "graphene-s04__pnuFfvs",
+                            "graphene-s05__SzFWCZT",
+                            "graphene-s06__hAYxp96",
+                            "graphene-s07__6dPuPZX",
+                            "graphene-s08__4dS3Mxg",
+                            "graphene-s01__cfbeTkC",
+                            "graphene-s02__95nvfoB",
+                            "graphene-s03__pDZ8ZqX",
+                            "graphene-s04__n2ZKvXP",
+                            "graphene-s05__PSA5zN5",
+                            "graphene-s06__boCKZt9",
+                            "graphene-s07__XvkABmc",
+                            "graphene-s08__ayFwnhW",
+                            "graphene-s01__793TYMJ",
+                            "graphene-s02__sHXLd2t",
+                            "graphene-s03__knCk3HT",
+                            "graphene-s04__99tCJe9",
+                            "graphene-s05__b4gTLNp",
+                            "graphene-s06__4D4YpRE",
+                            "graphene-s07__p3UiLk5",
+                            "graphene-s08__b2toPQk"
+                        ]
+                    },
+                    "g_fit": {
+                        "1.0": [
+                            "graphene-s01__YE2xcJi",
+                            "graphene-s02__whdyhda",
+                            "graphene-s03__DhubX24",
+                            "graphene-s04__pnuFfvs",
+                            "graphene-s05__SzFWCZT",
+                            "graphene-s06__hAYxp96",
+                            "graphene-s07__6dPuPZX",
+                            "graphene-s08__4dS3Mxg",
+                            "graphene-s01__cfbeTkC",
+                            "graphene-s02__95nvfoB",
+                            "graphene-s03__pDZ8ZqX",
+                            "graphene-s04__n2ZKvXP",
+                            "graphene-s05__PSA5zN5",
+                            "graphene-s06__boCKZt9",
+                            "graphene-s07__XvkABmc",
+                            "graphene-s08__ayFwnhW",
+                            "graphene-s01__793TYMJ",
+                            "graphene-s02__sHXLd2t",
+                            "graphene-s03__knCk3HT",
+                            "graphene-s04__99tCJe9",
+                            "graphene-s05__b4gTLNp",
+                            "graphene-s06__4D4YpRE",
+                            "graphene-s07__p3UiLk5",
+                            "graphene-s08__b2toPQk"
+                        ]
+                    },
+                    "2d_fit": {
+                        "1.0": [
+                            "graphene-s01__YE2xcJi",
+                            "graphene-s02__whdyhda",
+                            "graphene-s03__DhubX24",
+                            "graphene-s04__pnuFfvs",
+                            "graphene-s05__SzFWCZT",
+                            "graphene-s06__hAYxp96",
+                            "graphene-s07__6dPuPZX",
+                            "graphene-s08__4dS3Mxg",
+                            "graphene-s01__cfbeTkC",
+                            "graphene-s02__95nvfoB",
+                            "graphene-s03__pDZ8ZqX",
+                            "graphene-s04__n2ZKvXP",
+                            "graphene-s05__PSA5zN5",
+                            "graphene-s06__boCKZt9",
+                            "graphene-s07__XvkABmc",
+                            "graphene-s08__ayFwnhW",
+                            "graphene-s01__793TYMJ",
+                            "graphene-s02__sHXLd2t",
+                            "graphene-s03__knCk3HT",
+                            "graphene-s04__99tCJe9",
+                            "graphene-s05__b4gTLNp",
+                            "graphene-s06__4D4YpRE",
+                            "graphene-s07__p3UiLk5",
+                            "graphene-s08__b2toPQk"
+                        ]
+                    },
+                    "id_ig": {
+                        "1.0": [
+                            "graphene-s01__YE2xcJi",
+                            "graphene-s02__whdyhda",
+                            "graphene-s03__DhubX24",
+                            "graphene-s04__pnuFfvs",
+                            "graphene-s05__SzFWCZT",
+                            "graphene-s06__hAYxp96",
+                            "graphene-s07__6dPuPZX",
+                            "graphene-s08__4dS3Mxg",
+                            "graphene-s01__cfbeTkC",
+                            "graphene-s02__95nvfoB",
+                            "graphene-s03__pDZ8ZqX",
+                            "graphene-s04__n2ZKvXP",
+                            "graphene-s05__PSA5zN5",
+                            "graphene-s06__boCKZt9",
+                            "graphene-s07__XvkABmc",
+                            "graphene-s08__ayFwnhW",
+                            "graphene-s01__793TYMJ",
+                            "graphene-s02__sHXLd2t",
+                            "graphene-s03__knCk3HT",
+                            "graphene-s04__99tCJe9",
+                            "graphene-s05__b4gTLNp",
+                            "graphene-s06__4D4YpRE",
+                            "graphene-s07__p3UiLk5",
+                            "graphene-s08__b2toPQk"
+                        ]
+                    },
+                    "reward": {
+                        "1.0": [
+                            "graphene-s01__YE2xcJi",
+                            "graphene-s02__whdyhda",
+                            "graphene-s03__DhubX24",
+                            "graphene-s04__pnuFfvs",
+                            "graphene-s05__SzFWCZT",
+                            "graphene-s06__hAYxp96",
+                            "graphene-s07__6dPuPZX",
+                            "graphene-s08__4dS3Mxg",
+                            "graphene-s01__cfbeTkC",
+                            "graphene-s02__95nvfoB",
+                            "graphene-s03__pDZ8ZqX",
+                            "graphene-s04__n2ZKvXP",
+                            "graphene-s05__PSA5zN5",
+                            "graphene-s06__boCKZt9",
+                            "graphene-s07__XvkABmc",
+                            "graphene-s08__ayFwnhW",
+                            "graphene-s01__793TYMJ",
+                            "graphene-s02__sHXLd2t",
+                            "graphene-s03__knCk3HT",
+                            "graphene-s04__99tCJe9",
+                            "graphene-s05__b4gTLNp",
+                            "graphene-s06__4D4YpRE",
+                            "graphene-s07__p3UiLk5",
+                            "graphene-s08__b2toPQk"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        },
+        "n_input_tokens": 1398977,
+        "n_cache_tokens": 1162880,
+        "n_output_tokens": 430685,
+        "cost_usd": 0.23042569480000002
+    }
+}

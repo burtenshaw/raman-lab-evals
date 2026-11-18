@@ -1,0 +1,246 @@
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:28 ..
+-rw-r--r--. 1 root root 71052 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# head -n 10 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,814.711
+1100.5001,823.937
+1101.0003,835.751
+1101.5004,907.570
+1102.0005,741.943
+1102.5007,835.437
+1103.0008,852.833
+1103.5009,692.427
+1104.0011,883.335
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# wc -l spectrum.csv
+[?2004l3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> d=np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x,y=d[:,0],d[:,1]
+[?2004l[?2004h> print('x range',x.min(),x.max(),'n',len(x))
+[?2004l[?2004h> for lo,hi in [(1250,1450),(1500,1700),(2550,2800)]:
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     i=np.argmax(y[m])
+[?2004l[?2004h>     print(lo,hi,'max at',x[m][i],y[m][i])
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 - <<'PY'
+[?2004l[?2004h> for m in ['scipy','pandas','matplotlib']:
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         __import__(m)
+[?2004l[?2004h>         print(m,'OK')
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(m,'MISSING',e)
+[?2004l[?2004h> PY
+[?2004lscipy MISSING No module named 'scipy'
+pandas MISSING No module named 'pandas'
+matplotlib MISSING No module named 'matplotlib'
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 -m pip --version
+[?2004lpip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 -m pip install numpy scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m87.0 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m203.2 MB/s[0m  [33m0:00:00[0m
+[?25hInstalling collected packages: numpy, scipy
+[?25l[2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/2[0m [scipy]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 scipy-1.18.1
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> d=np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x,y=d[:,0],d[:,1]
+[?2004l[?2004h> print('x range',x.min(),x.max(),'n',len(x))
+[?2004l[?2004h> for lo,hi in [(1200,1500),(1500,1700),(2500,2850)]:
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     xw,yw=x[m],y[m]
+[?2004l[?2004h>     idx,_=find_peaks(yw, distance=20, prominence=100)
+[?2004l[?2004h>     order=np.argsort(yw[idx])[::-1]
+[?2004l[?2004h>     print('\nwindow',lo,hi)
+[?2004l[?2004h>     for j in order[:8]:
+[?2004l[?2004h>         print(' peak',xw[idx[j]],yw[idx[j]])
+[?2004l[?2004h> PY
+[?2004lx range 1100.0 3000.0 n 3800
+
+window 1200 1500
+ peak 1347.065 5795.575
+ peak 1396.578 1363.241
+ peak 1292.5507 1297.465
+ peak 1407.0808 1252.394
+ peak 1417.5836 1160.515
+ peak 1277.5467 1152.391
+ peak 1489.1024 1147.706
+ peak 1429.5867 1121.891
+
+window 1500 1700
+ peak 1579.1261 9870.7
+ peak 1611.6346 1782.568
+ peak 1527.1124 1247.371
+ peak 1513.1087 1201.255
+ peak 1643.6431 1193.235
+ peak 1660.1474 1087.22
+ peak 1685.6541 1083.549
+ peak 1673.1508 1045.684
+
+window 2500 2850
+ peak 2694.4196 19517.521
+ peak 2773.4404 3274.404
+ peak 2592.8929 2549.925
+ peak 2805.9489 2310.862
+ peak 2581.89 2271.685
+ peak 2823.4535 1975.64
+ peak 2557.3835 1934.141
+ peak 2834.9566 1875.498
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 - <<'PY'
+[?2004l   for lo,hi,x0 in wins:
+        p,rmse=fitwin(lo,hi,x0)
+        if p is None:
+            print(f'  {lo}-{hi}: FAIL {rmse}')
+        else:
+            print(f'  {lo}-{hi}: amp={p[0]:.3f} x0={p[1]:.4f} gamma={p[2]:.4f} off={p[3]:.3f} rmse={rmse:.3f}')
+PY
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> d=np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x,y=d[:,0],d[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, x0, gamma, off):
+[?2004l[?2004h>     return amp * gamma**2 / ((x-x0)**2 + gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def fitwin(lo,hi,guess_x0):
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     xw,yw=x[m],y[m]
+[?2004l[?2004h>     # initial estimates
+[?2004l[?2004h>     ymax=yw.max(); off0=np.percentile(yw,10)
+[?2004l[?2004h>     amp0=max(ymax-off0,1.0); gam0=20.0
+[?2004l[?2004h>     p0=[amp0,guess_x0,gam0,off0]
+[?2004l[?2004h>     bounds=([0,lo,1e-6,-np.inf],[np.inf,hi,np.inf,np.inf])
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt,pcov=curve_fit(lor,xw,yw,p0=p0,bounds=bounds,maxfev=100000)
+[?2004l[?2004h>         r=yw-lor(xw,*popt)
+[?2004l[?2004h>         rmse=np.sqrt(np.mean(r*r))
+[?2004l[?2004h>         return popt,rmse
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         return None,str(e)
+[?2004l[?2004h> 
+[?2004l[?2004h> cases={
+[?2004l[?2004h> 'D':[(1250,1450,1347),(1275,1425,1347),(1300,1400,1347),(1280,1410,1347)],
+[?2004l[?2004h> 'G':[(1500,1700,1579),(1520,1640,1579),(1540,1620,1579),(1550,1610,1579)],
+[?2004l[?2004h> '2D':[(2550,2850,2694),(2600,2800,2694),(2630,2770,2694),(2650,2740,2694)],
+[?2004l[?2004h> }
+[?2004l[?2004h> for name,wins in cases.items():
+[?2004l[?2004h>     print('\n',name)
+[?2004l[?2004h>     for lo,hi,x0 in wins:
+[?2004l[?2004h>         p,rmse=fitwin(lo,hi,x0)
+[?2004l[?2004h>         if p is None:
+[?2004l[?2004h>             print(f'  {lo}-{hi}: FAIL {rmse}')
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             print(f'  {lo}-{hi}: amp={p[0]:.3f} x0={p[1]:.4f} gamma={p[2]:.4f} off={p[3]:.3f} rmse={rmse:.3f}')
+[?2004l[?2004h> PY
+[?2004l
+ D
+  1250-1450: amp=4858.494 x0=1346.7172 gamma=15.1385 off=864.579 rmse=52.801
+  1275-1425: amp=4860.281 x0=1346.7135 gamma=15.1639 off=861.193 rmse=52.414
+  1300-1400: amp=4862.289 x0=1346.7066 gamma=15.1838 off=858.069 rmse=52.308
+  1280-1410: amp=4863.575 x0=1346.7114 gamma=15.1965 off=856.071 rmse=52.478
+
+ G
+  1500-1700: amp=8864.671 x0=1579.5665 gamma=9.9622 off=899.640 rmse=44.999
+  1520-1640: amp=8866.395 x0=1579.5668 gamma=9.9734 off=895.841 rmse=44.108
+  1540-1620: amp=8863.040 x0=1579.5673 gamma=9.9568 off=902.070 rmse=43.512
+  1550-1610: amp=8866.732 x0=1579.5682 gamma=9.9674 off=896.889 rmse=44.572
+
+ 2D
+  2550-2850: amp=18461.691 x0=2693.4217 gamma=29.0354 off=1004.294 rmse=49.558
+  2600-2800: amp=18461.876 x0=2693.4203 gamma=29.0368 off=1003.923 rmse=49.005
+  2630-2770: amp=18454.911 x0=2693.4189 gamma=29.0170 off=1012.486 rmse=50.060
+  2650-2740: amp=18432.033 x0=2693.4179 gamma=28.9677 off=1038.374 rmse=49.214
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# python3 - <<'PY'
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load spectrum
+[?2004l[?2004h> data = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian plus constant offset
+[?2004l[?2004h> def lorentzian_offset(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1250.0, 1450.0),
+[?2004l[?2004h>     'G':  (1500.0, 1700.0),
+[?2004l[?2004h>     '2D': (2550.0, 2850.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[mask], y[mask]
+[?2004l[?2004h>     idx = np.argmax(yw)
+[?2004l[?2004h>     offset0 = np.percentile(yw, 10)
+[?2004l[?2004h>     amp0 = max(yw[idx] - offset0, 1.0)
+[?2004l[?2004h>     p0 = [amp0, xw[idx], 20.0, offset0]
+[?2004l[?2004h>     bounds = ([0.0, lo, 1e-6, -np.inf], [np.inf, hi, np.inf, np.inf])
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian_offset, xw, yw, p0=p0, bounds=bounds, maxfev=100000)
+[?2004l[?2004h>     amp, x0, gamma, offset = map(float, popt)
+[?2004l[?2004h>     results[name] = {'x0': x0, 'gamma': gamma, 'amplitude': amp, 'offset': offset}
+[?2004l[?2004h>     print(name, results[name])
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print('ID_IG', results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('\nSaved results.json:')
+[?2004l[?2004h> print(open('results.json').read())
+[?2004l[?2004h> PY
+[?2004lD {'x0': 1346.7172168749537, 'gamma': 15.13846825593418, 'amplitude': 4858.493869491813, 'offset': 864.579358072203}
+G {'x0': 1579.5665422046466, 'gamma': 9.962196153233918, 'amplitude': 8864.670956744043, 'offset': 899.6400856044323}
+2D {'x0': 2693.4216508242507, 'gamma': 29.03536256748985, 'amplitude': 18461.690978158975, 'offset': 1004.2935203831252}
+ID_IG 0.548073796895482
+
+Saved results.json:
+{
+  "D": {
+    "x0": 1346.7172168749537,
+    "gamma": 15.13846825593418,
+    "amplitude": 4858.493869491813,
+    "offset": 864.579358072203
+  },
+  "G": {
+    "x0": 1579.5665422046466,
+    "gamma": 9.962196153233918,
+    "amplitude": 8864.670956744043,
+    "offset": 899.6400856044323
+  },
+  "2D": {
+    "x0": 2693.4216508242507,
+    "gamma": 29.03536256748985,
+    "amplitude": 18461.690978158975,
+    "offset": 1004.2935203831252
+  },
+  "ID_IG": 0.548073796895482
+}
+[?2004hroot@j-openenv-6afd8bc729e8b7ccfbbb82b7-gdj52b3o-db0d2-zl4zf:/app# 

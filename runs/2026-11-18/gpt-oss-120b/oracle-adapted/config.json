@@ -1,0 +1,14 @@
+{
+    "job_name": "oracle-adapted",
+    "jobs_dir": "/tmp/work/jobs",
+    "n_concurrent_trials": 5,
+    "quiet": true,
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "datasets": [
+        {
+            "path": "/tmp/work/datasets/raman-lab"
+        }
+    ]
+}

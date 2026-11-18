@@ -1,0 +1,101 @@
+[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# head -3 /app/spectrum.csv; python3 -c 'import scipy; print(scipy.__version__)'
+[?2004lraman_shift_cm-1,intensity
+1100.0000,768.701
+1100.5001,941.867
+Traceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport scipy[0m; print(scipy.__version__)
+    [1;31m^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'scipy'[0m
+[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# python3 -c 'import numpy; print(numpy.__version__)'; pip install scipy 2>&1 | tail -2
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy[0m; print(numpy.__version__)
+    [1;31m^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# python3 -c 'import scipy, numpy; print("ok")'
+[?2004lok
+[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, x0, gamma, amp, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(center):
+[?2004l[?2004h>     m = (x > center - 150) & (x < center + 150)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     off0 = float(np.min(ys))
+[?2004l[?2004h>     x00 = float(xs[np.argmax(ys)])
+[?2004l[?2004h>     amp0 = float(np.max(ys) - off0)
+[?2004l[?2004h>     p0 = [x00, 15.0, amp0, off0]
+[?2004l[?2004h>     popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=200000)
+[?2004l[?2004h>     x0, gamma, amp, offset = popt
+[?2004l[?2004h>     return {'x0': float(x0), 'gamma': float(abs(gamma)), 'amplitude': float(amp), 'offset': float(offset)}
+[?2004l[?2004h> 
+[?2004l[?2004h> D = fit_peak(1350)
+[?2004l[?2004h> G = fit_peak(1580)
+[?2004l[?2004h> D2 = fit_peak(2690)
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {'D': D, 'G': G, '2D': D2, 'ID_IG': D['amplitude'] / G['amplitude']}
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# python3 /app/fit.py
+[?2004l{
+  "D": {
+    "x0": 1353.9903090143996,
+    "gamma": 12.34146319801365,
+    "amplitude": 632.9131474808393,
+    "offset": 846.5972773719654
+  },
+  "G": {
+    "x0": 1579.390872022178,
+    "gamma": 9.038162567817286,
+    "amplitude": 6546.889824856419,
+    "offset": 809.7533746497875
+  },
+  "2D": {
+    "x0": 2688.6987135488525,
+    "gamma": 25.591831519079843,
+    "amplitude": 9808.723339391185,
+    "offset": 732.3669713520379
+  },
+  "ID_IG": 0.09667386566944706
+}
+[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1353.9903090143996,
+    "gamma": 12.34146319801365,
+    "amplitude": 632.9131474808393,
+    "offset": 846.5972773719654
+  },
+  "G": {
+    "x0": 1579.390872022178,
+    "gamma": 9.038162567817286,
+    "amplitude": 6546.889824856419,
+    "offset": 809.7533746497875
+  },
+  "2D": {
+    "x0": 2688.6987135488525,
+    "gamma": 25.591831519079843,
+    "amplitude": 9808.723339391185,
+    "offset": 732.3669713520379
+  },
+  "ID_IG": 0.09667386566944706
+}[?2004hroot@j-openenv-6afd89b9e5cad0e4dc3e69f4-ax5yezgl-12e2a-c9zqh:/app# 

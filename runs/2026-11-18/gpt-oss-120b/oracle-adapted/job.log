@@ -1,0 +1,32 @@
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Uploading environment/ to /app
+Uploading environment/ to /app
+Uploading environment/ to /app
+Uploading environment/ to /app
+Collecting main service artifacts
+Collecting main service artifacts
+Collecting main service artifacts
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Collecting main service artifacts
+Agent 'oracle' does not declare an options_model; leftover kwargs are ignored
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Collecting main service artifacts
+Uploading environment/ to /app
+Uploading environment/ to /app
+Uploading environment/ to /app
+Collecting main service artifacts
+Collecting main service artifacts
+Collecting main service artifacts

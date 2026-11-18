@@ -1,0 +1,246 @@
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# head -5 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1338.925
+1100.5001,1328.540
+1101.0003,1244.349
+1101.5004,1282.687
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# pip install numpy scipy 2>&1 | tail -3
+[?2004l
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004l2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# cat << 'EOF' > /app/explore.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> print('x range:', x.min(), x.max(), 'n=', len(x))
+[?2004l[?2004h> print('baseline-ish median:', np.median(y))
+[?2004l[?2004h> for name, lo, hi in [('D',1250,1450),('G',1480,1680),('2D',2590,2790)]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     imax = np.argmax(y[m])
+[?2004l[?2004h>     print(name, 'peak at', x[m][imax], 'value', y[m][imax], 'window min', y[m].min())
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 /app/explore.py
+[?2004lx range: 1100.0 3000.0 n= 3800
+baseline-ish median: 1324.1064999999999
+D peak at 1346.0648 value 1704.645 window min 1195.286
+G peak at 1580.6265 value 8221.131 window min 1242.067
+2D peak at 2693.9195 value 15305.993 window min 2030.893
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# cat << 'EOF' > /app/fit.py
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, center in [('D',1350.0),('G',1580.0),('2D',2690.0)]:
+[?2004l[?2004h>     m = (x >= center-100) & (x <= center+100)
+[?2004l[?2004h>     xw, yw = x[m], y[m]
+[?2004l[?2004h>     imax = np.argmax(yw)
+[?2004l[?2004h>     amp0 = yw[imax] - yw.min()
+[?2004l[?2004h>     x00 = xw[imax]
+[?2004l[?2004h>     off0 = yw.min()
+[?2004l[?2004h>     p0 = [amp0, x00, 30.0, off0]
+[?2004l[?2004h>     bounds = ([0, center-50, 1, -np.inf], [np.inf, center+50, 200, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz, xw, yw, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     amplitude, x0, gamma, offset = popt
+[?2004l[?2004h>     results[name] = {"x0": float(x0), "gamma": float(abs(gamma)),
+[?2004l[?2004h>                      "amplitude": float(amplitude), "offset": float(offset)}
+[?2004l[?2004h>     print(name, results[name], 'perr:', np.sqrt(np.diag(pcov)))
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = float(results['D']['amplitude'] / results['G']['amplitude'])
+[?2004l[?2004h> print('ID_IG =', results['ID_IG'])
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print('written /app/results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 /app/fit.py
+[?2004lD {'x0': 1352.4583931024365, 'gamma': 19.50126588483713, 'amplitude': 347.72851007915466, 'offset': 1282.0190226911077} perr: [7.85932439 0.42758207 0.86385476 4.09736556]
+G {'x0': 1581.0821905682992, 'gamma': 8.021061583169388, 'amplitude': 6928.499157964719, 'offset': 1263.016172936467} perr: [10.87511605  0.01257401  0.02034945  2.50617095]
+2D {'x0': 2694.886931934691, 'gamma': 26.972284270919154, 'amplitude': 14101.48467665245, 'offset': 1184.5021765564327} perr: [6.83194527 0.01176581 0.02785558 5.07285854]
+ID_IG = 0.05018814351437428
+written /app/results.json
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# cat << 'EOF' > /app/check.py
+[?2004l= np.sum((yw-yhat)**2); ss_tot = np.sum((yw-yw.mean())**2)
+    print(f"{name} R^2={1-ss_res/ss_tot:.4f} resid_std={np.std(yw-yhat):.1f}")
+print(open('/app/results.json').read())
+EOF
+python3 /app/check.py
+[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> res = json.load(open('/app/results.json'))
+[?2004l[?2004h> for name, center in [('D',1350.0),('G',1580.0),('2D',2690.0)]:
+[?2004l[?2004h>     for hw in [100, 150, 200]:
+[?2004l[?2004h>         m = (x >= center-hw) & (x <= center+hw)
+[?2004l[?2004h>         xw, yw = x[m], y[m]
+[?2004l[?2004h>         imax = np.argmax(yw)
+[?2004l[?2004h>         p0 = [yw[imax]-yw.min(), xw[imax], 30.0, yw.min()]
+[?2004l[?2004h>         popt,_ = curve_fit(lorentz, xw, yw, p0=p0, maxfev=20000)
+[?2004l[?2004h>         popt[2] = abs(popt[2])
+[?2004l[?2004h>         print(f"{name} hw={hw}: amp={popt[0]:.2f} x0={popt[1]:.2f} g={popt[2]:.2f} off={popt[3]:.2f}")
+[?2004l[?2004h>     # R^2 with saved params in hw=100 window
+[?2004l[?2004h>     m = (x >= center-100) & (x <= center+100)
+[?2004l[?2004h>     xw, yw = x[m], y[m]
+[?2004l[?2004h>     r = res[name]
+[?2004l[?2004h>     yhat = lorentz(xw, r['amplitude'], r['x0'], r['gamma'], r['offset'])
+[?2004l[?2004h>     ss_res = np.sum((yw-yhat)**2); ss_tot = np.sum((yw-yw.mean())**2)
+[?2004l[?2004h>     print(f"{name} R^2={1-ss_res/ss_tot:.4f} resid_std={np.std(yw-yhat):.1f}")
+[?2004l[?2004h> print(open('/app/results.json').read())
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 /app/check.py
+[?2004lD hw=100: amp=347.73 x0=1352.46 g=19.50 off=1282.02
+D hw=150: amp=342.87 x0=1352.48 g=18.49 off=1290.20
+D hw=200: amp=327.07 x0=1550.22 g=11.25 off=1340.35
+D R^2=0.8467 resid_std=42.0
+G hw=100: amp=6928.50 x0=1581.08 g=8.02 off=1263.02
+G hw=150: amp=6927.23 x0=1581.08 g=8.00 off=1267.70
+G hw=200: amp=6925.86 x0=1581.08 g=7.98 off=1274.36
+G R^2=0.9994 resid_std=38.4
+2D hw=100: amp=14101.48 x0=2694.89 g=26.97 off=1184.50
+2D hw=150: amp=14099.45 x0=2694.89 g=26.96 off=1187.88
+2D hw=200: amp=14098.37 x0=2694.89 g=26.95 off=1190.01
+2D R^2=0.9999 resid_std=39.8
+{
+  "D": {
+    "x0": 1352.4583931024365,
+    "gamma": 19.50126588483713,
+    "amplitude": 347.72851007915466,
+    "offset": 1282.0190226911077
+  },
+  "G": {
+    "x0": 1581.0821905682992,
+    "gamma": 8.021061583169388,
+    "amplitude": 6928.499157964719,
+    "offset": 1263.016172936467
+  },
+  "2D": {
+    "x0": 2694.886931934691,
+    "gamma": 26.972284270919154,
+    "amplitude": 14101.48467665245,
+    "offset": 1184.5021765564327
+  },
+  "ID_IG": 0.05018814351437428
+}
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# cat << 'EOF' > /app/dcheck.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # print coarse view of D region
+[?2004l[?2004h> for xi in range(1290, 1420, 10):
+[?2004l[?2004h>     m = (x>=xi)&(x<xi+10)
+[?2004l[?2004h>     print(f"x~{xi}-{xi+10}: mean={y[m].mean():.1f}")
+[?2004l[?2004h> print('---noise estimate (flat far region 1200-1280):', y[(x>=1200)&(x<1280)].std())
+[?2004l[?2004h> 
+[?2004l[?2004h> for hw in [60, 80, 100, 120, 150]:
+[?2004l[?2004h>     m = (x >= 1350-hw) & (x <= 1350+hw)
+[?2004l[?2004h>     xw, yw = x[m], y[m]
+[?2004l[?2004h>     imax = np.argmax(yw)
+[?2004l[?2004h>     p0 = [yw[imax]-yw.min(), xw[imax], 20.0, yw.min()]
+[?2004l[?2004h>     popt,pcov = curve_fit(lorentz, xw, yw, p0=p0, maxfev=50000)
+[?2004l[?2004h>     amp,x0,g,off = popt
+[?2004l[?2004h>     yhat = lorentz(xw,*popt)
+[?2004l[?2004h>     print(f"hw={hw}: amp={amp:.2f} x0={x0:.2f} g={g:.2f} off={off:.2f} resid_std={np.std(yw-yhat):.1f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 /app/dcheck.py
+[?2004lx~1290-1300: mean=1307.7
+x~1300-1310: mean=1335.9
+x~1310-1320: mean=1342.9
+x~1320-1330: mean=1409.2
+x~1330-1340: mean=1473.2
+x~1340-1350: mean=1584.0
+x~1350-1360: mean=1611.0
+x~1360-1370: mean=1532.0
+x~1370-1380: mean=1434.7
+x~1380-1390: mean=1380.7
+x~1390-1400: mean=1340.4
+x~1400-1410: mean=1313.2
+x~1410-1420: mean=1317.9
+---noise estimate (flat far region 1200-1280): 35.944245386135336
+hw=60: amp=358.13 x0=1352.41 g=20.94 off=1267.81 resid_std=42.7
+hw=80: amp=349.53 x0=1352.45 g=19.80 off=1279.33 resid_std=42.3
+hw=100: amp=347.73 x0=1352.46 g=19.50 off=1282.02 resid_std=42.0
+hw=120: amp=344.73 x0=1352.48 g=18.93 off=1286.83 resid_std=41.9
+hw=150: amp=342.87 x0=1352.48 g=18.49 off=1290.20 resid_std=41.7
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# python3 -c "
+[?2004l[?2004h> import json
+[?2004l[?2004h> r = json.load(open('/app/results.json'))
+[?2004l[?2004h> for k in ['D','G','2D']:
+[?2004l[?2004h>     assert all(t in r[k] for t in ['x0','gamma','amplitude','offset']), k
+[?2004l[?2004h>     assert all(isinstance(r[k][t], float) for t in ['x0','gamma','amplitude','offset'])
+[?2004l[?2004h> assert isinstance(r['ID_IG'], float)
+[?2004l[?2004h> assert abs(r['ID_IG'] - r['D']['amplitude']/r['G']['amplitude']) < 1e-9
+[?2004l[?2004h> print('VALID. ID_IG =', r['ID_IG'])
+[?2004l[?2004h> print(json.dumps(r, indent=2))
+[?2004l[?2004h> "
+[?2004lVALID. ID_IG = 0.05018814351437428
+{
+  "D": {
+    "x0": 1352.4583931024365,
+    "gamma": 19.50126588483713,
+    "amplitude": 347.72851007915466,
+    "offset": 1282.0190226911077
+  },
+  "G": {
+    "x0": 1581.0821905682992,
+    "gamma": 8.021061583169388,
+    "amplitude": 6928.499157964719,
+    "offset": 1263.016172936467
+  },
+  "2D": {
+    "x0": 2694.886931934691,
+    "gamma": 26.972284270919154,
+    "amplitude": 14101.48467665245,
+    "offset": 1184.5021765564327
+  },
+  "ID_IG": 0.05018814351437428
+}
+[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1352.4583931024365,
+    "gamma": 19.50126588483713,
+    "amplitude": 347.72851007915466,
+    "offset": 1282.0190226911077
+  },
+  "G": {
+    "x0": 1581.0821905682992,
+    "gamma": 8.021061583169388,
+    "amplitude": 6928.499157964719,
+    "offset": 1263.016172936467
+  },
+  "2D": {
+    "x0": 2694.886931934691,
+    "gamma": 26.972284270919154,
+    "amplitude": 14101.48467665245,
+    "offset": 1184.5021765564327
+  },
+  "ID_IG": 0.05018814351437428
+}[?2004hroot@j-openenv-6afd8a8a29e8b7ccfbbb81ce-kwgucomb-70e10-kqpjh:/app# 

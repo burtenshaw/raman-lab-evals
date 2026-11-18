@@ -1,0 +1,132 @@
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# head -20 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,954.992
+1100.5001,989.534
+1101.0003,1110.132
+1101.5004,1024.330
+1102.0005,926.426
+1102.5007,937.849
+1103.0008,859.230
+1103.5009,880.931
+1104.0011,901.227
+1104.5012,878.997
+1105.0013,1002.481
+1105.5014,868.820
+1106.0016,1039.345
+1106.5017,1027.935
+1107.0018,949.897
+1107.5020,1017.875
+1108.0021,837.228
+1108.5022,981.322
+1109.0024,986.939
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# python3 -c "import pandas as pd; df=pd.read_csv('/app/spectrum.csv'); print(df['raman_shift_cm-1'].min(), df['raman_shift_cm-1'].max(), len(df))" 2>/dev/null || python3 -c "import numpy as np; d=np.genfromtxt('/app/spectrum.csv',delimiter=',',skip_header=1); print(d[:,0].min(), d[:,0].max(), len(d))"
+[?2004l1100.0 3000.0 3800
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# cat << 'EOF' > /app/fit.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define peak regions
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': (1350, (1200, 1500)),
+[?2004l[?2004h>     'G': (1580, (1450, 1720)),
+[?2004l[?2004h>     '2D': (2690, (2500, 2900)),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, (center, (lo, hi)) in peaks.items():
+[?2004l[?2004h>     # Select data in the region
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     offset0 = np.median(y_fit)
+[?2004l[?2004h>     amp0 = np.max(y_fit) - offset0
+[?2004l[?2004h>     x0_0 = center
+[?2004l[?2004h>     gamma0 = 20  # typical width
+[?2004l[?2004h>     
+[?2004l[?2004h>     p0 = [x0_0, gamma0, amp0, offset0]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, pcov = curve_fit(lorentzian, x_fit, y_fit, p0=p0,
+[?2004l[?2004h>                                 maxfev=10000)
+[?2004l[?2004h>     except RuntimeError:
+[?2004l[?2004h>         # Try with bounds
+[?2004l[?2004h>         popt, pcov = curve_fit(lorentzian, x_fit, y_fit, p0=p0,
+[?2004l[?2004h>                                 maxfev=10000,
+[?2004l[?2004h>                                 bounds=([lo-50, 0.1, 0, 0], [hi+50, 200, 1e6, 1e6]))
+[?2004l[?2004h>     
+[?2004l[?2004h>     x0, gamma, amplitude, offset = popt
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(abs(gamma)),
+[?2004l[?2004h>         'amplitude': float(amplitude),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h>     print(f"{name}: x0={x0:.2f}, gamma={gamma:.2f}, amplitude={amplitude:.2f}, offset={offset:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> id_ig = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> results['ID_IG'] = float(id_ig)
+[?2004l[?2004h> print(f"ID/IG = {id_ig:.4f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("Done. Results written to /app/results.json")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# python3 /app/fit.py
+[?2004lD: x0=1354.91, gamma=18.46, amplitude=5991.28, offset=930.75
+G: x0=1583.39, gamma=10.85, amplitude=7480.15, offset=947.80
+2D: x0=2676.53, gamma=28.56, amplitude=9973.18, offset=785.67
+ID/IG = 0.8010
+Done. Results written to /app/results.json
+[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1354.9146088369775,
+    "gamma": 18.455805858720964,
+    "amplitude": 5991.281209586116,
+    "offset": 930.7547953538111
+  },
+  "G": {
+    "x0": 1583.3949560933243,
+    "gamma": 10.845656925142684,
+    "amplitude": 7480.1520495068635,
+    "offset": 947.7982027533992
+  },
+  "2D": {
+    "x0": 2676.5324596260616,
+    "gamma": 28.564671925251563,
+    "amplitude": 9973.176601503088,
+    "offset": 785.6702877471589
+  },
+  "ID_IG": 0.8009571423058303
+}[?2004hroot@j-openenv-6afd8c6629e8b7ccfbbb8303-ie85058h-ebb17-4pwfr:/app# 

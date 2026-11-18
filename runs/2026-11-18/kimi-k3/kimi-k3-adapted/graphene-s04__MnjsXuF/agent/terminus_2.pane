@@ -1,0 +1,107 @@
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# head -5 /app/spectrum.csv; wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1365.563
+1100.5001,1398.616
+1101.0003,1325.446
+1101.5004,1350.712
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# python3 -c 'import scipy, numpy; print(scipy.__version__)'
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport scipy, numpy[0m; print(scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'scipy'[0m
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# python3 -c 'import numpy; print(numpy.__version__)'; pip --version
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy[0m; print(numpy.__version__)
+    [1;31m^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# pip install numpy scipy 2>&1 | tail -3
+[?2004l
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# python3 -c 'import numpy, scipy; print(numpy.__version__, scipy.__version__)'
+[?2004l2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def model(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(center, halfwin):
+[?2004l[?2004h>     m = (x > center - halfwin) & (x < center + halfwin)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     off0 = float(np.min(ys))
+[?2004l[?2004h>     amp0 = float(np.max(ys) - off0)
+[?2004l[?2004h>     x00 = float(xs[np.argmax(ys)])
+[?2004l[?2004h>     p0 = [amp0, x00, 20.0, off0]
+[?2004l[?2004h>     bounds = ([0, center-halfwin, 0.1, -np.inf], [np.inf, center+halfwin, halfwin*2, np.inf])
+[?2004l[?2004h>     popt, _ = curve_fit(model, xs, ys, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     amp, x0, gam, off = popt
+[?2004l[?2004h>     return {'x0': float(x0), 'gamma': float(abs(gam)), 'amplitude': float(amp), 'offset': float(off)}
+[?2004l[?2004h> 
+[?2004l[?2004h> res = {
+[?2004l[?2004h>     'D': fit_peak(1350, 120),
+[?2004l[?2004h>     'G': fit_peak(1580, 120),
+[?2004l[?2004h>     '2D': fit_peak(2690, 200),
+[?2004l[?2004h> }
+[?2004l[?2004h> res['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(res, f, indent=2)
+[?2004l[?2004h> print(json.dumps(res, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# python3 /app/fit.py
+[?2004l{
+  "D": {
+    "x0": 1345.9887583921961,
+    "gamma": 14.701457463292417,
+    "amplitude": 12078.098873690327,
+    "offset": 1277.9974329698666
+  },
+  "G": {
+    "x0": 1585.0892077726685,
+    "gamma": 13.873551797610086,
+    "amplitude": 8602.360738817559,
+    "offset": 1286.1731189981565
+  },
+  "2D": {
+    "x0": 2678.0366160514786,
+    "gamma": 19.95822257085116,
+    "amplitude": 10764.94573398562,
+    "offset": 1078.740538934421
+  },
+  "ID_IG": 1.4040446849884753
+}
+[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1345.9887583921961,
+    "gamma": 14.701457463292417,
+    "amplitude": 12078.098873690327,
+    "offset": 1277.9974329698666
+  },
+  "G": {
+    "x0": 1585.0892077726685,
+    "gamma": 13.873551797610086,
+    "amplitude": 8602.360738817559,
+    "offset": 1286.1731189981565
+  },
+  "2D": {
+    "x0": 2678.0366160514786,
+    "gamma": 19.95822257085116,
+    "amplitude": 10764.94573398562,
+    "offset": 1078.740538934421
+  },
+  "ID_IG": 1.4040446849884753
+}[?2004hroot@j-openenv-6afd88e7e5cad0e4dc3e6942-92s8ojh5-83810-q49p5:/app# 

@@ -1,0 +1,15 @@
+{
+    "job_name": "oracle-original",
+    "jobs_dir": "/tmp/work/jobs",
+    "n_concurrent_trials": 5,
+    "quiet": true,
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "tasks": [
+        {
+            "name": "terminal-bench/raman-fitting",
+            "ref": "latest"
+        }
+    ]
+}

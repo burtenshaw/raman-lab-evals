@@ -1,0 +1,428 @@
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:22 ..
+-rw-r--r--. 1 root root 72012 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# head -5 spectrum.csv && wc -l spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1018.716
+1100.5001,1054.576
+1101.0003,963.467
+1101.5004,965.532
+3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> try:
+[?2004l[?2004h>     import scipy
+[?2004l[?2004h>     print('scipy', scipy.__version__)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('no scipy', repr(e))
+[?2004l[?2004h> x, y = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> print('range', x.min(), x.max(), 'n', len(x))
+[?2004l[?2004h> for lo, hi in [(1250, 1450), (1500, 1700), (2550, 2800)]:
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     i = np.argmax(y[m])
+[?2004l[?2004h>     print(lo, hi, 'max at', x[m][i], 'intensity', y[m][i])
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> x=[]; y=[]
+[?2004l[?2004h> with open('spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         x.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         y.append(float(row['intensity']))
+[?2004l[?2004h> print('points', len(x), 'range', x[0], x[-1])
+[?2004l[?2004h> # simple 5-point moving average
+[?2004l[?2004h> ys=[]
+[?2004l[?2004h> for i in range(len(y)):
+[?2004l[?2004h>     lo=max(0,i-2); hi=min(len(y),i+3)
+[?2004l[?2004h>     ys.append(sum(y[lo:hi])/(hi-lo))
+[?2004l[?2004h> for lo,hi,name in [(1250,1450,'D'),(1500,1700,'G'),(2550,2800,'2D')]:
+[?2004l[?2004h>     inds=[i for i,v in enumerate(x) if lo<=v<=hi]
+[?2004l[?2004h>     imax=max(inds, key=lambda i: ys[i])
+[?2004l[?2004h>     print(name, 'max at', x[imax], 'raw', y[imax], 'smoothed', ys[imax])
+[?2004l[?2004h> PY
+[?2004lpoints 3800 range 1100.0 3000.0
+D max at 1346.0648 raw 3385.637 smoothed 3393.4882
+G max at 1582.1269 raw 8943.983 smoothed 8848.5714
+2D max at 2693.4193 raw 17040.428 smoothed 17092.826
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l[?2004h> x=[]; y=[]
+[?2004l[?2004h> with open('spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         x.append(float(row['raman_shift_cm-1'])); y.append(float(row['intensity']))
+[?2004l[?2004h> for lo,hi,name in [(1250,1450,'D'),(1500,1700,'G'),(2550,2800,'2D')]:
+[?2004l[?2004h>     vals=[y[i] for i in range(len(x)) if lo<=x[i]<=hi]
+[?2004l[?2004h>     vals_sorted=sorted(vals)
+[?2004l[?2004h>     n=len(vals_sorted)
+[?2004l[?2004h>     print(name, 'n', n, 'min', vals_sorted[0], 'p10', vals_sorted[n//10], 'p25', vals_sorted[n//4], 'median', vals_sorted[n//2], 'max', vals_sorted[-1])
+[?2004l[?2004h> print('values near boundaries:')
+[?2004l[?2004h> for target in [1200,1250,1300,1350,1400,1450,1500,1550,1580,1600,1650,1700,2500,2550,2600,2650,2690,2700,2750,2800,2850]:
+[?2004l[?2004h>     i=min(range(len(x)), key=lambda j:abs(x[j]-target))
+[?2004l[?2004h>     print(target, x[i], y[i])
+[?2004l[?2004h> PY
+[?2004lD n 400 min 977.716 p10 1081.25 p25 1142.22 median 1265.854 max 3414.673
+G n 400 min 917.264 p10 1080.64 p25 1147.097 median 1304.28 max 8943.983
+2D n 500 min 1391.881 p10 1702.666 p25 2077.198 median 3140.74 max 17124.573
+values near boundaries:
+1200 1200.0263 1046.362
+1250 1250.0395 1095.145
+1300 1300.0526 1337.039
+1350 1350.0658 3238.745
+1400 1400.079 1257.603
+1450 1450.0921 1092.018
+1500 1500.1053 1080.585
+1550 1550.1185 1630.344
+1580 1580.1263 8518.214
+1600 1600.1316 2522.896
+1650 1650.1448 1146.903
+1700 1700.1579 1098.742
+2500 2499.8684 1355.821
+2550 2549.8815 1557.665
+2600 2599.8947 2049.87
+2650 2649.9079 4991.713
+2690 2689.9184 16924.657
+2700 2699.921 15808.96
+2750 2749.9342 3554.087
+2800 2799.9474 1893.434
+2850 2849.9605 1468.164
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# cat > fit_peaks.py <<'PY'
+[?2004lM[row][col]
+            if abs(fac) > 0.0:
+                for j in range(col, n+1):
+                    M[row][j] -= fac*M[col][j]
+    return [M[i][n] for i in range(n)]
+
+def fit(xs, ys, lo, hi, gamma0):
+    X=[]; Y=[]
+    for x, y in zip(xs, ys):
+        if lo <= x <= hi:
+            X.append(x); Y.append(y)
+    n = len(X)
+    im = max(range(n), key=lambda i: Y[i])
+    off0 = sorted(Y)[max(0, n//10)]
+    p = [X[im], math.log(gamma0), math.log(max(Y[im]-off0, 1.0)), off0]
+    lam = 1e-3
+    for it in range(200):
+        base = [model(p, x) for x in X]
+        r = [base[i]-Y[i] for i in range(n)]
+        ss = sum(v*v for v in r)
+        J = [[0.0]*4 for _ in range(n)]
+        for j in range(4):
+            h = 1e-5*(abs(p[j])+1.0)
+            pp = p[:]
+            pp[j] += h
+            for i in range(n):
+                J[i][j] = (model(pp, X[i])-base[i])/h
+        A = [[0.0]*4 for _ in range(4)]
+        g = [0.0]*4
+        for i in range(n):
+            for a in range(4):
+                g[a] += J[i][a]*r[i]
+                for b in range(4):
+                    A[a][b] += J[i][a]*J[i][b]
+        accepted = False
+        for attempt in range(30):
+            Ad = [row[:] for row in A]
+            for i in range(4):
+                Ad[i][i] += lam*max(A[i][i], 1e-12)
+            delta = solve_linear(Ad, [-v for v in g])
+            if delta is None:
+                lam *= 10.0
+                continue
+            pn = [p[i]+delta[i] for i in range(4)]
+            ssn = sse(pn, X, Y)
+            if ssn < ss:
+                p = pn
+                lam = max(lam*0.3, 1e-12)
+                accepted = True
+                break
+            lam *= 10.0
+        if not accepted:
+            break
+        if abs(ss-ssn) < 1e-12*(1.0+ss):
+            break
+    return p, sse(p, X, Y), it+1
+
+xs, ys = load_data()
+for name, lo, hi, g0 in [('D', 1250, 1450, 20.0), ('G', 1500, 1700, 20.0), ('2D', 2500, 2850, 30.0)]:
+    p, ss, it = fit(xs, ys, lo, hi, g0)
+    print(name, 'iter', it, 'SSE', ss)
+    print(' x0', p[0])
+    print(' gamma', math.exp(p[1]))
+    print(' amp', math.exp(p[2]))
+    print(' offset', p[3])
+PY
+[?2004h> import csv, math
+[?2004l[?2004h> 
+[?2004l[?2004h> def load_data():
+[?2004l[?2004h>     xs=[]; ys=[]
+[?2004l[?2004h>     with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>         r=csv.DictReader(f)
+[?2004l[?2004h>         for row in r:
+[?2004l[?2004h>             xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>             ys.append(float(row['intensity']))
+[?2004l[?2004h>     return xs, ys
+[?2004l[?2004h> 
+[?2004l[?2004h> def model(p, x):
+[?2004l[?2004h>     x0, lg, lA, off = p
+[?2004l[?2004h>     g = math.exp(lg)
+[?2004l[?2004h>     A = math.exp(lA)
+[?2004l[?2004h>     return A*g*g/((x-x0)*(x-x0)+g*g) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> def sse(p, xs, ys):
+[?2004l[?2004h>     return sum((model(p, x)-y)**2 for x, y in zip(xs, ys))
+[?2004l[?2004h> 
+[?2004l[?2004h> def solve_linear(A, b):
+[?2004l[?2004h>     n = len(b)
+[?2004l[?2004h>     M = [A[i][:] + [b[i]] for i in range(n)]
+[?2004l[?2004h>     for col in range(n):
+[?2004l[?2004h>         piv = col
+[?2004l[?2004h>         for row in range(col+1, n):
+[?2004l[?2004h>             if abs(M[row][col]) > abs(M[piv][col]):
+[?2004l[?2004h>                 piv = row
+[?2004l[?2004h>         if abs(M[piv][col]) < 1e-18:
+[?2004l[?2004h>             return None
+[?2004l[?2004h>         M[col], M[piv] = M[piv], M[col]
+[?2004l[?2004h>         pv = M[col][col]
+[?2004l[?2004h>         for j in range(col, n+1):
+[?2004l[?2004h>             M[col][j] /= pv
+[?2004l[?2004h>         for row in range(n):
+[?2004l[?2004h>             if row == col:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             fac = M[row][col]
+[?2004l[?2004h>             if abs(fac) > 0.0:
+[?2004l[?2004h>                 for j in range(col, n+1):
+[?2004l[?2004h>                     M[row][j] -= fac*M[col][j]
+[?2004l[?2004h>     return [M[i][n] for i in range(n)]
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(xs, ys, lo, hi, gamma0):
+[?2004l[?2004h>     X=[]; Y=[]
+[?2004l[?2004h>     for x, y in zip(xs, ys):
+[?2004l[?2004h>         if lo <= x <= hi:
+[?2004l[?2004h>             X.append(x); Y.append(y)
+[?2004l[?2004h>     n = len(X)
+[?2004l[?2004h>     im = max(range(n), key=lambda i: Y[i])
+[?2004l[?2004h>     off0 = sorted(Y)[max(0, n//10)]
+[?2004l[?2004h>     p = [X[im], math.log(gamma0), math.log(max(Y[im]-off0, 1.0)), off0]
+[?2004l[?2004h>     lam = 1e-3
+[?2004l[?2004h>     for it in range(200):
+[?2004l[?2004h>         base = [model(p, x) for x in X]
+[?2004l[?2004h>         r = [base[i]-Y[i] for i in range(n)]
+[?2004l[?2004h>         ss = sum(v*v for v in r)
+[?2004l[?2004h>         J = [[0.0]*4 for _ in range(n)]
+[?2004l[?2004h>         for j in range(4):
+[?2004l[?2004h>             h = 1e-5*(abs(p[j])+1.0)
+[?2004l[?2004h>             pp = p[:]
+[?2004l[?2004h>             pp[j] += h
+[?2004l[?2004h>             for i in range(n):
+[?2004l[?2004h>                 J[i][j] = (model(pp, X[i])-base[i])/h
+[?2004l[?2004h>         A = [[0.0]*4 for _ in range(4)]
+[?2004l[?2004h>         g = [0.0]*4
+[?2004l[?2004h>         for i in range(n):
+[?2004l[?2004h>             for a in range(4):
+[?2004l[?2004h>                 g[a] += J[i][a]*r[i]
+[?2004l[?2004h>                 for b in range(4):
+[?2004l[?2004h>                     A[a][b] += J[i][a]*J[i][b]
+[?2004l[?2004h>         accepted = False
+[?2004l[?2004h>         for attempt in range(30):
+[?2004l[?2004h>             Ad = [row[:] for row in A]
+[?2004l[?2004h>             for i in range(4):
+[?2004l[?2004h>                 Ad[i][i] += lam*max(A[i][i], 1e-12)
+[?2004l[?2004h>             delta = solve_linear(Ad, [-v for v in g])
+[?2004l[?2004h>             if delta is None:
+[?2004l[?2004h>                 lam *= 10.0
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             pn = [p[i]+delta[i] for i in range(4)]
+[?2004l[?2004h>             ssn = sse(pn, X, Y)
+[?2004l[?2004h>             if ssn < ss:
+[?2004l[?2004h>                 p = pn
+[?2004l[?2004h>                 lam = max(lam*0.3, 1e-12)
+[?2004l[?2004h>                 accepted = True
+[?2004l[?2004h>                 break
+[?2004l[?2004h>             lam *= 10.0
+[?2004l[?2004h>         if not accepted:
+[?2004l[?2004h>             break
+[?2004l[?2004h>         if abs(ss-ssn) < 1e-12*(1.0+ss):
+[?2004l[?2004h>             break
+[?2004l[?2004h>     return p, sse(p, X, Y), it+1
+[?2004l[?2004h> 
+[?2004l[?2004h> xs, ys = load_data()
+[?2004l[?2004h> for name, lo, hi, g0 in [('D', 1250, 1450, 20.0), ('G', 1500, 1700, 20.0), ('2D', 2500, 2850, 30.0)]:
+[?2004l[?2004h>     p, ss, it = fit(xs, ys, lo, hi, g0)
+[?2004l[?2004h>     print(name, 'iter', it, 'SSE', ss)
+[?2004l[?2004h>     print(' x0', p[0])
+[?2004l[?2004h>     print(' gamma', math.exp(p[1]))
+[?2004l[?2004h>     print(' amp', math.exp(p[2]))
+[?2004l[?2004h>     print(' offset', p[3])
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# python3 fit_peaks.py
+[?2004lD iter 5 SSE 1379839.5134956138
+ x0 1346.39181785503
+ gamma 16.950632307100626
+ amp 2348.689051648116
+ offset 1016.8405552831948
+G iter 6 SSE 1704851.704360949
+ x0 1582.1929748410666
+ gamma 8.987703089245267
+ amp 7870.668398492522
+ offset 1031.8868748410755
+2D iter 4 SSE 2545393.8188311057
+ x0 2692.7023940562112
+ gamma 24.157774240180835
+ amp 16035.247115353763
+ offset 1068.679448332711
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# python3 - <<'PY'
+[?2004l[?2004h> import math, fit_peaks as fp
+[?2004l[?2004h> xs, ys = fp.load_data()
+[?2004l[?2004h> for name, lo, hi, gammas in [
+[?2004l[?2004h>     ('D', 1250, 1450, [8, 12, 16, 20, 30, 50]),
+[?2004l[?2004h>     ('G', 1500, 1700, [5, 8, 12, 16, 25, 40]),
+[?2004l[?2004h>     ('2D', 2500, 2850, [15, 20, 30, 45, 70]),
+[?2004l[?2004h> ]:
+[?2004l[?2004h>     print('---', name)
+[?2004l[?2004h>     best = None
+[?2004l[?2004h>     for g0 in gammas:
+[?2004l[?2004h>         p, ss, it = fp.fit(xs, ys, lo, hi, g0)
+[?2004l[?2004h>         vals = (p[0], math.exp(p[1]), math.exp(p[2]), p[3])
+[?2004l[?2004h>         n = sum(1 for x in xs if lo <= x <= hi)
+[?2004l[?2004h>         rmse = math.sqrt(ss/n)
+[?2004l[?2004h>         print('g0=%5.1f it=%2d SSE=%12.3f RMSE=%7.3f x0=%9.4f gamma=%8.4f amp=%10.3f off=%8.3f' % (g0, it, ss, rmse, *vals))
+[?2004l[?2004h>         if best is None or ss < best[0]:
+[?2004l[?2004h>             best = (ss, vals, n)
+[?2004l[?2004h>     print('BEST', best)
+[?2004l[?2004h> PY
+[?2004lD iter 5 SSE 1379839.5134956138
+ x0 1346.39181785503
+ gamma 16.950632307100626
+ amp 2348.689051648116
+ offset 1016.8405552831948
+G iter 6 SSE 1704851.704360949
+ x0 1582.1929748410666
+ gamma 8.987703089245267
+ amp 7870.668398492522
+ offset 1031.8868748410755
+2D iter 4 SSE 2545393.8188311057
+ x0 2692.7023940562112
+ gamma 24.157774240180835
+ amp 16035.247115353763
+ offset 1068.679448332711
+--- D
+g0=  8.0 it= 6 SSE= 1379839.513 RMSE= 58.733 x0=1346.3918 gamma= 16.9506 amp=  2348.689 off=1016.841
+g0= 12.0 it= 6 SSE= 1379839.513 RMSE= 58.733 x0=1346.3918 gamma= 16.9506 amp=  2348.689 off=1016.841
+g0= 16.0 it= 4 SSE= 1379839.513 RMSE= 58.733 x0=1346.3918 gamma= 16.9507 amp=  2348.688 off=1016.840
+g0= 20.0 it= 5 SSE= 1379839.513 RMSE= 58.733 x0=1346.3918 gamma= 16.9506 amp=  2348.689 off=1016.841
+g0= 30.0 it= 6 SSE= 1379839.513 RMSE= 58.733 x0=1346.3918 gamma= 16.9506 amp=  2348.689 off=1016.841
+g0= 50.0 it= 6 SSE= 1379839.513 RMSE= 58.733 x0=1346.3918 gamma= 16.9506 amp=  2348.689 off=1016.841
+BEST (1379839.5134243686, (1346.391811132848, 16.950654331915608, 2348.688382941137, 1016.8400774896718), 400)
+--- G
+g0=  5.0 it= 5 SSE= 1704851.704 RMSE= 65.285 x0=1582.1930 gamma=  8.9877 amp=  7870.668 off=1031.887
+g0=  8.0 it= 4 SSE= 1704851.704 RMSE= 65.285 x0=1582.1930 gamma=  8.9877 amp=  7870.668 off=1031.887
+g0= 12.0 it= 5 SSE= 1704851.704 RMSE= 65.285 x0=1582.1930 gamma=  8.9877 amp=  7870.668 off=1031.887
+g0= 16.0 it= 5 SSE= 1704851.704 RMSE= 65.285 x0=1582.1930 gamma=  8.9877 amp=  7870.668 off=1031.887
+g0= 25.0 it= 6 SSE= 1704851.704 RMSE= 65.285 x0=1582.1930 gamma=  8.9877 amp=  7870.668 off=1031.887
+g0= 40.0 it= 6 SSE= 1704851.704 RMSE= 65.285 x0=1582.1930 gamma=  8.9877 amp=  7870.669 off=1031.887
+BEST (1704851.7043594655, (1582.1929749100314, 8.987702345220846, 7870.668742667904, 1031.8869111168176), 400)
+--- 2D
+g0= 15.0 it= 5 SSE= 2545393.819 RMSE= 60.302 x0=2692.7024 gamma= 24.1578 amp= 16035.247 off=1068.679
+g0= 20.0 it= 4 SSE= 2545393.819 RMSE= 60.302 x0=2692.7024 gamma= 24.1578 amp= 16035.247 off=1068.679
+g0= 30.0 it= 4 SSE= 2545393.819 RMSE= 60.302 x0=2692.7024 gamma= 24.1578 amp= 16035.247 off=1068.679
+g0= 45.0 it= 5 SSE= 2545393.819 RMSE= 60.302 x0=2692.7024 gamma= 24.1578 amp= 16035.247 off=1068.679
+g0= 70.0 it= 6 SSE= 2545393.819 RMSE= 60.302 x0=2692.7024 gamma= 24.1578 amp= 16035.247 off=1068.679
+BEST (2545393.8188311057, (2692.7023940562112, 24.157774240180835, 16035.247115353763, 1068.679448332711), 700)
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# python3 - <<'PY'
+[?2004l[?2004h> import json, math
+[?2004l[?2004h> import fit_peaks as fp
+[?2004l[?2004h> 
+[?2004l[?2004h> xs, ys = fp.load_data()
+[?2004l[?2004h> fits = {}
+[?2004l[?2004h> for name, lo, hi, g0 in [
+[?2004l[?2004h>     ('D', 1250, 1450, 16.0),
+[?2004l[?2004h>     ('G', 1500, 1700, 9.0),
+[?2004l[?2004h>     ('2D', 2500, 2850, 24.0),
+[?2004l[?2004h> ]:
+[?2004l[?2004h>     p, ss, it = fp.fit(xs, ys, lo, hi, g0)
+[?2004l[?2004h>     fits[name] = {
+[?2004l[?2004h>         'x0': p[0],
+[?2004l[?2004h>         'gamma': math.exp(p[1]),
+[?2004l[?2004h>         'amplitude': math.exp(p[2]),
+[?2004l[?2004h>         'offset': p[3],
+[?2004l[?2004h>     }
+[?2004l[?2004h>     print(name, 'SSE=', ss, 'iterations=', it)
+[?2004l[?2004h> 
+[?2004l[?2004h> fits['ID_IG'] = fits['D']['amplitude'] / fits['G']['amplitude']
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(fits, f, indent=2)
+[?2004l[?2004h> print(json.dumps(fits, indent=2))
+[?2004l[?2004h> PY
+[?2004lD iter 5 SSE 1379839.5134956138
+ x0 1346.39181785503
+ gamma 16.950632307100626
+ amp 2348.689051648116
+ offset 1016.8405552831948
+G iter 6 SSE 1704851.704360949
+ x0 1582.1929748410666
+ gamma 8.987703089245267
+ amp 7870.668398492522
+ offset 1031.8868748410755
+2D iter 4 SSE 2545393.8188311057
+ x0 2692.7023940562112
+ gamma 24.157774240180835
+ amp 16035.247115353763
+ offset 1068.679448332711
+D SSE= 1379839.5134243686 iterations= 4
+G SSE= 1704851.7043609489 iterations= 4
+2D SSE= 2545393.8188563036 iterations= 4
+{
+  "D": {
+    "x0": 1346.391811132848,
+    "gamma": 16.950654331915608,
+    "amplitude": 2348.688382941137,
+    "offset": 1016.8400774896718
+  },
+  "G": {
+    "x0": 1582.1929748410707,
+    "gamma": 8.987703089687628,
+    "amplitude": 7870.668398294283,
+    "offset": 1031.8868748194247
+  },
+  "2D": {
+    "x0": 2692.7023936195023,
+    "gamma": 24.157776452629257,
+    "amplitude": 16035.246695710646,
+    "offset": 1068.6792531011906
+  },
+  "ID_IG": 0.29841028284842247
+}
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.391811132848,
+    "gamma": 16.950654331915608,
+    "amplitude": 2348.688382941137,
+    "offset": 1016.8400774896718
+  },
+  "G": {
+    "x0": 1582.1929748410707,
+    "gamma": 8.987703089687628,
+    "amplitude": 7870.668398294283,
+    "offset": 1031.8868748194247
+  },
+  "2D": {
+    "x0": 2692.7023936195023,
+    "gamma": 24.157776452629257,
+    "amplitude": 16035.246695710646,
+    "offset": 1068.6792531011906
+  },
+  "ID_IG": 0.29841028284842247
+}[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c8-6kjpqv9m-7185a-bl5l9:/app# 

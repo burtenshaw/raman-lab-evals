@@ -1,0 +1,19 @@
+{
+    "task": {
+        "name": "terminal-bench/raman-fitting",
+        "ref": "latest"
+    },
+    "trial_name": "raman-fitting__ka6HcJJ",
+    "trials_dir": "/tmp/work/jobs/gpt-oss-120b-original",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/openai/gpt-oss-120b:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "efe1dd19-93fe-4e87-a837-0debfc39e9bd"
+}

@@ -1,0 +1,12 @@
+{
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "provider": "deepinfra",
+  "k": 3,
+  "router_pricing": {
+    "input": 0.14,
+    "output": 0.42
+  },
+  "harbor": "0.25.0",
+  "agent": "terminus-2",
+  "sandbox_namespace": "openenv"
+}

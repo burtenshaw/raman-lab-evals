@@ -1,0 +1,222 @@
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# ls -la
+[?2004ltotal 68
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:33 ..
+-rw-r--r--. 1 root root 69622 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# head -n 10 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,768.701
+1100.5001,941.867
+1101.0003,726.939
+1101.5004,816.841
+1102.0005,917.289
+1102.5007,827.414
+1103.0008,881.329
+1103.5009,897.147
+1104.0011,657.673
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# wc -l spectrum.csv
+[?2004l3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 -c 'import numpy, scipy; print(numpy.__version__, scipy.__version__)'
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 --version
+[?2004lPython 3.13.18
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# pip3 --version
+[?2004lpip3 install --quiet numpy scipy
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# pip3 install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 -c 'import numpy, scipy; print(numpy.__version__, scipy.__version__)'
+[?2004l2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 -c "import numpy as np; d=np.genfromtxt('spectrum.csv',delimiter=',',skip_header=1); print('shape',d.shape); print('x range',d[:,0].min(),d[:,0].max()); print('y min',d[:,1].min(),'y max',d[:,1].max(),'y mean',d[:,1].mean())"
+[?2004lshape (3800, 2)
+x range 1100.0 3000.0
+y min 328.61 y max 10801.957 y mean 1287.6487786842106
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# cat <<'PY' > /app/inspect_peaks.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> for name, lo, hi in [('D',1250,1450), ('G',1480,1680), ('2D',2590,2790)]:
+[?2004l[?2004h>     m = (x>=lo)&(x<=hi)
+[?2004l[?2004h>     xi, yi = x[m], y[m]
+[?2004l[?2004h>     imax = np.argmax(yi)
+[?2004l[?2004h>     # baseline: median of first and last 25 points of window
+[?2004l[?2004h>     base = np.median(np.concatenate([yi[:25], yi[-25:]]))
+[?2004l[?2004h>     print(name, 'center=', xi[imax], 'height=', yi[imax], 'base=', base, 'half width rough where >base+0.5*(height-base):')
+[?2004l[?2004h>     thr = base + 0.5*(yi[imax]-base)
+[?2004l[?2004h>     above = xi[yi>thr]
+[?2004l[?2004h>     if len(above)>0:
+[?2004l[?2004h>         print('   FWHM approx', above.max()-above.min())
+[?2004l[?2004h> # also show max globally
+[?2004l[?2004h> imax_global=np.argmax(y); print('global max', x[imax_global], y[imax_global])
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 /app/inspect_peaks.py
+[?2004lD center= 1356.5675 height= 1605.569 base= 814.9635000000001 half width rough where >base+0.5*(height-base):
+   FWHM approx 41.51089999999999
+G center= 1580.1263 height= 7483.455 base= 871.171 half width rough where >base+0.5*(height-base):
+   FWHM approx 16.504300000000057
+2D center= 2689.4183 height= 10801.957 base= 1396.9365 half width rough where >base+0.5*(height-base):
+   FWHM approx 46.01210000000037
+global max 2689.4183 10801.957
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# cat <<'PY' > /app/fit_peaks.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def model(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(name, lo, hi):
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xi, yi = x[m], y[m]
+[?2004l[?2004h>     imax = np.argmax(yi)
+[?2004l[?2004h>     x0_guess = xi[imax]
+[?2004l[?2004h>     amp_guess = yi[imax] - np.median(np.concatenate([yi[:10], yi[-10:]]))
+[?2004l[?2004h>     thr = np.median(np.concatenate([yi[:10], yi[-10:]])) + 0.5*(yi[imax]-np.median(np.concatenate([yi[:10], yi[-10:]])))
+[?2004l[?2004h>     above = xi[yi>thr]
+[?2004l[?2004h>     fwhm_guess = above.max()-above.min() if len(above)>0 else 20.0
+[?2004l[?2004h>     gamma_guess = fwhm_guess/2.0
+[?2004l[?2004h>     offset_guess = np.median(np.concatenate([yi[:10], yi[-10:]]))
+[?2004l[?2004h>     p0 = [amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h>     # bounds: amplitude>0, gamma>0, x0 within window, offset>=0
+[?2004l[?2004h>     bounds = ([0, lo, 1.0, 0], [np.inf, hi, (hi-lo), np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(model, xi, yi, p0=p0, bounds=bounds, maxfev=100000)
+[?2004l[?2004h>     perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     print(f'{name}: popt={popt}, perr={perr}')
+[?2004l[?2004h>     return dict(zip(['amplitude','x0','gamma','offset'], popt))
+[?2004l[?2004h> 
+[?2004l[?2004h> D = fit_peak('D', 1280, 1440)
+[?2004l[?2004h> G = fit_peak('G', 1500, 1660)
+[?2004l[?2004h> D2 = fit_peak('2D', 2600, 2780)
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': {'x0': D['x0'], 'gamma': D['gamma'], 'amplitude': D['amplitude'], 'offset': D['offset']},
+[?2004l[?2004h>     'G': {'x0': G['x0'], 'gamma': G['gamma'], 'amplitude': G['amplitude'], 'offset': G['offset']},
+[?2004l[?2004h>     '2D': {'x0': D2['x0'], 'gamma': D2['gamma'], 'amplitude': D2['amplitude'], 'offset': D2['offset']},
+[?2004l[?2004h>     'ID_IG': D['amplitude'] / G['amplitude']
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print(json.dumps(result, indent=2))
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 /app/fit_peaks.py
+[?2004lD: popt=[ 636.06094915 1353.97441665   12.76659389  838.84261416], perr=[29.17054236  0.57711784  1.08392488 12.30445791]
+G: popt=[6550.24026467 1579.391019      9.07991673  799.68324098], perr=[30.01591074  0.04143355  0.07127591  9.19606434]
+2D: popt=[9803.24233376 2688.70117704   25.5571694   739.88990575], perr=[22.56734048  0.05175661  0.12669759 17.72536619]
+{
+  "D": {
+    "x0": 1353.974416650618,
+    "gamma": 12.766593889716033,
+    "amplitude": 636.060949147305,
+    "offset": 838.8426141579688
+  },
+  "G": {
+    "x0": 1579.3910189957896,
+    "gamma": 9.079916725009712,
+    "amplitude": 6550.24026467455,
+    "offset": 799.683240976824
+  },
+  "2D": {
+    "x0": 2688.7011770370846,
+    "gamma": 25.55716940108729,
+    "amplitude": 9803.242333757347,
+    "offset": 739.8899057452804
+  },
+  "ID_IG": 0.09710497988563596
+}
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1353.974416650618,
+    "gamma": 12.766593889716033,
+    "amplitude": 636.060949147305,
+    "offset": 838.8426141579688
+  },
+  "G": {
+    "x0": 1579.3910189957896,
+    "gamma": 9.079916725009712,
+    "amplitude": 6550.24026467455,
+    "offset": 799.683240976824
+  },
+  "2D": {
+    "x0": 2688.7011770370846,
+    "gamma": 25.55716940108729,
+    "amplitude": 9803.242333757347,
+    "offset": 739.8899057452804
+  },
+  "ID_IG": 0.09710497988563596
+}[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 -c "import json; d=json.load(open('/app/results.json')); print('Valid JSON, keys:', list(d.keys())); print('ID_IG:', d['ID_IG'])"
+[?2004lValid JSON, keys: ['D', 'G', '2D', 'ID_IG']
+ID_IG: 0.09710497988563596
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# cat <<'PY' > /app/diag.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def model(x, a, x0, g, o):
+[?2004l[?2004h>     return a*g*g/((x-x0)**2+g*g) + o
+[?2004l[?2004h> 
+[?2004l[?2004h> # Look for D' peak near 1620
+[?2004l[?2004h> m=(x>=1590)&(x<=1660)
+[?2004l[?2004h> print('Region 1590-1660 max:', x[m][np.argmax(y[m])], y[m].max())
+[?2004l[?2004h> print('Region 1590-1660 sample:', list(zip(np.round(x[m][::10],1), np.round(y[m][::10],1))))
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(lo,hi,p0=None):
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     xi,yi=x[m],y[m]
+[?2004l[?2004h>     imax=np.argmax(yi)
+[?2004l[?2004h>     base=np.median(np.concatenate([yi[:10],yi[-10:]]))
+[?2004l[?2004h>     if p0 is None:
+[?2004l[?2004h>         p0=[yi[imax]-base, xi[imax], 10.0, base]
+[?2004l[?2004h>     bounds=([0,lo,1.0,0],[np.inf,hi,hi-lo,np.inf])
+[?2004l[?2004h>     popt,_=curve_fit(model,xi,yi,p0=p0,bounds=bounds,maxfev=100000)
+[?2004l[?2004h>     res=yi-model(xi,*popt)
+[?2004l[?2004h>     rms=np.sqrt(np.mean(res**2))
+[?2004l[?2004h>     return popt,rms
+[?2004l[?2004h> 
+[?2004l[?2004h> for name,lo,hi in [('D',1280,1440),('G',1500,1660),('2D',2600,2780)]:
+[?2004l[?2004h>     popt,rms=fit(lo,hi)
+[?2004l[?2004h>     print(f'{name} [{lo},{hi}] amp={popt[0]:.2f} x0={popt[1]:.2f} gam={popt[2]:.2f} off={popt[3]:.2f} rms={rms:.1f}')
+[?2004l[?2004h> 
+[?2004l[?2004h> print('--- window sensitivity (amplitude) ---')
+[?2004l[?2004h> for lo,hi in [(1300,1420),(1280,1440),(1260,1460)]:
+[?2004l[?2004h>     p,_=fit(lo,hi); print(f'D [{lo},{hi}] amp={p[0]:.2f}')
+[?2004l[?2004h> for lo,hi in [(1510,1650),(1500,1660),(1490,1670),(1520,1620)]:
+[?2004l[?2004h>     p,_=fit(lo,hi); print(f'G [{lo},{hi}] amp={p[0]:.2f} x0={p[1]:.2f} gam={p[2]:.2f}')
+[?2004l[?2004h> for lo,hi in [(2620,2760),(2600,2780),(2580,2800)]:
+[?2004l[?2004h>     p,_=fit(lo,hi); print(f'2D [{lo},{hi}] amp={p[0]:.2f}')
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# python3 /app/diag.py
+[?2004lRegion 1590-1660 max: 1590.129 3538.39
+Region 1590-1660 sample: [(np.float64(1590.1), np.float64(3538.4)), (np.float64(1595.1), np.float64(2268.7)), (np.float64(1600.1), np.float64(1842.6)), (np.float64(1605.1), np.float64(1615.4)), (np.float64(1610.1), np.float64(1051.8)), (np.float64(1615.1), np.float64(1399.7)), (np.float64(1620.1), np.float64(1044.3)), (np.float64(1625.1), np.float64(1091.8)), (np.float64(1630.1), np.float64(1031.7)), (np.float64(1635.1), np.float64(1026.9)), (np.float64(1640.1), np.float64(697.5)), (np.float64(1645.1), np.float64(839.1)), (np.float64(1650.1), np.float64(731.7)), (np.float64(1655.1), np.float64(893.0))]
+D [1280,1440] amp=636.06 x0=1353.97 gam=12.77 off=838.84 rms=127.9
+G [1500,1660] amp=6550.24 x0=1579.39 gam=9.08 off=799.68 rms=112.2
+2D [2600,2780] amp=9803.24 x0=2688.70 gam=25.56 off=739.89 rms=124.9
+--- window sensitivity (amplitude) ---
+D [1300,1420] amp=636.89
+D [1280,1440] amp=636.06
+D [1260,1460] amp=634.65
+G [1510,1650] amp=6550.01 x0=1579.39 gam=9.08
+G [1500,1660] amp=6550.24 x0=1579.39 gam=9.08
+G [1490,1670] amp=6548.49 x0=1579.39 gam=9.06
+G [1520,1620] amp=6546.06 x0=1579.39 gam=9.05
+2D [2620,2760] amp=9810.06
+2D [2600,2780] amp=9803.24
+2D [2580,2800] amp=9809.55
+[?2004hroot@j-openenv-6afd8cfae5cad0e4dc3e6d91-6i9en3mt-63a52-s8qzp:/app# 

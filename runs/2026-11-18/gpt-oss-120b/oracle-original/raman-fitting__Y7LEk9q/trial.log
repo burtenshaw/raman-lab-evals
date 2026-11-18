@@ -1,0 +1,2 @@
+Creating HF Sandbox: image=alexgshaw/raman-fitting:20251031, flavor=cpu-basic, idle_timeout=600s
+Collecting main service artifacts

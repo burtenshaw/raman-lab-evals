@@ -1,0 +1,29 @@
+Creating HF Sandbox: image=alexgshaw/raman-fitting:20251031, flavor=cpu-basic, idle_timeout=600s
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gemma-4-31b-it-original/raman-fitting__3drTjHM/agent/trajectory.json
+Collecting main service artifacts

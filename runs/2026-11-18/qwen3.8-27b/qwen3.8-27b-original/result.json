@@ -1,0 +1,48 @@
+{
+    "id": "e01a2109-8c6f-4033-a69f-b0da7cb58a8b",
+    "started_at": "2026-11-18T11:07:22.902004",
+    "updated_at": "2026-11-18T11:22:44.628660",
+    "finished_at": "2026-11-18T11:22:44.628660",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 2,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "terminus-2__Qwen/Qwen3.8-27B:deepinfra__adhoc": {
+                "n_trials": 3,
+                "n_errors": 2,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "raman-fitting__3YMLQuF",
+                            "raman-fitting__v2aVYUf",
+                            "raman-fitting__75MkgKc"
+                        ]
+                    }
+                },
+                "exception_stats": {
+                    "AgentTimeoutError": [
+                        "raman-fitting__3YMLQuF",
+                        "raman-fitting__v2aVYUf"
+                    ]
+                }
+            }
+        },
+        "n_input_tokens": 235835,
+        "n_cache_tokens": 172480,
+        "n_output_tokens": 69893,
+        "cost_usd": 0.147020625
+    }
+}

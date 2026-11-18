@@ -1,0 +1,100 @@
+[?2004hroot@j-openenv-6afd89f229e8b7ccfbbb8185-8a03wtin-eef3f-tpsk9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd89f229e8b7ccfbbb8185-8a03wtin-eef3f-tpsk9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd89f229e8b7ccfbbb8185-8a03wtin-eef3f-tpsk9:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:06 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:20 ..
+-rw-r--r--. 1 root root 72012 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd89f229e8b7ccfbbb8185-8a03wtin-eef3f-tpsk9:/app# python3 - << 'PY'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> x, y = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define peak regions and initial guesses
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D':  {'center': 1350, 'window': 100, 'guess': [max(y), 10, 1350, min(y)]},
+[?2004l[?2004h>     'G':  {'center': 1580, 'window': 100, 'guess': [max(y), 10, 1580, min(y)]},
+[?2004l[?2004h>     '2D': {'center': 2690, 'window': 150, 'guess': [max(y), 10, 2690, min(y)]},
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, info in peaks.items():
+[?2004l[?2004h>     mask = (x >= info['center'] - info['window']) & (x <= info['center'] + info['window'])
+[?2004l[?2004h>     x_fit, y_fit = x[mask], y[mask]
+[?2004l[?2004h>     p0 = info['guess']
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for {name}:', e, file=sys.stderr)
+[?2004l[?2004h>         popt = [np.nan]*4
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(popt[2]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio
+[?2004l[?2004h> ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else np.nan
+[?2004l[?2004h> results['ID_IG'] = float(ID_IG)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd89f229e8b7ccfbbb8185-8a03wtin-eef3f-tpsk9:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd89f229e8b7ccfbbb8185-8a03wtin-eef3f-tpsk9:/app# pip install --quiet numpy scipy
+[?2004lpython3 - << 'PY'
+import numpy as np, json, sys
+from scipy.optimize import curve_fit
+
+# Load data
+x, y = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+
+def lorentzian(x, amplitude, gamma, x0, offset):
+    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+
+# Define peak regions and initial guesses
+peaks = {
+    'D':  {'center': 1350, 'window': 100, 'guess': [max(y), 10, 1350, min(y)]},
+    'G':  {'center': 1580, 'window': 100, 'guess': [max(y), 10, 1580, min(y)]},
+    '2D': {'center': 2690, 'window': 150, 'guess': [max(y), 10, 2690, min(y)]},
+}
+
+results = {}
+for name, info in peaks.items():
+    mask = (x >= info['center'] - info['window']) & (x <= info['center'] + info['window'])
+    x_fit, y_fit = x[mask], y[mask]
+    p0 = info['guess']
+    try:
+        popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+    except Exception as e:
+        print(f'Fit failed for {name}:', e, file=sys.stderr)
+        popt = [np.nan]*4
+    results[name] = {
+        'x0': float(popt[2]),
+        'gamma': float(popt[1]),
+        'amplitude': float(popt[0]),
+        'offset': float(popt[3])
+    }
+
+# Compute defect ratio
+ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else np.nan
+results['ID_IG'] = float(ID_IG)
+
+# Write JSON
+with open('results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+PY
+cat results.json

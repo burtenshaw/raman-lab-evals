@@ -1,0 +1,103 @@
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# head -5 /app/spectrum.csv; wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,814.711
+1100.5001,823.937
+1101.0003,835.751
+1101.5004,907.570
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# pip install numpy scipy 2>&1 | tail -3
+[?2004l
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004l2.5.5 1.18.1
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(xlo, xhi):
+[?2004l[?2004h>     m = (x >= xlo) & (x <= xhi)
+[?2004l[?2004h>     xw, yw = x[m], y[m]
+[?2004l[?2004h>     off0 = float(np.min(yw))
+[?2004l[?2004h>     amp0 = float(np.max(yw) - off0)
+[?2004l[?2004h>     x00 = float(xw[np.argmax(yw)])
+[?2004l[?2004h>     p0 = [amp0, x00, 15.0, off0]
+[?2004l[?2004h>     popt, _ = curve_fit(lorentz, xw, yw, p0=p0, maxfev=20000)
+[?2004l[?2004h>     amp, x0, gamma, off = popt
+[?2004l[?2004h>     return {'x0': float(x0), 'gamma': float(abs(gamma)),
+[?2004l[?2004h>             'amplitude': float(amp), 'offset': float(off)}
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     'D': fit_peak(1250, 1450),
+[?2004l[?2004h>     'G': fit_peak(1500, 1650),
+[?2004l[?2004h>     '2D': fit_peak(2550, 2850),
+[?2004l[?2004h> }
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# python3 /app/fit.py
+[?2004l{
+  "D": {
+    "x0": 1346.7172167411143,
+    "gamma": 15.138468671727624,
+    "amplitude": 4858.493836761058,
+    "offset": 864.5793395031404
+  },
+  "G": {
+    "x0": 1579.566536971528,
+    "gamma": 9.965681270770958,
+    "amplitude": 8864.998571356564,
+    "offset": 898.6186591428419
+  },
+  "2D": {
+    "x0": 2693.4216508241684,
+    "gamma": 29.035362566879556,
+    "amplitude": 18461.690978314873,
+    "offset": 1004.2935204342624
+  },
+  "ID_IG": 0.548053538605093
+}
+[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.7172167411143,
+    "gamma": 15.138468671727624,
+    "amplitude": 4858.493836761058,
+    "offset": 864.5793395031404
+  },
+  "G": {
+    "x0": 1579.566536971528,
+    "gamma": 9.965681270770958,
+    "amplitude": 8864.998571356564,
+    "offset": 898.6186591428419
+  },
+  "2D": {
+    "x0": 2693.4216508241684,
+    "gamma": 29.035362566879556,
+    "amplitude": 18461.690978314873,
+    "offset": 1004.2935204342624
+  },
+  "ID_IG": 0.548053538605093
+}[?2004hroot@j-openenv-6afd89ea29e8b7ccfbbb8173-m3gwrjek-30f81-gng7s:/app# 

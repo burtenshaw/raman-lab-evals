@@ -1,0 +1,24 @@
+{
+    "job_name": "gemma-4-31b-it-adapted",
+    "jobs_dir": "/tmp/work/jobs",
+    "n_attempts": 3,
+    "n_concurrent_trials": 5,
+    "quiet": true,
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "agents": [
+        {
+            "name": "terminus-2",
+            "model_name": "openai/google/gemma-4-31B-it:deepinfra",
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            }
+        }
+    ],
+    "datasets": [
+        {
+            "path": "/tmp/work/datasets/raman-lab"
+        }
+    ]
+}

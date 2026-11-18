@@ -1,0 +1,19 @@
+{
+    "task": {
+        "name": "terminal-bench/raman-fitting",
+        "ref": "latest"
+    },
+    "trial_name": "raman-fitting__fGWa5BY",
+    "trials_dir": "/tmp/work/jobs/kimi-k3-original",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/moonshotai/Kimi-K3:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "9e9b4fda-c698-4989-a630-25c68132af3a"
+}

@@ -1,0 +1,25 @@
+{
+    "job_name": "gpt-oss-120b-original",
+    "jobs_dir": "/tmp/work/jobs",
+    "n_attempts": 3,
+    "n_concurrent_trials": 5,
+    "quiet": true,
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "agents": [
+        {
+            "name": "terminus-2",
+            "model_name": "openai/openai/gpt-oss-120b:deepinfra",
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            }
+        }
+    ],
+    "tasks": [
+        {
+            "name": "terminal-bench/raman-fitting",
+            "ref": "latest"
+        }
+    ]
+}

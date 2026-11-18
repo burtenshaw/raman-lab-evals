@@ -1,0 +1,19 @@
+{
+    "task": {
+        "name": "terminal-bench/raman-fitting",
+        "ref": "latest"
+    },
+    "trial_name": "raman-fitting__MDc3HA4",
+    "trials_dir": "/tmp/work/jobs/deepseek-v4.1-flash-original",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/deepseek-ai/DeepSeek-V4.1-Flash:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "6f6cf861-7bf0-4c1e-a628-f31645400b09"
+}

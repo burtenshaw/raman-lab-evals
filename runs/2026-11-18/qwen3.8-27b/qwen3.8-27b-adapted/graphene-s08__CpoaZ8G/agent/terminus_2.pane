@@ -1,0 +1,198 @@
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# head -5 spectrum.csv && wc -l spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,902.977
+1100.5001,976.662
+1101.0003,906.945
+1101.5004,1014.009
+3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# python3 -m pip install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> data = np.genfromtxt('spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> print('x range', x.min(), x.max(), 'n', len(x))
+[?2004l[?2004h> for name, c in [('D',1350),('G',1580),('2D',2690)]:
+[?2004l[?2004h>     mask = (x > c-120) & (x < c+120)
+[?2004l[?2004h>     if mask.any():
+[?2004l[?2004h>         xm = x[mask][np.argmax(y[mask])]
+[?2004l[?2004h>         print(name, 'local max at', xm, y.max() if mask.any() else None, 'window max', y[mask].max())
+[?2004l[?2004h> # print rough edges baseline
+[?2004l[?2004h> for a,b in [(1100,1200),(1430,1470),(1700,1800),(2500,2560),(2820,2900)]:
+[?2004l[?2004h>     m=(x>=a)&(x<b)
+[?2004l[?2004h>     print(a,b, y[m].mean(), y[m].std())
+[?2004l[?2004h> PY
+[?2004lx range 1100.0 3000.0 n 3800
+D local max at 1351.0661 13904.551 window max 2325.647
+G local max at 1581.1266 13904.551 window max 7573.63
+2D local max at 2684.417 13904.551 window max 13904.551
+1100 1200 983.1387000000001 37.425229703102694
+1430 1470 1004.2753749999999 38.70975494380422
+1700 1800 931.2381200000001 42.00281342738364
+2500 2560 990.0610833333335 50.47706648775979
+2820 2900 915.8103125000001 50.77840550767958
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> data = np.genfromtxt('spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> def model(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> for name, c in [('D',1350),('G',1580),('2D',2690)]:
+[?2004l[?2004h>     print('\n', name)
+[?2004l[?2004h>     for w in [60,80,100,120,150]:
+[?2004l[?2004h>         m = (x >= c-w) & (x <= c+w)
+[?2004l[?2004h>         if m.sum()<10: continue
+[?2004l[?2004h>         xm=x[m], ym=y[m]
+[?2004l[?2004h>         offset0=np.percentile(ym,10)
+[?2004l[?2004h>         amp0=ym.max()-offset0
+[?2004l[?2004h>         x00=xm[np.argmax(ym)]
+[?2004l[?2004h>         # gamma estimate half max
+[?2004l[?2004h>         half=offset0+amp0/2
+[?2004l[?2004h>         above=xm[ym>half]
+[?2004l[?2004h>         gamma0=max(5.0, (above.max()-above.min())/2 if len(above)>1 else 20.0)
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             popt, pcov = curve_fit(model, xm, ym, p0=[amp0, x00, gamma0, offset0],
+[?2004l[?2004h>                                    bounds=([0, xm.min(), 1, -np.inf],[np.inf, xm.max(), 200, np.inf]), maxfev=20000)
+[?2004l[?2004h>             amp,x0,gamma,off=popt
+[?2004l[?2004h>             rms=np.sqrt(np.mean((model(xm,*popt)-ym)**2))
+[?2004l[?2004h>             print(f'w={w}: amp={amp:.3f} x0={x0:.3f} gamma={gamma:.3f} off={off:.3f} rms={rms:.2f}')
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             print(f'w={w}: fail {e}')
+[?2004l[?2004h> PY
+[?2004l
+ D
+Traceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m12[0m, in [35m<module>[0m
+[1;35mValueError[0m: [35mtoo many values to unpack (expected 2)[0m
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> data = np.genfromtxt('spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> def model(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> for name, c in [('D',1350),('G',1580),('2D',2690)]:
+[?2004l[?2004h>     print('\n', name)
+[?2004l[?2004h>     for w in [60,80,100,120,150]:
+[?2004l[?2004h>         m = (x >= c-w) & (x <= c+w)
+[?2004l[?2004h>         if m.sum()<10: continue
+[?2004l[?2004h>         xm=x[m]; ym=y[m]
+[?2004l[?2004h>         offset0=np.percentile(ym,10)
+[?2004l[?2004h>         amp0=ym.max()-offset0
+[?2004l[?2004h>         x00=xm[np.argmax(ym)]
+[?2004l[?2004h>         half=offset0+amp0/2
+[?2004l[?2004h>         above=xm[ym>half]
+[?2004l[?2004h>         gamma0=max(5.0, (above.max()-above.min())/2 if len(above)>1 else 20.0)
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             popt, pcov = curve_fit(model, xm, ym, p0=[amp0, x00, gamma0, offset0],
+[?2004l[?2004h>                                    bounds=([0, xm.min(), 1, -np.inf],[np.inf, xm.max(), 200, np.inf]), maxfev=20000)
+[?2004l[?2004h>             amp,x0,gamma,off=popt
+[?2004l[?2004h>             rms=np.sqrt(np.mean((model(xm,*popt)-ym)**2))
+[?2004l[?2004h>             print(f'w={w}: amp={amp:.3f} x0={x0:.3f} gamma={gamma:.3f} off={off:.3f} rms={rms:.2f}')
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             print(f'w={w}: fail {e}')
+[?2004l[?2004h> PY
+[?2004l
+ D
+w=60: amp=1312.425 x0=1349.233 gamma=13.519 off=972.878 rms=38.79
+w=80: amp=1315.027 x0=1349.234 gamma=13.609 off=968.709 rms=39.03
+w=100: amp=1313.510 x0=1349.234 gamma=13.533 off=971.709 rms=39.35
+w=120: amp=1313.006 x0=1349.235 gamma=13.504 off=972.778 rms=39.54
+w=150: amp=1312.539 x0=1349.236 gamma=13.461 off=974.181 rms=40.60
+
+ G
+w=60: amp=6597.055 x0=1581.130 gamma=8.442 off=940.404 rms=38.44
+w=80: amp=6596.175 x0=1581.130 gamma=8.435 off=942.523 rms=38.73
+w=100: amp=6596.732 x0=1581.130 gamma=8.440 off=941.169 rms=39.37
+w=120: amp=6597.155 x0=1581.130 gamma=8.445 off=939.892 rms=40.16
+w=150: amp=6596.419 x0=1581.129 gamma=8.433 off=942.743 rms=42.79
+
+ 2D
+w=60: amp=13071.361 x0=2684.733 gamma=17.019 off=801.441 rms=37.68
+w=80: amp=13067.633 x0=2684.732 gamma=17.009 off=806.384 rms=39.19
+w=100: amp=13067.508 x0=2684.731 gamma=17.011 off=806.090 rms=39.91
+w=120: amp=13066.626 x0=2684.731 gamma=17.006 off=807.569 rms=39.27
+w=150: amp=13066.644 x0=2684.731 gamma=17.008 off=807.256 rms=40.01
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> data = np.genfromtxt('spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> def model(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, c in [('D',1350),('G',1580),('2D',2690)]:
+[?2004l[?2004h>     m = (x >= c-100) & (x <= c+100)
+[?2004l[?2004h>     xm, ym = x[m], y[m]
+[?2004l[?2004h>     offset0 = np.percentile(ym, 10)
+[?2004l[?2004h>     amp0 = ym.max() - offset0
+[?2004l[?2004h>     x00 = xm[np.argmax(ym)]
+[?2004l[?2004h>     half = offset0 + amp0/2
+[?2004l[?2004h>     above = xm[ym > half]
+[?2004l[?2004h>     gamma0 = max(5.0, (above.max()-above.min())/2 if len(above) > 1 else 20.0)
+[?2004l[?2004h>     popt, pcov = curve_fit(model, xm, ym, p0=[amp0, x00, gamma0, offset0],
+[?2004l[?2004h>                            bounds=([0, xm.min(), 1, -np.inf], [np.inf, xm.max(), 200, np.inf]), maxfev=20000)
+[?2004l[?2004h>     amp, x0, gamma, off = popt
+[?2004l[?2004h>     results[name] = {"x0": float(x0), "gamma": float(abs(gamma)), "amplitude": float(amp), "offset": float(off)}
+[?2004l[?2004h> results["ID_IG"] = float(results["D"]["amplitude"] / results["G"]["amplitude"])
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> PY
+[?2004l{
+  "D": {
+    "x0": 1349.2335980599373,
+    "gamma": 13.532636931334563,
+    "amplitude": 1313.5098068018092,
+    "offset": 971.7087289175804
+  },
+  "G": {
+    "x0": 1581.1297886265668,
+    "gamma": 8.439692865479714,
+    "amplitude": 6596.731838036012,
+    "offset": 941.1686604741967
+  },
+  "2D": {
+    "x0": 2684.7312454622866,
+    "gamma": 17.01067298661549,
+    "amplitude": 13067.508356839457,
+    "offset": 806.0901607158507
+  },
+  "ID_IG": 0.19911523449054874
+}
+[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# cat results.json
+[?2004l{
+  "D": {
+    "x0": 1349.2335980599373,
+    "gamma": 13.532636931334563,
+    "amplitude": 1313.5098068018092,
+    "offset": 971.7087289175804
+  },
+  "G": {
+    "x0": 1581.1297886265668,
+    "gamma": 8.439692865479714,
+    "amplitude": 6596.731838036012,
+    "offset": 941.1686604741967
+  },
+  "2D": {
+    "x0": 2684.7312454622866,
+    "gamma": 17.01067298661549,
+    "amplitude": 13067.508356839457,
+    "offset": 806.0901607158507
+  },
+  "ID_IG": 0.19911523449054874
+}[?2004hroot@j-openenv-6afd8e1729e8b7ccfbbb83e2-yrprt8nl-88c4b-dzpxj:/app# 

@@ -1,0 +1,172 @@
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# ls -1
+[?2004lgraphene.dat
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# python3 - << 'PY'
+[?2004l[?2004h> import os, json, numpy as np, scipy.optimize as opt, sys, re
+[?2004l[?2004h> # Find a data file with typical extensions
+[?2004l[?2004h> files = [f for f in os.listdir('/app') if re.search(r"(\.txt|\.csv|\.dat)$", f, re.IGNORECASE)]
+[?2004l[?2004h> if not files:
+[?2004l[?2004h>     print('No data file found')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> # Assume the first matching file is the spectrum
+[?2004l[?2004h> data_file = files[0]
+[?2004l[?2004h> print('Using data file:', data_file)
+[?2004l[?2004h> # Load data (try whitespace, comma, tab delimiters)
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = np.loadtxt(data_file, delimiter=None)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         data = np.loadtxt(data_file, delimiter=',')
+[?2004l[?2004h>     except Exception as e2:
+[?2004l[?2004h>         print('Failed to load data:', e, e2)
+[?2004l[?2004h>         sys.exit(1)
+[?2004l[?2004h> # Ensure two columns
+[?2004l[?2004h> if data.ndim != 2 or data.shape[1] < 2:
+[?2004l[?2004h>     print('Data does not have two columns')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> shift = data[:,0]
+[?2004l[?2004h> intensity = data[:,1]
+[?2004l[?2004h> # Lorentzian model with offset
+[?2004l[?2004h> def lorentzian(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * (gamma**2 / ((x - x0)**2 + gamma**2)) + offset
+[?2004l[?2004h> # Fit G peak (~1580 cm^-1)
+[?2004l[?2004h> mask_g = (shift > 1500) & (shift < 1700)
+[?2004l[?2004h> params_g, _ = opt.curve_fit(lorentzian, shift[mask_g], intensity[mask_g], p0=[np.max(intensity[mask_g]), 1580, 20, np.min(intensity[mask_g])])
+[?2004l[?2004h> # Fit 2D peak (~2700 cm^-1)
+[?2004l[?2004h> mask_2d = (shift > 2500) & (shift < 2900)
+[?2004l[?2004h> params_2d, _ = opt.curve_fit(lorentzian, shift[mask_2d], intensity[mask_2d], p0=[np.max(intensity[mask_2d]), 2700, 30, np.min(intensity[mask_2d])])
+[?2004l[?2004h> # Prepare JSON structure
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "G": {
+[?2004l[?2004h>         "x0": float(params_g[1]),
+[?2004l[?2004h>         "gamma": float(params_g[2]),
+[?2004l[?2004h>         "amplitude": float(params_g[0]),
+[?2004l[?2004h>         "offset": float(params_g[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "2D": {
+[?2004l[?2004h>         "x0": float(params_2d[1]),
+[?2004l[?2004h>         "gamma": float(params_2d[2]),
+[?2004l[?2004h>         "amplitude": float(params_2d[0]),
+[?2004l[?2004h>         "offset": float(params_2d[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> }
+[?2004l[?2004h> # Write to results.json
+[?2004l[?2004h> out_path = '/app/results.json'
+[?2004l[?2004h> with open(out_path, 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Results written to', out_path)
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# python3 -m pip install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m25.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# python3 - << 'PY'
+[?2004l[?2004h> import os, json, numpy as np, scipy.optimize as opt, sys, re
+[?2004lft[mask_2d], intensity[mask_2d], p0=[np.max(intensity[mask_2d]), 2700, 30, np.min(intensity[mask_2d])])
+result = {
+    "G": {
+        "x0": float(params_g[1]),
+        "gamma": float(params_g[2]),
+        "amplitude": float(params_g[0]),
+        "offset": float(params_g[3])
+    },
+    "2D": {
+        "x0": float(params_2d[1]),
+        "gamma": float(params_2d[2]),
+        "amplitude": float(params_2d[0]),
+        "offset": float(params_2d[3])
+    }
+}
+out_path = '/app/results.json'
+with open(out_path, 'w') as f:
+    json.dump(result, f, indent=2)
+print('Results written to', out_path)
+PY
+[?2004h> files = [f for f in os.listdir('/app') if re.search(r"(\.txt|\.csv|\.dat)$", f, re.IGNORECASE)]
+[?2004l[?2004h> if not files:
+[?2004l[?2004h>     print('No data file found')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> data_file = files[0]
+[?2004l[?2004h> print('Using data file:', data_file)
+[?2004l[?2004h> # Load data (auto-detect delimiter)
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = np.loadtxt(data_file, delimiter=None)
+[?2004l[?2004h> except Exception:
+[?2004l[?2004h>     data = np.loadtxt(data_file, delimiter=',')
+[?2004l[?2004h> if data.ndim != 2 or data.shape[1] < 2:
+[?2004l[?2004h>     print('Data does not have two columns')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> shift = data[:,0]
+[?2004l[?2004h> intensity = data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * (gamma**2 / ((x - x0)**2 + gamma**2)) + offset
+[?2004l[?2004h> # Fit G peak (~1580 cm^-1)
+[?2004l[?2004h> mask_g = (shift > 1500) & (shift < 1700)
+[?2004l[?2004h> params_g, _ = opt.curve_fit(lorentzian, shift[mask_g], intensity[mask_g], p0=[np.max(intensity[mask_g]), 1580, 20, np.min(intensity[mask_g])])
+[?2004l[?2004h> # Fit 2D peak (~2700 cm^-1)
+[?2004l[?2004h> mask_2d = (shift > 2500) & (shift < 2900)
+[?2004l[?2004h> params_2d, _ = opt.curve_fit(lorentzian, shift[mask_2d], intensity[mask_2d], p0=[np.max(intensity[mask_2d]), 2700, 30, np.min(intensity[mask_2d])])
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "G": {
+[?2004l[?2004h>         "x0": float(params_g[1]),
+[?2004l[?2004h>         "gamma": float(params_g[2]),
+[?2004l[?2004h>         "amplitude": float(params_g[0]),
+[?2004l[?2004h>         "offset": float(params_g[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "2D": {
+[?2004l[?2004h>         "x0": float(params_2d[1]),
+[?2004l[?2004h>         "gamma": float(params_2d[2]),
+[?2004l[?2004h>         "amplitude": float(params_2d[0]),
+[?2004l[?2004h>         "offset": float(params_2d[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> }
+[?2004l[?2004h> out_path = '/app/results.json'
+[?2004l[?2004h> with open(out_path, 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Results written to', out_path)
+[?2004l[?2004h> PY
+[?2004lUsing data file: graphene.dat
+Traceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m10[0m, in [35m<module>[0m
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1381[0m, in [35mloadtxt[0m
+    arr = _read(fname, dtype=dtype, comment=comment, delimiter=delimiter,
+                converters=converters, skiplines=skiprows, usecols=usecols,
+                unpack=unpack, ndmin=ndmin, encoding=encoding,
+                max_rows=max_rows, quote=quotechar)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1035[0m, in [35m_read[0m
+    arr = _load_from_filelike(
+        data, delimiter=delimiter, comment=comment, quote=quote,
+    ...<3 lines>...
+        encoding=encoding, filelike=filelike,
+        byte_converters=byte_converters)
+[1;35mValueError[0m: [35mcould not convert string '47183,554644' to float64 at row 0, column 1.[0m
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m12[0m, in [35m<module>[0m
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1381[0m, in [35mloadtxt[0m
+    arr = _read(fname, dtype=dtype, comment=comment, delimiter=delimiter,
+                converters=converters, skiplines=skiprows, usecols=usecols,
+                unpack=unpack, ndmin=ndmin, encoding=encoding,
+                max_rows=max_rows, quote=quotechar)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1035[0m, in [35m_read[0m
+    arr = _load_from_filelike(
+        data, delimiter=delimiter, comment=comment, quote=quote,
+    ...<3 lines>...
+        encoding=encoding, filelike=filelike,
+        byte_converters=byte_converters)
+[1;35mValueError[0m: [35mcould not convert string '554644\t19261' to float64 at row 0, column 2.[0m
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87274643bac7ac634d8b-k63yj75m-98795-bphjx:/app# 

@@ -1,0 +1,308 @@
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# pip install --quiet numpy scipy
+[?2004lcat > fit_raman.py << 'EOF'
+import numpy as np, json, sys
+from scipy.optimize import curve_fit
+
+# Load data, skip header row
+try:
+    data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+except Exception as e:
+    sys.stderr.write(f'Error loading CSV: {e}\n')
+    sys.exit(1)
+
+x = data['raman_shift_cm_1'] if 'raman_shift_cm_1' in data.dtype.names else data['raman_shift_cm-1']
+# Handle possible column name variations
+if isinstance(x, np.ndarray) and x.dtype.char == 'U':
+    # If loaded as strings, convert to float
+    x = x.astype(float)
+intensity = data['intensity']
+
+# Lorentzian model with offset
+def lorentzian(x, amplitude, gamma, x0, offset):
+    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+
+# Helper to fit a peak within a window
+def fit_peak(center, window=100):
+    mask = (x >= center - window) & (x <= center + window)
+    x_fit = x[mask]
+    y_fit = intensity[mask]
+    # Initial guesses
+    amp_guess = np.max(y_fit) - np.min(y_fit)
+    gamma_guess = 10.0
+    x0_guess = center
+    offset_guess = np.min(y_fit)
+    p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+    # Bounds to keep parameters physical
+    lower = [0, 0.1, center - window, 0]
+    upper = [np.inf, window, center + window, np.max(y_fit)]
+    try:
+        popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=(lower, upper))
+    except Exception as e:
+        sys.stderr.write(f'Fit failed for peak at {center} cm⁻¹: {e}\n')
+        popt = [np.nan, np.nan, np.nan, np.nan]
+    return popt
+
+# Fit D, G, 2D peaks
+params_D = fit_peak(1350, window=150)
+params_G = fit_peak(1580, window=150)
+params_2D = fit_peak(2690, window=200)
+
+# Compute defect ratio I_D/I_G using amplitudes
+ID_IG = params_D[0] / params_G[0] if params_G[0] != 0 else np.nan
+
+# Prepare result dictionary
+result = {
+    "D": {
+        "x0": float(params_D[2]),
+        "gamma": float(params_D[1]),
+        "amplitude": float(params_D[0]),
+        "offset": float(params_D[3])
+    },
+    "G": {
+        "x0": float(params_G[2]),
+        "gamma": float(params_G[1]),
+        "amplitude": float(params_G[0]),
+        "offset": float(params_G[3])
+    },
+    "2D": {
+        "x0": float(params_2D[2]),
+        "gamma": float(params_2D[1]),
+        "amplitude": float(params_2D[0]),
+        "offset": float(params_2D[3])
+    },
+    "ID_IG": float(ID_IG)
+}
+
+# Write to JSON file
+with open('/app/results.json', 'w') as f:
+    json.dump(result, f, indent=2)
+
+print('Fitting complete. Results written to /app/results.json')
+EOF
+python3 fit_raman.py
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# cat > fit_raman.py << 'EOF'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data, skip header row
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     sys.stderr.write(f'Error loading CSV: {e}\n')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data['raman_shift_cm_1'] if 'raman_shift_cm_1' in data.dtype.names else data['raman_shift_cm-1']
+[?2004l[?2004h> # Handle possible column name variations
+[?2004l[?2004h> if isinstance(x, np.ndarray) and x.dtype.char == 'U':
+[?2004l[?2004h>     # If loaded as strings, convert to float
+[?2004l[?2004h>     x = x.astype(float)
+[?2004l[?2004h> intensity = data['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian model with offset
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(center, window=100):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = intensity[mask]
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     amp_guess = np.max(y_fit) - np.min(y_fit)
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = center
+[?2004l[?2004h>     offset_guess = np.min(y_fit)
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     # Bounds to keep parameters physical
+[?2004l[?2004h>     lower = [0, 0.1, center - window, 0]
+[?2004l[?2004h>     upper = [np.inf, window, center + window, np.max(y_fit)]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=(lower, upper))
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         sys.stderr.write(f'Fit failed for peak at {center} cm⁻¹: {e}\n')
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit D, G, 2D peaks
+[?2004l[?2004h> params_D = fit_peak(1350, window=150)
+[?2004l[?2004h> params_G = fit_peak(1580, window=150)
+[?2004l[?2004h> params_2D = fit_peak(2690, window=200)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G using amplitudes
+[?2004l[?2004h> ID_IG = params_D[0] / params_G[0] if params_G[0] != 0 else np.nan
+[?2004l[?2004h> 
+[?2004l[?2004h> # Prepare result dictionary
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {
+[?2004l[?2004h>         "x0": float(params_D[2]),
+[?2004l[?2004h>         "gamma": float(params_D[1]),
+[?2004l[?2004h>         "amplitude": float(params_D[0]),
+[?2004l[?2004h>         "offset": float(params_D[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "G": {
+[?2004l[?2004h>         "x0": float(params_G[2]),
+[?2004l[?2004h>         "gamma": float(params_G[1]),
+[?2004l[?2004h>         "amplitude": float(params_G[0]),
+[?2004l[?2004h>         "offset": float(params_G[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "2D": {
+[?2004l[?2004h>         "x0": float(params_2D[2]),
+[?2004l[?2004h>         "gamma": float(params_2D[1]),
+[?2004l[?2004h>         "amplitude": float(params_2D[0]),
+[?2004l[?2004h>         "offset": float(params_2D[3])
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "ID_IG": float(ID_IG)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON file
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to /app/results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# python3 fit_raman.py
+[?2004lcat /app/results.json
+Traceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m11[0m, in [35m<module>[0m
+    x = data['raman_shift_cm_1'] if 'raman_shift_cm_1' in data.dtype.names else [31mdata[0m[1;31m['raman_shift_cm-1'][0m
+                                                                                [31m~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mValueError[0m: [35mno field of name raman_shift_cm-1[0m
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,768.701
+1100.5001,941.867
+1101.0003,726.939
+1101.5004,816.841
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# sed -n '1p' /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# cat > fit_raman.py << 'EOF'
+[?2004lmax(y_fit) - np.min(y_fit)
+    gamma_guess = 10.0
+    x0_guess = center
+    offset_guess = np.min(y_fit)
+    p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+    lower = [0, 0.1, center - window, 0]
+    upper = [np.inf, window, center + window, np.max(y_fit)]
+    try:
+        popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=(lower, upper))
+    except Exception as e:
+        sys.stderr.write(f'Fit failed for peak at {center} cm⁻¹: {e}\n')
+        popt = [np.nan, np.nan, np.nan, np.nan]
+    return popt
+
+params_D = fit_peak(1350, window=150)
+params_G = fit_peak(1580, window=150)
+params_2D = fit_peak(2690, window=200)
+
+ID_IG = params_D[0] / params_G[0] if params_G[0] != 0 else np.nan
+
+result = {
+    "D": {"x0": float(params_D[2]), "gamma": float(params_D[1]), "amplitude": float(params_D[0]), "offset": float(params_D[3])},
+    "G": {"x0": float(params_G[2]), "gamma": float(params_G[1]), "amplitude": float(params_G[0]), "offset": float(params_G[3])},
+    "2D": {"x0": float(params_2D[2]), "gamma": float(params_2D[1]), "amplitude": float(params_2D[0]), "offset": float(params_2D[3])},
+    "ID_IG": float(ID_IG)
+}
+
+with open('/app/results.json', 'w') as f:
+    json.dump(result, f, indent=2)
+
+print('Fitting complete. Results written to /app/results.json')
+EOF
+[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data with header names
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True, dtype=None, encoding='utf-8')
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     sys.stderr.write(f'Error loading CSV: {e}\n')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Determine column names
+[?2004l[?2004h> cols = data.dtype.names
+[?2004l[?2004h> if len(cols) < 2:
+[?2004l[?2004h>     sys.stderr.write('CSV does not have at least two columns.\n')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> # Assume first column is Raman shift, second is intensity
+[?2004l[?2004h> x = data[cols[0]]
+[?2004l[?2004h> intensity = data[cols[1]]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Ensure numeric types
+[?2004l[?2004h> x = np.array(x, dtype=float)
+[?2004l[?2004h> intensity = np.array(intensity, dtype=float)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(center, window=100):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = intensity[mask]
+[?2004l[?2004h>     if x_fit.size == 0:
+[?2004l[?2004h>         return [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     amp_guess = np.max(y_fit) - np.min(y_fit)
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     x0_guess = center
+[?2004l[?2004h>     offset_guess = np.min(y_fit)
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     lower = [0, 0.1, center - window, 0]
+[?2004l[?2004h>     upper = [np.inf, window, center + window, np.max(y_fit)]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=(lower, upper))
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         sys.stderr.write(f'Fit failed for peak at {center} cm⁻¹: {e}\n')
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> params_D = fit_peak(1350, window=150)
+[?2004l[?2004h> params_G = fit_peak(1580, window=150)
+[?2004l[?2004h> params_2D = fit_peak(2690, window=200)
+[?2004l[?2004h> 
+[?2004l[?2004h> ID_IG = params_D[0] / params_G[0] if params_G[0] != 0 else np.nan
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     "D": {"x0": float(params_D[2]), "gamma": float(params_D[1]), "amplitude": float(params_D[0]), "offset": float(params_D[3])},
+[?2004l[?2004h>     "G": {"x0": float(params_G[2]), "gamma": float(params_G[1]), "amplitude": float(params_G[0]), "offset": float(params_G[3])},
+[?2004l[?2004h>     "2D": {"x0": float(params_2D[2]), "gamma": float(params_2D[1]), "amplitude": float(params_2D[0]), "offset": float(params_2D[3])},
+[?2004l[?2004h>     "ID_IG": float(ID_IG)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to /app/results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# python3 fit_raman.py
+[?2004lFitting complete. Results written to /app/results.json
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1353.9903065637402,
+    "gamma": 12.341452054612159,
+    "amplitude": 632.913357644983,
+    "offset": 846.5973177893152
+  },
+  "G": {
+    "x0": 1579.3908719065032,
+    "gamma": 9.03816269464533,
+    "amplitude": 6546.889787369177,
+    "offset": 809.7533699939218
+  },
+  "2D": {
+    "x0": 2688.6985551156818,
+    "gamma": 25.572105580294068,
+    "amplitude": 9806.996109375576,
+    "offset": 735.5656814551676
+  },
+  "ID_IG": 0.09667389832436983
+}[?2004hroot@j-openenv-6afd87ee884144d2f44fd463-6r58clhd-e1071-px69m:/app# 

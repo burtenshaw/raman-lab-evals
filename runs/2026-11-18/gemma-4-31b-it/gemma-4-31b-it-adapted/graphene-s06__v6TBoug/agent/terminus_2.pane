@@ -1,0 +1,265 @@
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,814.711
+1100.5001,823.937
+1101.0003,835.751
+1101.5004,907.570
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> df = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': (1300, 1400),
+[?2004l[?2004h>     'G': (1530, 1630),
+[?2004l[?2004h>     '2D': (2630, 2750)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for peak, (start, end) in peaks.items():
+[?2004l[?2004h>     mask = (x >= start) & (x <= end)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Initial guesses: [amplitude, gamma, x0, offset]
+[?2004l[?2004h>     # Amplitude: max(y) - min(y)
+[?2004l[?2004h>     # Gamma: width estimate (roughly 20-50 cm-1)
+[?2004l[?2004h>     # x0: peak center
+[?2004l[?2004h>     # offset: min(y)
+[?2004l[?2004h>     p0 = [np.max(y_fit) - np.min(y_fit), 30, (start + end) / 2, np.min(y_fit)]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     results[peak] = {
+[?2004l[?2004h>         "x0": float(popt[2]),
+[?2004l[?2004h>         "gamma": float(popt[1]),
+[?2004l[?2004h>         "amplitude": float(popt[0]),
+[?2004l[?2004h>         "offset": float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# python3 -c "import numpy; import scipy; print('numpy and scipy are installed')"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy[0m; import scipy; print('numpy and scipy are installed')
+    [1;31m^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat << 'EOF' > fit_raman.py
+[?2004l
+results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+[?2004h> import csv
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> x = []
+[?2004l[?2004h> y = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader) # skip header
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x.append(float(row[0]))
+[?2004l[?2004h>         y.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x)
+[?2004l[?2004h> y = np.array(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': (1300, 1400),
+[?2004l[?2004h>     'G': (1530, 1630),
+[?2004l[?2004h>     '2D': (2630, 2750)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for peak, (start, end) in peaks.items():
+[?2004l[?2004h>     mask = (x >= start) & (x <= end)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     if len(x_fit) == 0:
+[?2004l[?2004h>         continue
+[?2004l[?2004h> 
+[?2004l[?2004h>     p0 = [np.max(y_fit) - np.min(y_fit), 30, (start + end) / 2, np.min(y_fit)]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     results[peak] = {
+[?2004l[?2004h>         "x0": float(popt[2]),
+[?2004l[?2004h>         "gamma": float(popt[1]),
+[?2004l[?2004h>         "amplitude": float(popt[0]),
+[?2004l[?2004h>         "offset": float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# python3 fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m2[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat << 'EOF' > fit_raman.py
+[?2004l[?2004h> import csv
+[?2004l[?2004h> import json
+[?2004l[?2004h> import math
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def calculate_sse(x_data, y_data, params):
+[?2004l[?2004h>     sse = 0
+[?2004l[?2004h>     for x, y in zip(x_data, y_data):
+[?2004l[?2004h>         sse += (y - lorentzian(x, *params))**2
+[?2004l[?2004h>     return sse
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x_data, y_data, x0_guess, gamma_guess, amplitude_guess, offset_guess):
+[?2004l[?2004h>     params = [amplitude_guess, gamma_guess, x0_guess, offset_guess]
+[?2004l[?2004h>     best_params = list(params)
+[?2004l[?2004h>     best_sse = calculate_sse(x_data, y_data, params)
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Simple coordinate descent for optimization
+[?2004l[?2004h>     learning_rates = [10.0, 0.1, 0.1, 10.0] # amp, gamma, x0, offset
+[?2004l[?2004h>     for iteration in range(2000):
+[?2004l[?2004h>         for i in range(4):
+[?2004l[?2004h>             # Try moving parameter in both directions
+[?2004l[?2004h>             for direction in [-1, 1]:
+[?2004l[?2004h>                 test_params = list(best_params)
+[?2004l[?2004h>                 test_params[i] += direction * learning_rates[i]
+[?2004l[?2004h>                 sse = calculate_sse(x_data, y_data, test_params)
+[?2004l[?2004h>                 if sse < best_sse:
+[?2004l[?2004h>                     best_sse = sse
+[?2004l[?2004h>                     best_params = test_params
+[?2004l[?2004h>             # Gradually reduce learning rate
+[?2004l[?2004h>             learning_rates[i] *= 0.999
+[?2004l[?2004h>             
+[?2004l[?2004h>     return best_params
+[?2004l[?2004h> 
+[?2004l[?2004h> x_all = []
+[?2004l[?2004h> y_all = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader)
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x_all.append(float(row[0]))
+[?2004l[?2004h>         y_all.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks_config = {
+[?2004l[?2004h>     'D': (1300, 1400, 1350),
+[?2004l[?2004h>     'G': (1530, 1630, 1580),
+[?2004l[?2004h>     '2D': (2630, 2750, 2690)
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> final_results = {}
+[?2004l[?2004h> for peak, (start, end, x0_center) in peaks_config.items():
+[?2004l[?2004h>     x_fit = []
+[?2004l[?2004h>     y_fit = []
+[?2004l[?2004h>     for x, y in zip(x_all, y_all):
+[?2004l[?2004h>         if start <= x <= end:
+[?2004l[?2004h>             x_fit.append(x)
+[?2004l[?2004h>             y_fit.append(y)
+[?2004l[?2004h>     
+[?2004l[?2004h>     if not x_fit:
+[?2004l[?2004h>         continue
+[?2004l[?2004h> 
+[?2004l[?2004h>     max_y = max(y_fit)
+[?2004l[?2004h>     min_y = min(y_fit)
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Initial Guesses
+[?2004l[?2004h>     amp_guess = max_y - min_y
+[?2004l[?2004h>     gamma_guess = 30.0
+[?2004l[?2004h>     x0_guess = x0_center
+[?2004l[?2004h>     offset_guess = min_y
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt = fit_peak(x_fit, y_fit, x0_guess, gamma_guess, amp_guess, offset_guess)
+[?2004l[?2004h>     
+[?2004l[?2004h>     final_results[peak] = {
+[?2004l[?2004h>         "amplitude": popt[0],
+[?2004l[?2004h>         "gamma": popt[1],
+[?2004l[?2004h>         "x0": popt[2],
+[?2004l[?2004h>         "offset": popt[3]
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> final_results['ID_IG'] = final_results['D']['amplitude'] / final_results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(final_results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# python3 fit_raman.py
+[?2004lcat /app/results.json
+[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "amplitude": 4862.614591510832,
+    "gamma": 15.175192424677961,
+    "x0": 1346.7133001525087,
+    "offset": 858.4332710791818
+  },
+  "G": {
+    "amplitude": 8858.78151610307,
+    "gamma": 9.96633790305096,
+    "x0": 1579.5598509960505,
+    "offset": 901.7952116894767
+  },
+  "2D": {
+    "amplitude": 18411.886308812456,
+    "gamma": 28.885450035724528,
+    "x0": 2693.4156260406603,
+    "offset": 1067.4463245134623
+  },
+  "ID_IG": 0.5489033206961705
+}[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "amplitude": 4862.614591510832,
+    "gamma": 15.175192424677961,
+    "x0": 1346.7133001525087,
+    "offset": 858.4332710791818
+  },
+  "G": {
+    "amplitude": 8858.78151610307,
+    "gamma": 9.96633790305096,
+    "x0": 1579.5598509960505,
+    "offset": 901.7952116894767
+  },
+  "2D": {
+    "amplitude": 18411.886308812456,
+    "gamma": 28.885450035724528,
+    "x0": 2693.4156260406603,
+    "offset": 1067.4463245134623
+  },
+  "ID_IG": 0.5489033206961705
+}[?2004hroot@j-openenv-6afd892be5cad0e4dc3e6983-6o2hb875-73fe5-hhtzw:/app# 

@@ -1,0 +1,141 @@
+[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# python3 - <<'PY'
+[?2004l[?2004h> import pandas as pd, numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('Error loading CSV:', e)
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian + offset model
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak
+[?2004l[?2004h> def fit_peak(center, window=50):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max - min, x0 ~ center, gamma ~ 10, offset ~ min
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, center, 10.0, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit failed for center {center}:', e)
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {}
+[?2004l[?2004h> for name, cen in [('D', 1350), ('G', 1580), ('2D', 2690)]:
+[?2004l[?2004h>     amp, x0, gamma, offset = fit_peak(cen, window=80)
+[?2004l[?2004h>     peaks[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G
+[?2004l[?2004h> ID_IG = None
+[?2004l[?2004h> if peaks['D']['amplitude'] is not None and peaks['G']['amplitude'] is not None:
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         ID_IG = float(peaks['D']['amplitude'] / peaks['G']['amplitude'])
+[?2004l[?2004h>     except Exception:
+[?2004l[?2004h>         ID_IG = None
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': peaks['D'],
+[?2004l[?2004h>     'G': peaks['G'],
+[?2004l[?2004h>     '2D': peaks['2D'],
+[?2004l[?2004h>     'ID_IG': ID_IG
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Results written to /app/results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np, json, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load CSV (header with column names)
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True, dtype=None, encoding='utf-8')
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('Failed to load CSV:', e)
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data['raman_shift_cm-1']
+[?2004l[?2004h> y = data['intensity']
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian + offset model
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(center, window=80):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     if x_fit.size == 0:
+[?2004l[?2004h>         return [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, center, 10.0, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f'Fit error near {center}:', e)
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {}
+[?2004l[?2004h> for name, cen in [('D', 1350), ('G', 1580), ('2D', 2690)]:
+[?2004l[?2004h>     amp, x0, gamma, offset = fit_peak(cen)
+[?2004l[?2004h>     peaks[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Defect ratio I_D/I_G
+[?2004l[?2004h> ID_IG = None
+[?2004l[?2004h> try:
+[?2004l[?2004h>     ID_IG = float(peaks['D']['amplitude'] / peaks['G']['amplitude'])
+[?2004l[?2004h> except Exception:
+[?2004l[?2004h>     ID_IG = None
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': peaks['D'],
+[?2004l[?2004h>     'G': peaks['G'],
+[?2004l[?2004h>     '2D': peaks['2D'],
+[?2004l[?2004h>     'ID_IG': ID_IG
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Results written to /app/results.json')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd889be5cad0e4dc3e68f3-ojmi83hx-61c55-zfmjq:/app# 

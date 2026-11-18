@@ -1,0 +1,169 @@
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:25 ..
+-rw-r--r--. 1 root root 72012 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# head -n 10 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1018.716
+1100.5001,1054.576
+1101.0003,963.467
+1101.5004,965.532
+1102.0005,1015.416
+1102.5007,1084.571
+1103.0008,1090.301
+1103.5009,1025.105
+1104.0011,1014.728
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# python3 -c "import numpy, scipy; print('numpy', numpy.__version__); print('scipy', scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print('numpy', numpy.__version__); print('scipy', scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# wc -l spectrum.csv
+[?2004l3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# tail -n 5 spectrum.csv
+[?2004l2997.9995,1165.875
+2998.4996,1240.374
+2998.9997,1155.666
+2999.4999,1202.975
+3000.0000,1103.167
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# awk -F, 'NR>1 {if($2>max){max=$2; x=$1}} END{print "max intensity", max, "at", x}' spectrum.csv
+[?2004lmax intensity 17124.573 at 2692.9192
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# python3 --version && pip3 --version 2>/dev/null || true
+[?2004lPython 3.13.18
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> print('n', len(xs), 'xrange', xs[0], xs[-1])
+[?2004l[?2004h> for name, lo, hi in [('D',1250,1450),('G',1500,1700),('2D',2500,2850)]:
+[?2004l[?2004h>     best=max((y,x,i) for i,(x,y) in enumerate(zip(xs,ys)) if lo<=x<=hi)
+[?2004l[?2004h>     y,x,i=best
+[?2004l[?2004h>     print(name, 'max', x, y, 'index', i)
+[?2004l[?2004h>     for j in range(max(0,i-5), min(len(xs),i+6)):
+[?2004l[?2004h>         print('   ', xs[j], ys[j])
+[?2004l[?2004h> PY
+[?2004ln 3800 xrange 1100.0 3000.0
+D max 1345.5646 3414.673 index 491
+    1343.064 3258.653
+    1343.5641 3278.054
+    1344.0642 3329.334
+    1344.5644 3300.064
+    1345.0645 3412.498
+    1345.5646 3414.673
+    1346.0648 3385.637
+    1346.5649 3409.186
+    1347.065 3345.447
+    1347.5651 3304.915
+    1348.0653 3290.616
+G max 1582.1269 8943.983 index 964
+    1579.6262 8232.369
+    1580.1263 8518.214
+    1580.6265 8723.31
+    1581.1266 8703.715
+    1581.6267 8874.957
+    1582.1269 8943.983
+    1582.627 8910.753
+    1583.1271 8809.449
+    1583.6273 8691.718
+    1584.1274 8590.7
+    1584.6275 8366.571
+2D max 2692.9192 17124.573 index 3185
+    2690.4185 17076.641
+    2690.9187 16981.788
+    2691.4188 17027.193
+    2691.9189 16975.804
+    2692.4191 17113.207
+    2692.9192 17124.573
+    2693.4193 17040.428
+    2693.9195 17109.153
+    2694.4196 17076.769
+    2694.9197 16950.454
+    2695.4198 16943.462
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# which pip3 || true; which pip || true; python3 -m pip --version 2>&1 || true
+[?2004l/usr/local/bin/pip3
+/usr/local/bin/pip
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# python3 -m pip install --quiet numpy scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> x=[]; y=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     for row in csv.DictReader(f):
+[?2004l[?2004h>         x.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         y.append(float(row['intensity']))
+[?2004l[?2004h> x=np.array(x, float); y=np.array(y, float)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amp, x0, gamma, offset):
+[?2004l[?2004h>     return amp * gamma**2 / ((x-x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows={'D':(1250,1450),'G':(1500,1700),'2D':(2550,2850)}
+[?2004l[?2004h> # Initial guesses: x0 at local max, gamma 20-40, amp ~ peak-height above estimated baseline, offset min window
+[?2004l[?2004h> results={}
+[?2004l[?2004h> for name,(lo,hi) in windows.items():
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     xw=x[m]; yw=y[m]
+[?2004l[?2004h>     imax=np.argmax(yw)
+[?2004l[?2004h>     x0_guess=xw[imax]
+[?2004l[?2004h>     offset_guess=np.percentile(yw, 5)
+[?2004l[?2004h>     amp_guess=yw[imax]-offset_guess
+[?2004l[?2004h>     gamma_guess=25.0 if name!='2D' else 40.0
+[?2004l[?2004h>     p0=[amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h>     bounds=([0,lo,1e-6,-np.inf],[np.inf,hi,np.inf,np.inf])
+[?2004l[?2004h>     popt,pcov=curve_fit(lorentz,xw,yw,p0=p0,bounds=bounds,maxfev=20000)
+[?2004l[?2004h>     amp,x0,gamma,offset=popt
+[?2004l[?2004h>     results[name]={'x0':float(x0),'gamma':float(gamma),'amplitude':float(amp),'offset':float(offset)}
+[?2004l[?2004h>     print(name, results[name], 'window', lo, hi, 'n', len(xw), 'rms', float(np.sqrt(np.mean((yw-lorentz(xw,*popt))**2))))
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG']=results['D']['amplitude']/results['G']['amplitude']
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(results,f,indent=2)
+[?2004l[?2004h> print('ID_IG',results['ID_IG'])
+[?2004l[?2004h> print('wrote /app/results.json')
+[?2004l[?2004h> PY
+[?2004lD {'x0': 1346.3917969835265, 'gamma': 16.950635219284013, 'amplitude': 2348.6889636930073, 'offset': 1016.8404924490021} window 1250 1450 n 400 rms 58.73328513867586
+G {'x0': 1582.1929770943582, 'gamma': 8.987702970600305, 'amplitude': 7870.6684365911715, 'offset': 1031.88688219415} window 1500 1700 n 400 rms 65.28498495645398
+2D {'x0': 2692.7023281034853, 'gamma': 24.15386675544686, 'amplitude': 16034.712389787017, 'offset': 1069.7321602736208} window 2550 2850 n 600 rms 59.0376485299867
+ID_IG 0.2984103551832806
+wrote /app/results.json
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.3917969835265,
+    "gamma": 16.950635219284013,
+    "amplitude": 2348.6889636930073,
+    "offset": 1016.8404924490021
+  },
+  "G": {
+    "x0": 1582.1929770943582,
+    "gamma": 8.987702970600305,
+    "amplitude": 7870.6684365911715,
+    "offset": 1031.88688219415
+  },
+  "2D": {
+    "x0": 2692.7023281034853,
+    "gamma": 24.15386675544686,
+    "amplitude": 16034.712389787017,
+    "offset": 1069.7321602736208
+  },
+  "ID_IG": 0.2984103551832806
+}[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# python3 -m json.tool /app/results.json >/dev/null && echo 'valid JSON'
+[?2004lvalid JSON
+[?2004hroot@j-openenv-6afd8b10e5cad0e4dc3e6bf5-g9b213mh-f9e66-bp85q:/app# 

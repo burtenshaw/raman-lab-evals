@@ -1,0 +1,143 @@
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# ls -la /app
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# head -n 20 /app/graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# python3 -c "with open('/app/graphene.dat', 'r') as f: lines = f.readlines(); x = [float(l.split()[0].replace(',', '.')) for l in lines]; print(f'Min: {min(x)}, Max: {max(x)}')"
+[?2004lMin: 1648.724404, Max: 47183.554644
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# python3 -c "import numpy as np; data = np.genfromtxt('/app/graphene.dat', delimiter=' ', dtype=str); x = np.array([float(val.replace(',', '.')) for val in data[:, 0]]); y = np.array([float(val.replace(',', '.')) for val in data[:, 1]]); idx = np.argsort(y)[-10:]; print('Top 10 peaks x-values:'); print(x[idx])"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy as np[0m; data = np.genfromtxt('/app/graphene.dat', delimiter=' ', dtype=str); x = np.array([float(val.replace(',', '.')) for val in data[:, 0]]); y = np.array([float(val.replace(',', '.')) for val in data[:, 1]]); idx = np.argsort(y)[-10:]; print('Top 10 peaks x-values:'); print(x[idx])
+    [1;31m^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# python3 -c "import numpy as np
+[?2004l[?2004h> lines = open('/app/graphene.dat').readlines()
+[?2004l[?2004h> data = [l.split() for l in lines if l.strip()]
+[?2004l[?2004h> x = np.array([float(row[0].replace(',', '.')) for row in data])
+[?2004l[?2004h> y = np.array([float(row[1].replace(',', '.')) for row in data])
+[?2004l[?2004h> # Find peaks by looking for local maxima
+[?2004l[?2004h> peak_indices = []
+[?2004l[?2004h> for i in range(1, len(y)-1):
+[?2004l[?2004h>     if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>         peak_indices.append(i)
+[?2004l[?2004h> # Sort peaks by height and print top 5
+[?2004l[?2004h> peak_indices.sort(key=lambda i: y[i], reverse=True)
+[?2004l[?2004h> print('Top peaks x, y:')
+[?2004l[?2004h> for i in peak_indices[:5]:
+[?2004l[?2004h>     print(f'x: {x[i]}, y: {y[i]}')
+[?2004l[?2004h> "
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# cat << 'EOF' > /app/fit_raman.py
+[?2004l             break
+        
+        gamma = width / 2 if width > 0 else 1.0
+        amplitude = (y_max - offset) * math.pi * gamma
+        
+        results[label] = {
+            'x0': x0,
+            'gamma': gamma,
+            'amplitude': amplitude,
+            'offset': offset
+        }
+
+    with open('/app/results.json', 'w') as f:
+        json.dump(results, f, indent=2)
+
+solve()
+EOF
+[?2004h> import math
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def solve():
+[?2004l[?2004h>     with open('/app/graphene.dat', 'r') as f:
+[?2004l[?2004h>         lines = f.readlines()
+[?2004l[?2004h>         data = [l.split() for l in lines if l.strip()]
+[?2004l[?2004h>         x = [float(row[0].replace(',', '.')) for row in data]
+[?2004l[?2004h>         y = [float(row[1].replace(',', '.')) for row in data]
+[?2004l[?2004h> 
+[?2004l[?2004h>     peaks = []
+[?2004l[?2004h>     for i in range(1, len(y)-1):
+[?2004l[?2004h>         if y[i] > y[i-1] and y[i] > y[i+1]:
+[?2004l[?2004h>             peaks.append((x[i], y[i], i))
+[?2004l[?2004h>     peaks.sort(key=lambda p: p[1], reverse=True)
+[?2004l[?2004h> 
+[?2004l[?2004h>     top_peaks = sorted(peaks[:2], key=lambda p: p[0])
+[?2004l[?2004h>     results = {}
+[?2004l[?2004h>     labels = ['G', '2D']
+[?2004l[?2004h>     offset = min(y)
+[?2004l[?2004h> 
+[?2004l[?2004h>     for label, p in zip(labels, top_peaks):
+[?2004l[?2004h>         x0 = p[0]
+[?2004l[?2004h>         y_max = p[1]
+[?2004l[?2004h>         half_max = (y_max + offset) / 2
+[?2004l[?2004h>         
+[?2004l[?2004h>         width = 0
+[?2004l[?2004h>         for i in range(p[2], 0, -1):
+[?2004l[?2004h>             if y[i] < half_max:
+[?2004l[?2004h>                 width += abs(x[i] - x0)
+[?2004l[?2004h>                 break
+[?2004l[?2004h>         for i in range(p[2], len(y)-1):
+[?2004l[?2004h>             if y[i] < half_max:
+[?2004l[?2004h>                 width += abs(x[i] - x0)
+[?2004l[?2004h>                 break
+[?2004l[?2004h>         
+[?2004l[?2004h>         gamma = width / 2 if width > 0 else 1.0
+[?2004l[?2004h>         amplitude = (y_max - offset) * math.pi * gamma
+[?2004l[?2004h>         
+[?2004l[?2004h>         results[label] = {
+[?2004l[?2004h>             'x0': x0,
+[?2004l[?2004h>             'gamma': gamma,
+[?2004l[?2004h>             'amplitude': amplitude,
+[?2004l[?2004h>             'offset': offset
+[?2004l[?2004h>         }
+[?2004l[?2004h> 
+[?2004l[?2004h>     with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>         json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> solve()
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# python3 /app/fit_raman.py
+[?2004l[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# cat /app/results.json
+[?2004l{
+  "G": {
+    "x0": 19139.543541,
+    "gamma": 572.2868040000012,
+    "amplitude": 142680718.2715953,
+    "offset": 40.090842
+  },
+  "2D": {
+    "x0": 19332.10702,
+    "gamma": 572.2868040000012,
+    "amplitude": 142111109.03255206,
+    "offset": 40.090842
+  }
+}[?2004hroot@j-openenv-6afd86ec4643bac7ac634d55-fkqa2sj5-52050-c5w4m:/app# 

@@ -1,0 +1,212 @@
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# head -20 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,902.977
+1100.5001,976.662
+1101.0003,906.945
+1101.5004,1014.009
+1102.0005,968.463
+1102.5007,979.727
+1103.0008,1016.669
+1103.5009,899.835
+1104.0011,961.901
+1104.5012,938.118
+1105.0013,949.359
+1105.5014,1008.507
+1106.0016,982.392
+1106.5017,983.544
+1107.0018,993.507
+1107.5020,994.438
+1108.0021,1043.440
+1108.5022,978.733
+1109.0024,985.512
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# tail -3 /app/spectrum.csv
+[?2004l2998.9997,819.908
+2999.4999,821.811
+3000.0000,791.488
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# cat > /app/fit.py << 'EOF'
+[?2004ls, p0=p0, maxfev=100000)
+    amp, x0, gamma, off = popt
+    # gamma can come out negative; model uses gamma^2 so take abs
+    gamma = abs(gamma)
+    results[name] = {"x0": float(x0), "gamma": float(gamma), "amplitude": float(amp), "offset": float(off)}
+    print(name, "amp=%.3f x0=%.3f gamma=%.3f offset=%.3f" % (amp, x0, gamma, off))
+
+results["ID_IG"] = float(results["D"]["amplitude"] / results["G"]["amplitude"])
+print("ID_IG =", results["ID_IG"])
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)
+[?2004l[?2004h> x = data['raman_shift_cm-1']
+[?2004l[?2004h> y = data['intensity']
+[?2004l[?2004h> print("range:", x.min(), x.max())
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, center, window in [("D", 1350, 80), ("G", 1580, 80), ("2D", 2690, 120)]:
+[?2004l[?2004h>     m = (x > center - window) & (x < center + window)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     # initial guesses
+[?2004l[?2004h>     offset0 = np.median(ys)
+[?2004l[?2004h>     amp0 = ys.max() - offset0
+[?2004l[?2004h>     # center-of-mass estimate
+[?2004l[?2004h>     xc = (xs * (ys - offset0).clip(min=0)).sum() / (ys - offset0).clip(min=0).sum()
+[?2004l[?2004h>     x00 = float(xc) if np.isfinite(xc) else center
+[?2004l[?2004h>     # HWHM estimate from half-max crossing
+[?2004l[?2004h>     hmax = offset0 + amp0/2
+[?2004l[?2004h>     above = xs[ys > hmax]
+[?2004l[?2004h>     g0 = (above.max() - above.min())/2 if len(above) > 1 else 10.0
+[?2004l[?2004h>     p0 = [amp0, x00, g0, offset0]
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)
+[?2004l[?2004h>     amp, x0, gamma, off = popt
+[?2004l[?2004h>     # gamma can come out negative; model uses gamma^2 so take abs
+[?2004l[?2004h>     gamma = abs(gamma)
+[?2004l[?2004h>     results[name] = {"x0": float(x0), "gamma": float(gamma), "amplitude": float(amp), "offset": float(off)}
+[?2004l[?2004h>     print(name, "amp=%.3f x0=%.3f gamma=%.3f offset=%.3f" % (amp, x0, gamma, off))
+[?2004l[?2004h> 
+[?2004l[?2004h> results["ID_IG"] = float(results["D"]["amplitude"] / results["G"]["amplitude"])
+[?2004l[?2004h> print("ID_IG =", results["ID_IG"])
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# python3 /app/fit.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit.py"[0m, line [35m6[0m, in [35m<module>[0m
+    x = [31mdata[0m[1;31m['raman_shift_cm-1'][0m
+        [31m~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mValueError[0m: [35mno field of name raman_shift_cm-1[0m
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> print("range:", x.min(), x.max(), "n=", len(x))
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, center, window in [("D", 1350, 80), ("G", 1580, 80), ("2D", 2690, 120)]:
+[?2004l[?2004h>     m = (x > center - window) & (x < center + window)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     offset0 = np.median(ys)
+[?2004l[?2004h>     amp0 = ys.max() - offset0
+[?2004l[?2004h>     w = (ys - offset0).clip(min=0)
+[?2004l[?2004h>     xc = (xs * w).sum() / w.sum() if w.sum() > 0 else center
+[?2004l[?2004h>     x00 = float(xc)
+[?2004l[?2004h>     hmax = offset0 + amp0/2
+[?2004l[?2004h>     above = xs[ys > hmax]
+[?2004l[?2004h>     g0 = (above.max() - above.min())/2 if len(above) > 1 else 10.0
+[?2004l[?2004h>     p0 = [amp0, x00, g0, offset0]
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)
+[?2004l[?2004h>     amp, x0, gamma, off = popt
+[?2004l[?2004h>     gamma = abs(gamma)
+[?2004l[?2004h>     results[name] = {"x0": float(x0), "gamma": float(gamma), "amplitude": float(amp), "offset": float(off)}
+[?2004l[?2004h>     print(name, "amp=%.3f x0=%.3f gamma=%.3f offset=%.3f" % (amp, x0, gamma, off))
+[?2004l[?2004h> 
+[?2004l[?2004h> results["ID_IG"] = float(results["D"]["amplitude"] / results["G"]["amplitude"])
+[?2004l[?2004h> print("ID_IG =", results["ID_IG"])
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# python3 /app/fit.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit.py"[0m, line [35m5[0m, in [35m<module>[0m
+    data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[1;35mTypeError[0m: [35mgenfromtxt() got an unexpected keyword argument 'skiprows'[0m
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# sed -i "s/np.genfromtxt('\/app\/spectrum.csv', delimiter=',', skiprows=1)/np.loadtxt('\/app\/spectrum.csv', delimiter=',', skiprows=1)/" /app/fit.py
+[?2004l[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# python3 /app/fit.py
+[?2004lrange: 1100.0 3000.0 n= 3800
+D amp=1315.027 x0=1349.234 gamma=13.609 offset=968.709
+G amp=6596.175 x0=1581.130 gamma=8.435 offset=942.523
+2D amp=13066.626 x0=2684.731 gamma=17.006 offset=807.569
+ID_IG = 0.1993620623216152
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1349.234189246512,
+    "gamma": 13.609195137868854,
+    "amplitude": 1315.0270654799288,
+    "offset": 968.7091267724139
+  },
+  "G": {
+    "x0": 1581.1299787334435,
+    "gamma": 8.434907826270852,
+    "amplitude": 6596.175070452966,
+    "offset": 942.5233519382001
+  },
+  "2D": {
+    "x0": 2684.7308972254527,
+    "gamma": 17.006461017306332,
+    "amplitude": 13066.625704824335,
+    "offset": 807.5687162686047
+  },
+  "ID_IG": 0.1993620623216152
+}[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# cat > /app/validate.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> import json
+[?2004l[?2004h> res = json.load(open('/app/results.json'))
+[?2004l[?2004h> for name in ["D","G","2D"]:
+[?2004l[?2004h>     p = res[name]
+[?2004l[?2004h>     c = p["x0"]
+[?2004l[?2004h>     m = (x > c-80) & (x < c+80)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     pred = lorentz(xs, p["amplitude"], p["x0"], p["gamma"], p["offset"])
+[?2004l[?2004h>     ss_res = np.sum((ys-pred)**2)
+[?2004l[?2004h>     ss_tot = np.sum((ys-np.mean(ys))**2)
+[?2004l[?2004h>     r2 = 1 - ss_res/ss_tot
+[?2004l[?2004h>     print(f"{name}: R2={r2:.5f}  amp={p['amplitude']:.1f} x0={p['x0']:.2f} gamma={p['gamma']:.2f}")
+[?2004l[?2004h> print("ID_IG =", res["ID_IG"])
+[?2004l[?2004h> # stability check: refit with different window
+[?2004l[?2004h> for name, center, window in [("D",1350,100),("G",1580,100),("2D",2690,160)]:
+[?2004l[?2004h>     m = (x>center-window)&(x<center+window)
+[?2004l[?2004h>     xs, ys = x[m], y[m]
+[?2004l[?2004h>     off0 = np.median(ys); amp0 = ys.max()-off0
+[?2004l[?2004h>     w = (ys-off0).clip(min=0)
+[?2004l[?2004h>     x00 = (xs*w).sum()/w.sum()
+[?2004l[?2004h>     popt,_ = curve_fit(lorentz, xs, ys, p0=[amp0,x00,10.0,off0], maxfev=100000)
+[?2004l[?2004h>     print(f"{name} (wide win): amp={popt[0]:.1f} x0={popt[1]:.2f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# python3 /app/validate.py
+[?2004lD: R2=0.98862  amp=1315.0 x0=1349.23 gamma=13.61
+G: R2=0.99941  amp=6596.2 x0=1581.13 gamma=8.43
+2D: R2=0.99989  amp=13066.6 x0=2684.73 gamma=17.01
+ID_IG = 0.1993620623216152
+D (wide win): amp=1313.5 x0=1349.23
+G (wide win): amp=6596.7 x0=1581.13
+2D (wide win): amp=13066.9 x0=2684.73
+[?2004hroot@j-openenv-6afd8b9529e8b7ccfbbb826b-r03rjaxl-35b5e-njbzz:/app# 

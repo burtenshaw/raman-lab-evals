@@ -1,0 +1,12 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "provider": "deepinfra",
+  "k": 3,
+  "router_pricing": {
+    "input": 0.037,
+    "output": 0.17
+  },
+  "harbor": "0.25.0",
+  "agent": "terminus-2",
+  "sandbox_namespace": "openenv"
+}

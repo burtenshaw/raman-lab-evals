@@ -1,0 +1,262 @@
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:06 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:11 ..
+-rw-r--r--. 1 root root 72290 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# python3 - << 'PY'
+[?2004l[?2004h> import sys, subprocess, json, os
+[?2004l[?2004h> # Check if required packages are installed; if not, install them.
+[?2004l[?2004h> required = ['numpy', 'pandas', 'scipy']
+[?2004l[?2004h> missing = []
+[?2004l[?2004h> for pkg in required:
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         __import__(pkg)
+[?2004l[?2004h>     except ImportError:
+[?2004l[?2004h>         missing.append(pkg)
+[?2004l[?2004h> if missing:
+[?2004l[?2004h>     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--quiet'] + missing)
+[?2004l[?2004h> print('Packages ready')
+[?2004l[?2004h> PY
+[?2004lcat > fit_raman.py << 'PY'
+import pandas as pd, numpy as np, json
+from scipy.optimize import curve_fit
+
+# Load data
+data = pd.read_csv('spectrum.csv')
+# Ensure columns are correct
+x = data['raman_shift_cm-1'].values
+y = data['intensity'].values
+
+# Lorentzian + offset model
+def lorentzian(x, amplitude, x0, gamma, offset):
+    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+
+# Helper to fit a peak within a window
+def fit_peak(center, window=100):
+    mask = (x >= center - window) & (x <= center + window)
+    x_fit = x[mask]
+    y_fit = y[mask]
+    # Initial guesses: amplitude ~ max(y)-min(y), x0 ~ center, gamma ~ 10, offset ~ min(y)
+    amp_guess = y_fit.max() - y_fit.min()
+    offset_guess = y_fit.min()
+    p0 = [amp_guess, center, 10.0, offset_guess]
+    try:
+        popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+    except RuntimeError:
+        popt = [np.nan, np.nan, np.nan, np.nan]
+    return {
+        'amplitude': float(popt[0]),
+        'x0': float(popt[1]),
+        'gamma': float(popt[2]),
+        'offset': float(popt[3])
+    }
+
+# Fit each peak
+D_params = fit_peak(1350)
+G_params = fit_peak(1580)
+TwoD_params = fit_peak(2690)
+
+# Compute defect ratio
+ID_IG = D_params['amplitude'] / G_params['amplitude'] if G_params['amplitude'] != 0 else None
+
+# Prepare result dict
+result = {
+    'D': D_params,
+    'G': G_params,
+    '2D': TwoD_params,
+    'ID_IG': ID_IG
+}
+
+# Write to JSON
+with open('results.json', 'w') as f:
+    json.dump(result, f, indent=2)
+print('Fitting complete, results written to results.json')
+PY
+python3 fit_raman.py
+cat results.json
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+Packages ready
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# cat > fit_raman.py << 'PY'
+[?2004l[?2004h> import pandas as pd, numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> # Ensure columns are correct
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian + offset model
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(center, window=100):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max(y)-min(y), x0 ~ center, gamma ~ 10, offset ~ min(y)
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, center, 10.0, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except RuntimeError:
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return {
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'x0': float(popt[1]),
+[?2004l[?2004h>         'gamma': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit each peak
+[?2004l[?2004h> D_params = fit_peak(1350)
+[?2004l[?2004h> G_params = fit_peak(1580)
+[?2004l[?2004h> TwoD_params = fit_peak(2690)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio
+[?2004l[?2004h> ID_IG = D_params['amplitude'] / G_params['amplitude'] if G_params['amplitude'] != 0 else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Prepare result dict
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': D_params,
+[?2004l[?2004h>     'G': G_params,
+[?2004l[?2004h>     '2D': TwoD_params,
+[?2004l[?2004h>     'ID_IG': ID_IG
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Fitting complete, results written to results.json')
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# python3 fit_raman.py
+[?2004lFitting complete, results written to results.json
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 12082.210432154434,
+    "x0": 1345.9880930024617,
+    "gamma": 14.730209970483267,
+    "offset": 1269.0011336725813
+  },
+  "G": {
+    "amplitude": 8607.208866744111,
+    "x0": 1585.0908706633872,
+    "gamma": 13.924008912187297,
+    "offset": 1274.7390974779985
+  },
+  "2D": {
+    "amplitude": 10773.030593560203,
+    "x0": 2678.0384479093455,
+    "gamma": 20.01204508915373,
+    "offset": 1065.359467644357
+  },
+  "ID_IG": 1.4037315254236218
+}[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# ls -la
+[?2004ltotal 80
+drwxr-xr-x. 2 root root    66 Nov 18 11:12 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:11 ..
+-rw-r--r--. 1 root root  1525 Nov 18 11:12 fit_raman.py
+-rw-r--r--. 1 root root   472 Nov 18 11:12 results.json
+-rw-r--r--. 1 root root 72290 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 12082.210432154434,
+    "x0": 1345.9880930024617,
+    "gamma": 14.730209970483267,
+    "offset": 1269.0011336725813
+  },
+  "G": {
+    "amplitude": 8607.208866744111,
+    "x0": 1585.0908706633872,
+    "gamma": 13.924008912187297,
+    "offset": 1274.7390974779985
+  },
+  "2D": {
+    "amplitude": 10773.030593560203,
+    "x0": 2678.0384479093455,
+    "gamma": 20.01204508915373,
+    "offset": 1065.359467644357
+  },
+  "ID_IG": 1.4037315254236218
+}[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# python3 - << 'PY'
+[?2004l[?2004h> import pandas as pd, numpy as np, json, sys, traceback
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> data = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> print('Columns:', data.columns.tolist())
+[?2004l[?2004h> print('Data shape:', data.shape)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(center, window=100):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     print(f'Fitting peak near {center}: {len(x_fit)} points')
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, center, 10.0, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>         print('Fit success:', popt)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print('Fit error:', e)
+[?2004l[?2004h>         traceback.print_exc()
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return {'amplitude': float(popt[0]), 'x0': float(popt[1]), 'gamma': float(popt[2]), 'offset': float(popt[3])}
+[?2004l[?2004h> 
+[?2004l[?2004h> D_params = fit_peak(1350)
+[?2004l[?2004h> G_params = fit_peak(1580)
+[?2004l[?2004h> TwoD_params = fit_peak(2690)
+[?2004l[?2004h> ID_IG = D_params['amplitude'] / G_params['amplitude'] if G_params['amplitude'] != 0 else None
+[?2004l[?2004h> result = {'D': D_params, 'G': G_params, '2D': TwoD_params, 'ID_IG': ID_IG}
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> print('Result written')
+[?2004l[?2004h> PY
+[?2004lColumns: ['raman_shift_cm-1', 'intensity']
+Data shape: (3800, 2)
+Fitting peak near 1350: 400 points
+Fit success: [12082.21043215  1345.988093      14.73020997  1269.00113367]
+Fitting peak near 1580: 400 points
+Fit success: [8607.20886674 1585.09087066   13.92400891 1274.73909748]
+Fitting peak near 2690: 400 points
+Fit success: [10773.03059356  2678.03844791    20.01204509  1065.35946764]
+Result written
+[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 12082.210432154434,
+    "x0": 1345.9880930024617,
+    "gamma": 14.730209970483267,
+    "offset": 1269.0011336725813
+  },
+  "G": {
+    "amplitude": 8607.208866744111,
+    "x0": 1585.0908706633872,
+    "gamma": 13.924008912187297,
+    "offset": 1274.7390974779985
+  },
+  "2D": {
+    "amplitude": 10773.030593560203,
+    "x0": 2678.0384479093455,
+    "gamma": 20.01204508915373,
+    "offset": 1065.359467644357
+  },
+  "ID_IG": 1.4037315254236218
+}[?2004hroot@j-openenv-6afd87ee884144d2f44fd462-q9obnvey-15c2b-frnq8:/app# 

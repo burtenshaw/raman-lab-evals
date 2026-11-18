@@ -1,0 +1,25 @@
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+{
+  "D": {
+    "x0": 1349.2335982891123,
+    "gamma": 13.532636558830024,
+    "amplitude": 1313.5098167566582,
+    "offset": 971.7087333525426
+  },
+  "G": {
+    "x0": 1581.1298218988445,
+    "gamma": 8.459501831913668,
+    "amplitude": 6598.492074936737,
+    "offset": 935.9755207572975
+  },
+  "2D": {
+    "x0": 2684.73053603529,
+    "gamma": 17.016077030668352,
+    "amplitude": 13067.597933848407,
+    "offset": 804.9906935767299
+  },
+  "ID_IG": 0.19906211932053455
+}

@@ -1,0 +1,387 @@
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# ls -la /app
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# file * 2>/dev/null | head -50
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# head -30 graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+37606,236678	19568,884582
+37229,764497	19605,714542
+36860,880256	19652,302102
+36499,358232	19518,303269
+36144,980263	19684,212843
+35797,536721	19599,237174
+35456,826102	19666,264313
+35122,653398	19895,771042
+34794,833482	19781,231391
+34473,186962	19931,483503
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# tail -10 graphene.dat
+[?2004l1651,076544	6302,950951
+1650,814593	6154,492341
+1650,552790	6150,191176
+1650,291141	6157,269473
+1650,029641	6090,511415
+1649,768294	6062,725860
+1649,507095	6005,066261
+1649,246046	6009,427936
+1648,985151	5911,446799
+1648,724404	5950,923261
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# wc -l graphene.dat
+[?2004l3565 graphene.dat
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 25.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# cat << 'EOF' > /app/fit_raman.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Read data with comma decimal separator
+[?2004l[?2004h> data = np.loadtxt('/app/graphene.dat', converters={0: lambda s: float(s.decode().replace(',', '.')),
+[?2004l[?2004h>                                                    1: lambda s: float(s.decode().replace(',', '.'))})
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort by x
+[?2004l[?2004h> sort_idx = np.argsort(x)
+[?2004l[?2004h> x = x[sort_idx]
+[?2004l[?2004h> y = y[sort_idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"x range: {x.min():.2f} to {x.max():.2f}")
+[?2004l[?2004h> print(f"y range: {y.min():.2f} to {y.max():.2f}")
+[?2004l[?2004h> print(f"num points: {len(x)}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Look at data around expected peak regions
+[?2004l[?2004h> # G peak ~ 1580 cm^-1, 2D peak ~ 2700 cm^-1
+[?2004l[?2004h> for center, name in [(1580, 'G'), (2700, '2D')]:
+[?2004l[?2004h>     mask = (x > center - 200) & (x < center + 200)
+[?2004l[?2004h>     if mask.sum() > 0:
+[?2004l[?2004h>         print(f"\n{name} peak region (center={center}):")
+[?2004l[?2004h>         print(f"  points: {mask.sum()}")
+[?2004l[?2004h>         print(f"  x range: {x[mask].min():.2f} to {x[mask].max():.2f}")
+[?2004l[?2004h>         print(f"  y max: {y[mask].max():.2f} at x={x[mask][np.argmax(y[mask])]:.2f}")
+[?2004l[?2004h>     else:
+[?2004l[?2004h>         print(f"\n{name} peak region: NO DATA in [{center-200}, {center+200}]")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Find global maxima to locate peaks
+[?2004l[?2004h> # Smooth y a bit
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> y_smooth = np.convolve(y, np.ones(5)/5, mode='same')
+[?2004l[?2004h> peaks, props = find_peaks(y_smooth, height=np.mean(y) + 2*np.std(y), distance=100)
+[?2004l[?2004h> print(f"\nFound {len(peaks)} peaks:")
+[?2004l[?2004h> for i, p in enumerate(peaks):
+[?2004l[?2004h>     print(f"  Peak {i}: x={x[p]:.2f}, y={y[p]:.2f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# python3 /app/fit_raman.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m6[0m, in [35m<lambda>[0m
+    data = np.loadtxt('/app/graphene.dat', converters={0: lambda s: float([1;31ms.decode[0m().replace(',', '.')),
+                                                                          [1;31m^^^^^^^^[0m
+[1;35mAttributeError[0m: [35m'str' object has no attribute 'decode'. Did you mean: 'encode'?[0m
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File [35m"/app/fit_raman.py"[0m, line [35m6[0m, in [35m<module>[0m
+    data = np.loadtxt('/app/graphene.dat', converters={0: lambda s: float(s.decode().replace(',', '.')),
+                                                       1: lambda s: float(s.decode().replace(',', '.'))})
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1381[0m, in [35mloadtxt[0m
+    arr = _read(fname, dtype=dtype, comment=comment, delimiter=delimiter,
+                converters=converters, skiplines=skiprows, usecols=usecols,
+                unpack=unpack, ndmin=ndmin, encoding=encoding,
+                max_rows=max_rows, quote=quotechar)
+  File [35m"/usr/local/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py"[0m, line [35m1035[0m, in [35m_read[0m
+    arr = _load_from_filelike(
+        data, delimiter=delimiter, comment=comment, quote=quote,
+    ...<3 lines>...
+        encoding=encoding, filelike=filelike,
+        byte_converters=byte_converters)
+[1;35mValueError[0m: [35mcould not convert string '47183,554644' to float64 at row 0, column 1.[0m
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# cat << 'EOF' > /app/fit_raman.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> 
+[?2004l[?2004h> # Read data manually, handling comma decimals
+[?2004l[?2004h> rows = []
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line:
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         parts = line.split()
+[?2004l[?2004h>         x_val = float(parts[0].replace(',', '.'))
+[?2004l[?2004h>         y_val = float(parts[1].replace(',', '.'))
+[?2004l[?2004h>         rows.append((x_val, y_val))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array([r[0] for r in rows])
+[?2004l[?2004h> y = np.array([r[1] for r in rows])
+[?2004l[?2004h> 
+[?2004l[?2004h> # Sort by x
+[?2004l[?2004h> sort_idx = np.argsort(x)
+[?2004l[?2004h> x = x[sort_idx]
+[?2004l[?2004h> y = y[sort_idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> print(f"x range: {x.min():.2f} to {x.max():.2f}")
+[?2004l[?2004h> print(f"y range: {y.min():.2f} to {y.max():.2f}")
+[?2004l[?2004h> print(f"num points: {len(x)}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Check what x values look like - maybe x is wavelength or frequency
+[?2004l[?2004h> # Let's look at a sample of x values
+[?2004l[?2004h> print("\nFirst 10 x values:", x[:10])
+[?2004l[?2004h> print("Last 10 x values:", x[-10:])
+[?2004l[?2004h> print("x step (approx):", x[1]-x[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> # Check for G (~1580) and 2D (~2700) peaks
+[?2004l[?2004h> # The x range goes from ~1648 to ~47183
+[?2004l[?2004h> # Could be in different units. Let's find peaks in the data
+[?2004l[?2004h> y_smooth = np.convolve(y, np.ones(10)/10, mode='same')
+[?2004l[?2004h> peaks, props = find_peaks(y_smooth, height=np.percentile(y, 90), distance=20)
+[?2004l[?2004h> print(f"\nFound {len(peaks)} peaks (height>90th percentile):")
+[?2004l[?2004h> for i, p in enumerate(peaks):
+[?2004l[?2004h>     print(f"  Peak {i}: x={x[p]:.2f}, y_smooth={y_smooth[p]:.2f}, y={y[p]:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Also check for valleys or the baseline
+[?2004l[?2004h> print(f"\ny mean: {np.mean(y):.2f}, median: {np.median(y):.2f}")
+[?2004l[?2004h> print(f"y at x=1648: {y[np.argmin(abs(x-1648))]:.2f}")
+[?2004l[?2004h> print(f"y at x=2700: {y[np.argmin(abs(x-2700))]:.2f}")
+[?2004l[?2004h> print(f"y at x=1580: {y[np.argmin(abs(x-1580))]:.2f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# python3 /app/fit_raman.py
+[?2004lx range: 1648.72 to 47183.55
+y range: 40.09 to 79400.10
+num points: 3565
+
+First 10 x values: [1648.724404 1648.985151 1649.246046 1649.507095 1649.768294 1650.029641
+ 1650.291141 1650.55279  1650.814593 1651.076544]
+Last 10 x values: [42323.866373 42813.13829  43314.029137 43826.959593 44352.368927
+ 44890.718036 45442.488736 46008.191298 46588.360019 47183.554644]
+x step (approx): 0.2607470000000376
+
+Found 10 peaks (height>90th percentile):
+  Peak 0: x=3747.73, y_smooth=12359.47, y=12904.65
+  Peak 1: x=6338.40, y_smooth=11598.64, y=13107.21
+  Peak 2: x=10394.82, y_smooth=18647.20, y=18633.11
+  Peak 3: x=11485.06, y_smooth=11872.00, y=11760.18
+  Peak 4: x=12409.36, y_smooth=12529.65, y=12660.20
+  Peak 5: x=13235.05, y_smooth=12748.81, y=12584.43
+  Peak 6: x=16245.58, y_smooth=17351.07, y=18159.87
+  Peak 7: x=19235.33, y_smooth=67540.49, y=78815.24
+  Peak 8: x=33847.73, y_smooth=20466.16, y=20523.24
+  Peak 9: x=41845.81, y_smooth=19628.07, y=19360.10
+
+y mean: 4136.30, median: 2579.68
+y at x=1648: 5950.92
+y at x=2700: 274.20
+y at x=1580: 5950.92
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# cat << 'EOF' > /app/explore.py
+[?2004lpeaks, props = find_peaks(ys, height=base + 0.5*(ys.max()-base), distance=10)
+peaks = peaks[np.argsort(x[peaks])]
+print(f"\nAll peaks ({len(peaks)}), baseline(median)={base:.1f}, ymax={ys.max():.1f}:")
+for p in peaks:
+    print(f"  x={x[p]:9.2f}  y_peak={y[p]:10.2f}  y_smooth={ys[p]:10.2f}  rel_height={(ys[p]-base)/(ys.max()-base):.2f}")
+EOF
+python3 /app/explore.py
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> 
+[?2004l[?2004h> rows = []
+[?2004l[?2004h> with open('/app/graphene.dat') as f:
+[?2004l[?2004h>     for line in f:
+[?2004l[?2004h>         line = line.strip()
+[?2004l[?2004h>         if not line: continue
+[?2004l[?2004h>         parts = line.split()
+[?2004l[?2004h>         rows.append((float(parts[0].replace(',', '.')), float(parts[1].replace(',', '.'))))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array([r[0] for r in rows])
+[?2004l[?2004h> y = np.array([r[1] for r in rows])
+[?2004l[?2004h> idx = np.argsort(x); x = x[idx]; y = y[idx]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Step analysis
+[?2004l[?2004h> dx = np.diff(x)
+[?2004l[?2004h> print(f"x step: min={dx.min():.5f} max={dx.max():.5f} mean={dx.mean():.3f} std={dx.std():.3f}")
+[?2004l[?2004h> # local exponent: log(dx) vs log(x)
+[?2004l[?2004h> xm = x[:-1]
+[?2004l[?2004h> B, A = np.polyfit(np.log(xm), np.log(dx), 1)
+[?2004l[?2004h> print(f"local exponent B (dx ~ x^B): {B:.3f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # Coarse profile: print every 70th point
+[?2004l[?2004h> print("\nCoarse profile (every 70th point):")
+[?2004l[?2004h> for i in range(0, len(x), 70):
+[?2004l[?2004h>     print(f"  i={i:4d} x={x[i]:9.2f} y={y[i]:10.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # All peaks, lower threshold
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> ys = np.convolve(y, np.ones(15)/15, mode='same')
+[?2004l[?2004h> base = np.median(y)
+[?2004l[?2004h> peaks, props = find_peaks(ys, height=base + 0.5*(ys.max()-base), distance=10)
+[?2004l[?2004h> peaks = peaks[np.argsort(x[peaks])]
+[?2004l[?2004h> print(f"\nAll peaks ({len(peaks)}), baseline(median)={base:.1f}, ymax={ys.max():.1f}:")
+[?2004l[?2004h> for p in peaks:
+[?2004l[?2004h>     print(f"  x={x[p]:9.2f}  y_peak={y[p]:10.2f}  y_smooth={ys[p]:10.2f}  rel_height={(ys[p]-base)/(ys.max()-base):.2f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# python3 /app/explore.py
+[?2004lx step: min=0.26075 max=595.19463 mean=12.776 std=49.614
+local exponent B (dx ~ x^B): 2.396
+
+Coarse profile (every 70th point):
+  i=   0 x=  1648.72 y=   5950.92
+  i=  70 x=  1667.35 y=   5991.90
+  i= 140 x=  1686.75 y=   5530.22
+  i= 210 x=  1706.98 y=   5493.87
+  i= 280 x=  1728.08 y=   4969.62
+  i= 350 x=  1750.12 y=   4337.38
+  i= 420 x=  1773.16 y=   4277.36
+  i= 490 x=  1797.25 y=   4096.81
+  i= 560 x=  1822.48 y=   3701.60
+  i= 630 x=  1848.92 y=   3705.37
+  i= 700 x=  1876.65 y=   3241.80
+  i= 770 x=  1905.77 y=   2818.94
+  i= 840 x=  1936.39 y=   2615.65
+  i= 910 x=  1968.62 y=   2146.48
+  i= 980 x=  2002.58 y=   1907.98
+  i=1050 x=  2038.41 y=   1666.01
+  i=1120 x=  2076.28 y=   1527.26
+  i=1190 x=  2116.36 y=   1291.03
+  i=1260 x=  2158.83 y=   1119.68
+  i=1330 x=  2203.91 y=   1061.14
+  i=1400 x=  2251.86 y=    821.05
+  i=1470 x=  2302.95 y=    712.23
+  i=1540 x=  2357.48 y=    962.96
+  i=1610 x=  2415.82 y=    419.01
+  i=1680 x=  2478.37 y=    530.01
+  i=1750 x=  2545.61 y=    390.88
+  i=1820 x=  2618.06 y=    218.03
+  i=1890 x=  2696.35 y=    315.68
+  i=1960 x=  2781.22 y=    340.09
+  i=2030 x=  2873.52 y=    323.32
+  i=2100 x=  2974.27 y=    414.80
+  i=2170 x=  3084.66 y=   1300.73
+  i=2240 x=  3206.14 y=    770.99
+  i=2310 x=  3340.46 y=   1087.01
+  i=2380 x=  3489.75 y=   1203.88
+  i=2450 x=  3656.67 y=   1753.81
+  i=2520 x=  3844.50 y=   2056.16
+  i=2590 x=  4057.42 y=   2316.83
+  i=2660 x=  4300.81 y=   2588.97
+  i=2730 x=  4581.68 y=   2944.15
+  i=2800 x=  4909.39 y=   3679.59
+  i=2870 x=  5296.69 y=   4296.41
+  i=2940 x=  5761.43 y=   4784.75
+  i=3010 x=  6329.37 y=  13777.74
+  i=3080 x=  7039.13 y=   6806.23
+  i=3150 x=  7951.32 y=   7777.67
+  i=3220 x=  9166.89 y=   8965.14
+  i=3290 x= 10867.21 y=  12135.84
+  i=3360 x= 13414.29 y=  13107.38
+  i=3430 x= 17650.01 y=  20340.78
+  i=3500 x= 26085.56 y=  15668.55
+
+All peaks (1), baseline(median)=2579.7, ymax=56462.9:
+  x= 19044.74  y_peak=  78843.44  y_smooth=  56462.86  rel_height=1.00
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# cat << 'EOF' > /app/diag.py
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> 
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> for line in open('/app/graphene.dat'):
+[?2004l[?2004h>     line=line.strip()
+[?2004l[?2004h>     if not line: continue
+[?2004l[?2004h>     p=line.split()
+[?2004l[?2004h>     rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h> x=np.array([a for a,b in rows]); y=np.array([b for a,b in rows])
+[?2004l[?2004h> idx=np.argsort(x); x=x[idx]; y=y[idx]
+[?2004l[?2004h> n=len(x); i=np.arange(n)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("== Linearity of f(x) vs row index i (R^2) ==")
+[?2004l[?2004h> cands = {
+[?2004l[?2004h>  'x': x, 'x^0.5': np.sqrt(x), 'x^1.5': x**1.5, 'x^2': x**2,
+[?2004l[?2004h>  'x^-0.5': x**-0.5, 'x^-1': 1.0/x, 'x^-2': 1.0/x**2,
+[?2004l[?2004h>  'ln x': np.log(x), 'x^0.7': x**0.7, 'x^0.3': x**0.3,
+[?2004l[?2004h> }
+[?2004l[?2004h> for k,f in cands.items():
+[?2004l[?2004h>     c=np.corrcoef(i,f)
+[?2004l[?2004h>     print(f"  {k:8s}: R^2={c[0,1]**2:.6f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> # fine step check: is 1/x linear in i?
+[?2004l[?2004h> f=1.0/x
+[?2004l[?2004h> a,b=np.polyfit(i,f,1)
+[?2004l[?2004h> res=f-(a*i+b)
+[?2004l[?2004h> print(f"\n1/x model: 1/x = {a:.3e}*i + {b:.3e}, residual std={res.std():.3e}, rel={res.std()/f.std():.4f}")
+[?2004l[?2004h> # range of Raman-shift-like quantity
+[?2004l[?2004h> W = -1.0/x  # proportional to wavenumber difference from a ref
+[?2004l[?2004h> gprint = "\n1/x range: %.6f to %.6f" % (1.0/x.max(), 1.0/x.min())
+[?2004l[?2004h> print(gprint)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("\n== Precise peaks (prominence > 10%) ==")
+[?2004l[?2004h> ys=np.convolve(y, np.ones(5)/5, mode='same')
+[?2004l[?2004h> prom=0.10*(ys.max()-np.median(y))
+[?2004l[?2004h> peaks,_=find_peaks(ys, prominence=prom)
+[?2004l[?2004h> peaks=peaks[np.argsort(x[peaks])]
+[?2004l[?2004h> for p in peaks:
+[?2004l[?2004h>     # parabola interp on smoothed
+[?2004l[?2004h>     if 0<p<n-1:
+[?2004l[?2004h>         y0,y1,y2=ys[p-1],ys[p],ys[p+1]
+[?2004l[?2004h>         denom=(y0-2*y1+y2)
+[?2004l[?2004h>         off= 0.5*(y0-y2)/denom if denom!=0 else 0
+[?2004l[?2004h>     else:
+[?2004l[?2004h>         off=0
+[?2004l[?2004h>     xp = x[p] + off*(x[p+1]-x[p]) if p<n-1 else x[p]
+[?2004l[?2004h>     print(f"  x0~{xp:10.2f}  y={y[p]:10.2f}  ys={ys[p]:10.2f}  prom={ys[p]-np.median(y):10.2f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# python3 /app/diag.py
+[?2004l== Linearity of f(x) vs row index i (R^2) ==
+  x       : R^2=0.401394
+  x^0.5   : R^2=0.604206
+  x^1.5   : R^2=0.249750
+  x^2     : R^2=0.159005
+  x^-0.5  : R^2=0.922406
+  x^-1    : R^2=0.982485
+  x^-2    : R^2=0.991282
+  ln x    : R^2=0.796013
+  x^0.7   : R^2=0.520086
+  x^0.3   : R^2=0.686434
+
+1/x model: 1/x = -1.605e-07*i + 6.498e-04, residual std=2.206e-05, rel=0.1323
+
+1/x range: 0.000021 to 0.000607
+
+== Precise peaks (prominence > 10%) ==
+  x0~   3745.99  y=  12920.88  ys=  12763.09  prom=  10183.41
+  x0~  19240.21  y=  78815.24  ys=  78998.23  prom=  76418.55
+  x0~  33218.67  y=  21252.73  ys=  20885.56  prom=  18305.88
+[?2004hroot@j-openenv-6afd86eb884144d2f44fd3c9-g2p2jem3-60793-kvfqp:/app# 

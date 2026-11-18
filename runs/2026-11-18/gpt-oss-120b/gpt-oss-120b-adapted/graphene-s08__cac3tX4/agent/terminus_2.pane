@@ -1,0 +1,79 @@
+[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:06 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:18 ..
+-rw-r--r--. 1 root root 69871 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# cat > fit_peaks.py << 'EOF'
+[?2004l[?2004h> import pandas as pd, json, numpy as np, sys
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> try:
+[?2004l[?2004h>     data = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     sys.stderr.write(f'Error reading CSV: {e}\n')
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian with offset
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(center, window=100):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max(y)-min(y), gamma ~ 10, x0 ~ center, offset ~ min(y)
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, center, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         sys.stderr.write(f'Fit failed for center {center}: {e}\n')
+[?2004l[?2004h>         popt = [np.nan]*4
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {}
+[?2004l[?2004h> for name, cen in [('D', 1350), ('G', 1580), ('2D', 2690)]:
+[?2004l[?2004h>     amp, gamma, x0, offset = fit_peak(cen)
+[?2004l[?2004h>     peaks[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G
+[?2004l[?2004h> ID_IG = peaks['D']['amplitude'] / peaks['G']['amplitude'] if peaks['G']['amplitude'] != 0 else None
+[?2004l[?2004h> 
+[?2004l[?2004h> result = {
+[?2004l[?2004h>     'D': peaks['D'],
+[?2004l[?2004h>     'G': peaks['G'],
+[?2004l[?2004h>     '2D': peaks['2D'],
+[?2004l[?2004h>     'ID_IG': float(ID_IG) if ID_IG is not None else None
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(result, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# python3 fit_peaks.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_peaks.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd, json, numpy as np, sys
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8992e5cad0e4dc3e69e9-473vq3eh-08e6e-6kcqj:/app# pip install pandas scipy --quiet
+[?2004lpython3 fit_peaks.py
+cat results.json

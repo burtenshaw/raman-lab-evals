@@ -1,0 +1,111 @@
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,814.711
+1100.5001,823.937
+1101.0003,835.751
+1101.5004,907.570
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# python3 -c "import sys, numpy, scipy; print(sys.version); print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport sys, numpy, scipy[0m; print(sys.version); print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x = data[:, 0]
+[?2004l[?2004h> y = data[:, 1]
+[?2004l[?2004h> print('x range:', x.min(), x.max())
+[?2004l[?2004h> print('y range:', y.min(), y.max())
+[?2004l[?2004h> print('baseline-ish median:', np.median(y))
+[?2004l[?2004h> 
+[?2004l[?2004h> # windows
+[?2004l[?2004h> windows = {'D': (1250, 1450), 'G': (1480, 1680), '2D': (2580, 2800)}
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[mask], y[mask]
+[?2004l[?2004h>     off0 = np.median(yw[:20])
+[?2004l[?2004h>     amp0 = yw.max() - off0
+[?2004l[?2004h>     x00 = xw[np.argmax(yw)]
+[?2004l[?2004h>     gamma0 = 20.0
+[?2004l[?2004h>     p0 = [amp0, x00, gamma0, off0]
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz, xw, yw, p0=p0, maxfev=20000)
+[?2004l[?2004h>     amplitude, x0, gamma, offset = popt
+[?2004l[?2004h>     results[name] = {'x0': float(x0), 'gamma': float(abs(gamma)), 'amplitude': float(amplitude), 'offset': float(offset)}
+[?2004l[?2004h>     print(name, '->', results[name])
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = float(results['D']['amplitude'] / results['G']['amplitude'])
+[?2004l[?2004h> print('ID_IG:', results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print('written')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# python3 /app/fit.py
+[?2004lx range: 1100.0 3000.0
+y range: 692.427 19517.521
+baseline-ish median: 1084.026
+D -> {'x0': 1346.7172162094032, 'gamma': 15.138470069541425, 'amplitude': 4858.493727248622, 'offset': 864.5792766794948}
+G -> {'x0': 1579.5663454023036, 'gamma': 9.9592160714943, 'amplitude': 8864.090125275781, 'offset': 900.7414475445588}
+2D -> {'x0': 2693.4205122143317, 'gamma': 29.041672196861697, 'amplitude': 18463.15091580907, 'offset': 1002.1730136975197}
+ID_IG: 0.5481096941235651
+written
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.7172162094032,
+    "gamma": 15.138470069541425,
+    "amplitude": 4858.493727248622,
+    "offset": 864.5792766794948
+  },
+  "G": {
+    "x0": 1579.5663454023036,
+    "gamma": 9.9592160714943,
+    "amplitude": 8864.090125275781,
+    "offset": 900.7414475445588
+  },
+  "2D": {
+    "x0": 2693.4205122143317,
+    "gamma": 29.041672196861697,
+    "amplitude": 18463.15091580907,
+    "offset": 1002.1730136975197
+  },
+  "ID_IG": 0.5481096941235651
+}[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# python3 -c "
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> def lorentz(x, a, x0, g, o):
+[?2004l[?2004h>     return a*g**2/((x-x0)**2+g**2)+o
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x, y = data[:,0], data[:,1]
+[?2004l[?2004h> r = json.load(open('/app/results.json'))
+[?2004l[?2004h> for name,(lo,hi) in {'D':(1250,1450),'G':(1480,1680),'2D':(2580,2800)}.items():
+[?2004l[?2004h>     m=(x>=lo)&(x<=hi)
+[?2004l[?2004h>     p=r[name]
+[?2004l[?2004h>     yfit=lorentz(x[m], p['amplitude'], p['x0'], p['gamma'], p['offset'])
+[?2004l[?2004h>     res=y[m]-yfit
+[?2004l[?2004h>     print(name, 'RMSE=%.2f'%np.sqrt(np.mean(res**2)), 'residual std=%.1f'%res.std(), 'peak height=%.0f'%y[m].max())
+[?2004l[?2004h> "
+[?2004lD RMSE=52.80 residual std=52.8 peak height=5796
+G RMSE=45.69 residual std=45.7 peak height=9871
+2D RMSE=49.77 residual std=49.8 peak height=19518
+[?2004hroot@j-openenv-6afd8f9f29e8b7ccfbbb84a9-ny1qvlr0-6edb6-7zvnb:/app# 

@@ -1,0 +1,204 @@
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1338.925
+1100.5001,1328.540
+1101.0003,1244.349
+1101.5004,1282.687
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# cat << 'EOF' > /app/fit_spectrum.py
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> df = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': {'center': 1350, 'window': 100},
+[?2004l[?2004h>     'G': {'center': 1580, 'window': 100},
+[?2004l[?2004h>     '2D': {'center': 2690, 'window': 150}
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, params in peaks.items():
+[?2004l[?2004h>     # Define window for the peak
+[?2004l[?2004h>     mask = (x > params['center'] - params['window']) & (x < params['center'] + params['window'])
+[?2004l[?2004h>     x_win = x[mask]
+[?2004l[?2004h>     y_win = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     # amplitude = max(y_win) - min(y_win), gamma = 10, x0 = params['center'], offset = min(y_win)
+[?2004l[?2004h>     p0 = [params['center'], 10, np.max(y_win) - np.min(y_win), np.min(y_win)]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_win, y_win, p0=p0)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Defect ratio ID/IG
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# python3 /app/fit_spectrum.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_spectrum.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# cat << 'EOF' > /app/fit_spectrum.py
+[?2004l[?2004h> import csv
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data using csv module
+[?2004l[?2004h> x = []
+[?2004l[?2004h> y = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader)  # Skip header
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x.append(float(row[0]))
+[?2004l[?2004h>         y.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x)
+[?2004l[?2004h> y = np.array(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': {'center': 1350, 'window': 100},
+[?2004l[?2004h>     'G': {'center': 1580, 'window': 100},
+[?2004l[?2004h>     '2D': {'center': 2690, 'window': 150}
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, params in peaks.items():
+[?2004l[?2004h>     mask = (x > params['center'] - params['window']) & (x < params['center'] + params['window'])
+[?2004l[?2004h>     x_win = x[mask]
+[?2004l[?2004h>     y_win = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     p0 = [params['center'], 10, np.max(y_win) - np.min(y_win), np.min(y_win)]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_win, y_win, p0=p0)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# python3 /app/fit_spectrum.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_spectrum.py"[0m, line [35m2[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# pip install numpy scipy pandas
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting pandas
+  Downloading pandas-3.1.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (16 kB)
+Collecting python-dateutil>=2.9.0 (from pandas)
+  Downloading python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting tzdata (from python-dateutil>=2.9.0->pandas)
+  Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m120.0 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m226.4 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading pandas-3.1.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.0 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/12.0 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m12.0/12.0 MB[0m [31m108.6 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+Downloading tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+Installing collected packages: tzdata, numpy, scipy, python-dateutil, pandas
+[?25l[2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1/5[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy]python3 /app/fit_spectrum.py
+[2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy]cat /app/results.json
+[2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/5[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas]pip install numpy scipy pandas
+[2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━[0m [32m4/5[0m [pandas][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m5/5[0m [pandas]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 pandas-3.1.1 python-dateutil-4.0.0 scipy-1.18.1 tzdata-2026.6
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# python3 /app/fit_spectrum.py
+[?2004l[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1352.458384616157,
+    "gamma": 19.50130392869943,
+    "amplitude": 347.7283977012583,
+    "offset": 1282.018895417129
+  },
+  "G": {
+    "x0": 1581.0821905646296,
+    "gamma": 8.021061551834002,
+    "amplitude": 6928.499167936503,
+    "offset": 1263.0161748140554
+  },
+  "2D": {
+    "x0": 2694.8854963606273,
+    "gamma": 26.958281644300982,
+    "amplitude": 14099.451272768349,
+    "offset": 1187.8752198242455
+  },
+  "ID_IG": 0.05018812722248206
+}[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# pip install numpy scipy pandas
+[?2004lRequirement already satisfied: numpy in /usr/local/lib/python3.13/site-packages (2.5.5)
+Requirement already satisfied: scipy in /usr/local/lib/python3.13/site-packages (1.18.1)
+Requirement already satisfied: pandas in /usr/local/lib/python3.13/site-packages (3.1.1)
+Requirement already satisfied: python-dateutil>=2.9.0 in /usr/local/lib/python3.13/site-packages (from pandas) (4.0.0)
+Requirement already satisfied: tzdata in /usr/local/lib/python3.13/site-packages (from python-dateutil>=2.9.0->pandas) (2026.6)
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# python3 /app/fit_spectrum.py
+[?2004l[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1352.458384616157,
+    "gamma": 19.50130392869943,
+    "amplitude": 347.7283977012583,
+    "offset": 1282.018895417129
+  },
+  "G": {
+    "x0": 1581.0821905646296,
+    "gamma": 8.021061551834002,
+    "amplitude": 6928.499167936503,
+    "offset": 1263.0161748140554
+  },
+  "2D": {
+    "x0": 2694.8854963606273,
+    "gamma": 26.958281644300982,
+    "amplitude": 14099.451272768349,
+    "offset": 1187.8752198242455
+  },
+  "ID_IG": 0.05018812722248206
+}[?2004hroot@j-openenv-6afd87814643bac7ac634db8-t1p1k2s8-aa13c-dvvl4:/app# 

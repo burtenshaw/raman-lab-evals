@@ -1,0 +1,423 @@
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# ls -la /app
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:22 ..
+-rw-r--r--. 1 root root 72290 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# head -20 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1365.563
+1100.5001,1398.616
+1101.0003,1325.446
+1101.5004,1350.712
+1102.0005,1288.901
+1102.5007,1318.175
+1103.0008,1335.503
+1103.5009,1347.222
+1104.0011,1321.654
+1104.5012,1305.455
+1105.0013,1230.196
+1105.5014,1298.804
+1106.0016,1293.007
+1106.5017,1300.968
+1107.0018,1404.140
+1107.5020,1293.371
+1108.0021,1411.161
+1108.5022,1250.129
+1109.0024,1401.282
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> data = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:,0]
+[?2004l[?2004h> y = data[:,1]
+[?2004l[?2004h> print('x range:', x.min(), x.max())
+[?2004l[?2004h> print('y range:', y.min(), y.max())
+[?2004l[?2004h> for name, lo, hi in [('D',1250,1450), ('G',1500,1650), ('2D',2550,2800)]:
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     i = np.argmax(y[m])
+[?2004l[?2004h>     xw = x[m][i]
+[?2004l[?2004h>     yw = y[m][i]
+[?2004l[?2004h>     print(name, 'max x=', xw, 'y=', yw)
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.reader(f)
+[?2004l[?2004h>     next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         if len(row)>=2:
+[?2004l[?2004h>             xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> print('n', len(xs), 'x', min(xs), max(xs), 'y', min(ys), max(ys))
+[?2004l[?2004h> for name, lo, hi in [('D',1250,1450),('G',1500,1650),('2D',2550,2800)]:
+[?2004l[?2004h>     vals=[(y,x,i) for i,(x,y) in enumerate(zip(xs,ys)) if lo <= x <= hi]
+[?2004l[?2004h>     ymax,xmax,imax=max(vals)
+[?2004l[?2004h>     ymin=min(v[0] for v in vals)
+[?2004l[?2004h>     print(name, 'max', xmax, ymax, 'min', ymin, 'range', ymax-ymin, 'i', imax)
+[?2004l[?2004h>     print('  around:', [(round(xs[j],1),round(ys[j],1)) for j in range(max(0,imax-3), min(len(xs),imax+4))])
+[?2004l[?2004h> PY
+[?2004ln 3800 x 1100.0 3000.0 y 962.224 13447.987
+D max 1346.0648 13447.987 min 1388.835 range 12059.151999999998 i 492
+  around: [(1344.6, 13155.0), (1345.1, 13191.9), (1345.6, 13365.3), (1346.1, 13448.0), (1346.6, 13295.8), (1347.1, 13317.0), (1347.6, 13178.8)]
+G max 1585.1277 9883.691 min 1468.73 range 8414.961000000001 i 970
+  around: [(1583.6, 9774.2), (1584.1, 9825.1), (1584.6, 9824.8), (1585.1, 9883.7), (1585.6, 9842.5), (1586.1, 9797.0), (1586.6, 9762.8)]
+2D max 2678.4154 11944.354 min 1269.514 range 10674.84 i 3156
+  around: [(2676.9, 11699.5), (2677.4, 11814.6), (2677.9, 11739.2), (2678.4, 11944.4), (2678.9, 11826.8), (2679.4, 11814.8), (2679.9, 11727.5)]
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> for center in [1350,1580,2690]:
+[?2004l[?2004h>     print('\ncenter', center)
+[?2004l[?2004h>     for xv in range(center-200, center+201, 25):
+[?2004l[?2004h>         # nearest point
+[?2004l[?2004h>         j=min(range(len(xs)), key=lambda i: abs(xs[i]-xv))
+[?2004l[?2004h>         print(f'{xs[j]:7.1f} {ys[j]:10.1f}')
+[?2004l[?2004h> PY
+[?2004l
+center 1350
+ 1150.0     1259.2
+ 1175.0     1288.1
+ 1200.0     1313.4
+ 1225.0     1401.7
+ 1250.0     1388.8
+ 1275.0     1712.8
+ 1300.1     2409.7
+ 1325.1     5222.4
+ 1350.1    12460.2
+ 1375.1     3678.6
+ 1400.1     2069.9
+ 1425.1     1608.7
+ 1450.1     1535.4
+ 1475.1     1639.8
+ 1500.1     1493.1
+ 1525.1     1828.7
+ 1550.1     2301.2
+
+center 1580
+ 1380.1     3211.4
+ 1405.1     2046.1
+ 1430.1     1702.2
+ 1455.1     1586.2
+ 1480.1     1518.0
+ 1505.1     1578.2
+ 1530.1     1867.6
+ 1555.1     2834.3
+ 1580.1     8954.7
+ 1605.1     4031.3
+ 1630.1     2003.0
+ 1655.1     1524.6
+ 1680.2     1433.0
+ 1705.2     1409.5
+ 1730.2     1308.8
+ 1755.2     1149.3
+ 1780.2     1301.7
+
+center 2690
+ 2489.9     1217.1
+ 2514.9     1340.2
+ 2539.9     1275.5
+ 2564.9     1466.8
+ 2589.9     1638.8
+ 2614.9     1973.1
+ 2639.9     3437.6
+ 2664.9     8511.6
+ 2689.9     9049.7
+ 2714.9     3554.5
+ 2739.9     2093.5
+ 2764.9     1688.5
+ 2789.9     1444.5
+ 2815.0     1396.8
+ 2840.0     1275.3
+ 2865.0     1207.2
+ 2890.0     1052.6
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004lol]) > 1e-300:
+                fac = M[i][col]
+                for j in range(col, n+1):
+                    M[i][j] -= fac * M[col][j]
+    return [M[i][n] for i in range(n)]
+
+def jacobian(x, y, p):
+    # residual derivative J_ij = dr_i/dp_j, numerical central differences
+    m = len(x); n = len(p)
+    J = [[0.0]*n for _ in range(m)]
+    steps = [1e-5, 1e-6, 1e-6, 1e-6]
+    for j in range(n):
+        h = steps[j]
+        pp = p[:]; pm = p[:]
+        pp[j] += h; pm[j] -= h
+        for i in range(m):
+            J[i][j] = ((y[i] - model(x[i], pp)) - (y[i] - model(x[i], pm))) / (2*h)
+    return J
+
+def fit_peak(name, lo, hi):
+    inds = [i for i,xv in enumerate(xs) if lo <= xv <= hi]
+    x = [xs[i] for i in inds]
+    y = [ys[i] for i in inds]
+    imax = max(range(len(y)), key=lambda i: y[i])
+    baseline = min(y)
+    # initial gamma estimate via half-max crossings around peak
+    ymax = y[imax]
+    half = baseline + 0.5*(ymax-baseline)
+    left = imax
+    while left > 0 and y[left] > half:
+        left -= 1
+    r[?2004h> 
+[?2004l[?2004h> # load data
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1250.0, 1450.0),
+[?2004l[?2004h>     'G':  (1530.0, 1650.0),
+[?2004l[?2004h>     '2D': (2600.0, 2770.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> def model(x, p):
+[?2004l[?2004h>     x0, logg, A, B = p
+[?2004l[?2004h>     g = math.exp(logg)
+[?2004l[?2004h>     return A * g*g / ((x-x0)*(x-x0) + g*g) + B
+[?2004l[?2004h> 
+[?2004l[?2004h> def residuals(x, y, p):
+[?2004l[?2004h>     return [yy - model(xx, p) for xx, yy in zip(x, y)]
+[?2004l[?2004h> 
+[?2004l[?2004h> def chi2(x, y, p):
+[?2004l[?2004h>     return sum(r*r for r in residuals(x, y, p))
+[?2004l[?2004h> 
+[?2004l[?2004h> def solve_linear(A, b):
+[?2004l[?2004h>     n = len(b)
+[?2004l[?2004h>     M = [A[i][:] + [b[i]] for i in range(n)]
+[?2004l[?2004h>     for col in range(n):
+[?2004l[?2004h>         piv = max(range(col, n), key=lambda r: abs(M[r][col]))
+[?2004l[?2004h>         if abs(M[piv][col]) < 1e-300:
+[?2004l[?2004h>             raise ValueError('singular matrix')
+[?2004l[?2004h>         M[col], M[piv] = M[piv], M[col]
+[?2004l[?2004h>         pv = M[col][col]
+[?2004l[?2004h>         for j in range(col, n+1):
+[?2004l[?2004h>             M[col][j] /= pv
+[?2004l[?2004h>         for i in range(n):
+[?2004l[?2004h>             if i != col and abs(M[i][col]) > 1e-300:
+[?2004l[?2004h>                 fac = M[i][col]
+[?2004l[?2004h>                 for j in range(col, n+1):
+[?2004l[?2004h>                     M[i][j] -= fac * M[col][j]
+[?2004l[?2004h>     return [M[i][n] for i in range(n)]
+[?2004l[?2004h> 
+[?2004l[?2004h> def jacobian(x, y, p):
+[?2004l[?2004h>     # residual derivative J_ij = dr_i/dp_j, numerical central differences
+[?2004l[?2004h>     m = len(x); n = len(p)
+[?2004l[?2004h>     J = [[0.0]*n for _ in range(m)]
+[?2004l[?2004h>     steps = [1e-5, 1e-6, 1e-6, 1e-6]
+[?2004l[?2004h>     for j in range(n):
+[?2004l[?2004h>         h = steps[j]
+[?2004l[?2004h>         pp = p[:]; pm = p[:]
+[?2004l[?2004h>         pp[j] += h; pm[j] -= h
+[?2004l[?2004h>         for i in range(m):
+[?2004l[?2004h>             J[i][j] = ((y[i] - model(x[i], pp)) - (y[i] - model(x[i], pm))) / (2*h)
+[?2004l[?2004h>     return J
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(name, lo, hi):
+[?2004l[?2004h>     inds = [i for i,xv in enumerate(xs) if lo <= xv <= hi]
+[?2004l[?2004h>     x = [xs[i] for i in inds]
+[?2004l[?2004h>     y = [ys[i] for i in inds]
+[?2004l[?2004h>     imax = max(range(len(y)), key=lambda i: y[i])
+[?2004l[?2004h>     baseline = min(y)
+[?2004l[?2004h>     # initial gamma estimate via half-max crossings around peak
+[?2004l[?2004h>     ymax = y[imax]
+[?2004l[?2004h>     half = baseline + 0.5*(ymax-baseline)
+[?2004l[?2004h>     left = imax
+[?2004l[?2004h>     while left > 0 and y[left] > half:
+[?2004l[?2004h>         left -= 1
+[?2004l[?2004h>     right = imax
+[?2004l[?2004h>     while right < len(y)-1 and y[right] > half:
+[?2004l[?2004h>         right += 1
+[?2004l[?2004h>     if right > left and x[right] > x[left]:
+[?2004l[?2004h>         fwhm = x[right]-x[left]
+[?2004l[?2004h>         g0 = max(1.0, fwhm/2.0)
+[?2004l[?2004h>     else:
+[?2004l[?2004h>         g0 = 20.0
+[?2004l[?2004h>     p = [x[imax], math.log(g0), ymax-baseline, baseline]
+[?2004l[?2004h>     lam = 1e-3
+[?2004l[?2004h>     old = chi2(x, y, p)
+[?2004l[?2004h>     for it in range(300):
+[?2004l[?2004h>         J = jacobian(x, y, p)
+[?2004l[?2004h>         r = residuals(x, y, p)
+[?2004l[?2004h>         n = len(p)
+[?2004l[?2004h>         JTJ = [[sum(J[k][i]*J[k][j] for k in range(len(x))) for j in range(n)] for i in range(n)]
+[?2004l[?2004h>         g = [sum(J[k][i]*r[k] for k in range(len(x))) for i in range(n)]
+[?2004l[?2004h>         improved = False
+[?2004l[?2004h>         for attempt in range(30):
+[?2004l[?2004h>             M = [row[:] for row in JTJ]
+[?2004l[?2004h>             for i in range(n):
+[?2004l[?2004h>                 M[i][i] *= (1.0 + lam)
+[?2004l[?2004h>             try:
+[?2004l[?2004h>                 delta = solve_linear(M, g)
+[?2004l[?2004h>             except Exception:
+[?2004l[?2004h>                 lam *= 10.0; continue
+[?2004l[?2004h>             pnew = [p[i] + delta[i] for i in range(n)]
+[?2004l[?2004h>             new = chi2(x, y, pnew)
+[?2004l[?2004h>             if new < old:
+[?2004l[?2004h>                 p = pnew
+[?2004l[?2004h>                 old = new
+[?2004l[?2004h>                 lam = max(1e-12, lam*0.3)
+[?2004l[?2004h>                 improved = True
+[?2004l[?2004h>                 break
+[?2004l[?2004h>             else:
+[?2004l[?2004h>                 lam *= 3.0
+[?2004l[?2004h>         if not improved:
+[?2004l[?2004h>             break
+[?2004l[?2004h>         if max(abs(d) for d in delta) < 1e-10:
+[?2004l[?2004h>             break
+[?2004l[?2004h>     x0, logg, A, B = p
+[?2004l[?2004h>     g = math.exp(logg)
+[?2004l[?2004h>     rms = math.sqrt(old/len(x))
+[?2004l[?2004h>     print(name, 'n=', len(x), 'x0=', x0, 'gamma=', g, 'amp=', A, 'offset=', B, 'chi2=', old, 'rms=', rms, 'iters=', it)
+[?2004l[?2004h>     return {'x0':x0, 'gamma':g, 'amplitude':A, 'offset':B}, old, len(x)
+[?2004l[?2004h> 
+[?2004l[?2004h> for name,(lo,hi) in windows.items():
+[?2004l[?2004h>     fit_peak(name, lo, hi)
+[?2004l[?2004h> PY
+[?2004lD n= 400 x0= 1346.0648 gamma= 14.753900000000046 amp= 12059.151999999998 offset= 1388.835 chi2= 7245734.298861802 rms= 134.5895083101001 iters= 0
+G n= 240 x0= 1585.1277 gamma= 13.753600000000006 amp= 8316.613000000001 offset= 1567.078 chi2= 11326291.965414047 rms= 217.23923031815684 iters= 0
+2D n= 340 x0= 2678.4154 gamma= 19.755200000000055 amp= 10464.98 offset= 1479.374 chi2= 32537252.74773661 rms= 309.3506137042972 iters= 0
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l[?2004h> 
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1250.0, 1450.0),
+[?2004l[?2004h>     'G':  (1530.0, 1650.0),
+[?2004l[?2004h>     '2D': (2600.0, 2770.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> def cond_fit(x, y, x0, g):
+[?2004l[?2004h>     n = len(x)
+[?2004l[?2004h>     g2 = g*g
+[?2004l[?2004h>     Sf=Sff=Sfy=Sy=Syy=0.0
+[?2004l[?2004h>     for xi, yi in zip(x, y):
+[?2004l[?2004h>         f = g2 / ((xi-x0)*(xi-x0) + g2)
+[?2004l[?2004h>         Sf += f; Sff += f*f; Sfy += f*yi; Sy += yi; Syy += yi*yi
+[?2004l[?2004h>     den = n*Sff - Sf*Sf
+[?2004l[?2004h>     if abs(den) < 1e-300:
+[?2004l[?2004h>         return float('inf'), 0.0, Sy/n
+[?2004l[?2004h>     A = (n*Sfy - Sf*Sy) / den
+[?2004l[?2004h>     B = (Sy - A*Sf) / n
+[?2004l[?2004h>     sse = Syy - 2*A*Sfy - 2*B*Sy + A*A*Sff + 2*A*B*Sf + n*B*B
+[?2004l[?2004h>     return sse, A, B
+[?2004l[?2004h> 
+[?2004l[?2004h> def refine(x, y, x0, g, sx, sg):
+[?2004l[?2004h>     best_sse, best_A, best_B = cond_fit(x, y, x0, g)
+[?2004l[?2004h>     best = (best_sse, x0, g, best_A, best_B)
+[?2004l[?2004h>     # pattern moves in both dimensions
+[?2004l[?2004h>     while sx > 1e-5 or sg > 1e-5:
+[?2004l[?2004h>         improved = False
+[?2004l[?2004h>         for dx, dg in [(sx,0),(-sx,0),(0,sg),(0,-sg),(sx,sg),(sx,-sg),(-sx,sg),(-sx,-sg)]:
+[?2004l[?2004h>             nx0 = best[1] + dx
+[?2004l[?2004h>             ng = best[2] + dg
+[?2004l[?2004h>             if ng <= 0.01:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             sse, A, B = cond_fit(x, y, nx0, ng)
+[?2004l[?2004h>             if sse < best[0]:
+[?2004l[?2004h>                 best = (sse, nx0, ng, A, B)
+[?2004l[?2004h>                 improved = True
+[?2004l[?2004h>         if not improved:
+[?2004l[?2004h>             sx *= 0.5
+[?2004l[?2004h>             sg *= 0.5
+[?2004l[?2004h>     return best
+[?2004l[?2004h> 
+[?2004l[?2004h> fits = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     x=[]; y=[]
+[?2004l[?2004h>     for xi, yi in zip(xs, ys):
+[?2004l[?2004h>         if lo <= xi <= hi:
+[?2004l[?2004h>             x.append(xi); y.append(yi)
+[?2004l[?2004h>     imax = max(range(len(y)), key=lambda i: y[i])
+[?2004l[?2004h>     cx = x[imax]
+[?2004l[?2004h>     # coarse grid around local maximum
+[?2004l[?2004h>     best = None
+[?2004l[?2004h>     for ix in range(-200, 201):
+[?2004l[?2004h>         x0 = cx + ix*0.1
+[?2004l[?2004h>         if not (lo <= x0 <= hi):
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         for ig in range(20, 800, 5):  # gamma = 2 to 80 in 0.5 steps
+[?2004l[?2004h>             g = ig*0.1
+[?2004l[?2004h>             sse, A, B = cond_fit(x, y, x0, g)
+[?2004l[?2004h>             if best is None or sse < best[0]:
+[?2004l[?2004h>                 best = (sse, x0, g, A, B)
+[?2004l[?2004h>     best = refine(x, y, best[1], best[2], 0.1, 0.1)
+[?2004l[?2004h>     sse, x0, g, A, B = best
+[?2004l[?2004h>     n = len(x)
+[?2004l[?2004h>     rms = math.sqrt(sse/n)
+[?2004l[?2004h>     maxres = 0.0
+[?2004l[?2004h>     for xi, yi in zip(x, y):
+[?2004l[?2004h>         pred = A*g*g/((xi-x0)*(xi-x0)+g*g)+B
+[?2004l[?2004h>         maxres = max(maxres, abs(yi-pred))
+[?2004l[?2004h>     print(name, 'x0=%.10f gamma=%.10f amp=%.10f offset=%.10f rms=%.6f maxres=%.6f' % (x0,g,A,B,rms,maxres))
+[?2004l[?2004h>     fits[name] = {'x0':x0, 'gamma':g, 'amplitude':A, 'offset':B}
+[?2004l[?2004h> 
+[?2004l[?2004h> print('ID_IG =', fits['D']['amplitude']/fits['G']['amplitude'])
+[?2004l[?2004h> PY
+[?2004lD x0=1345.9880910156 gamma=14.7302124023 amp=12082.2099295571 offset=1269.0008633478 rms=61.436013 maxres=192.954755
+G x0=1585.0966941406 gamma=14.0387084961 amp=8626.6373313530 offset=1242.3317901808 rms=62.574800 maxres=188.286956
+2D x0=2678.0387154297 gamma=19.9983642578 amp=10771.1205052500 offset=1068.6492029534 rms=62.214560 maxres=174.811399
+ID_IG = 1.4005700559179761
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# python3 - <<'PY'
+[?2004l[?2004h> import json
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     "D":  {"x0": 1345.9880910156, "gamma": 14.7302124023, "amplitude": 12082.2099295571, "offset": 1269.0008633478},
+[?2004l[?2004h>     "G":  {"x0": 1585.0966941406, "gamma": 14.0387084961, "amplitude": 8626.6373313530, "offset": 1242.3317901808},
+[?2004l[?2004h>     "2D": {"x0": 2678.0387154297, "gamma": 19.9983642578, "amplitude": 10771.1205052500, "offset": 1068.6492029534},
+[?2004l[?2004h>     "ID_IG": 1.4005700559179761
+[?2004l[?2004h> }
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print(open('/app/results.json').read())
+[?2004l[?2004h> PY
+[?2004l{
+  "D": {
+    "x0": 1345.9880910156,
+    "gamma": 14.7302124023,
+    "amplitude": 12082.2099295571,
+    "offset": 1269.0008633478
+  },
+  "G": {
+    "x0": 1585.0966941406,
+    "gamma": 14.0387084961,
+    "amplitude": 8626.637331353,
+    "offset": 1242.3317901808
+  },
+  "2D": {
+    "x0": 2678.0387154297,
+    "gamma": 19.9983642578,
+    "amplitude": 10771.12050525,
+    "offset": 1068.6492029534
+  },
+  "ID_IG": 1.4005700559179761
+}
+[?2004hroot@j-openenv-6afd8a8829e8b7ccfbbb81c7-od2w0ah3-d0dd4-n7bgp:/app# 

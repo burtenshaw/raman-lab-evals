@@ -1,0 +1,172 @@
+model,provider,dataset,task,trial,reward,d_fit,g_fit,2d_fit,id_ig,outcome,exception,done_in_first_response,agent_steps,prompt_tokens,completion_tokens,est_cost_usd,wall_seconds
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__793TYMJ,1.0,1.0,1.0,1.0,1.0,passed,,False,9,54757,20075,0.0161,171
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__YE2xcJi,1.0,1.0,1.0,1.0,1.0,passed,,False,20,338050,55357,0.07058,441
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__cfbeTkC,1.0,1.0,1.0,1.0,1.0,passed,,False,9,62512,28297,0.02064,214
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__95nvfoB,1.0,1.0,1.0,1.0,1.0,passed,,False,8,31418,5607,0.00675,77
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__sHXLd2t,1.0,1.0,1.0,1.0,1.0,passed,,False,7,34411,20268,0.01333,161
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__whdyhda,1.0,1.0,1.0,1.0,1.0,passed,,False,9,53172,17120,0.01463,136
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__DhubX24,1.0,1.0,1.0,1.0,1.0,passed,,False,6,26306,14126,0.00962,113
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__knCk3HT,1.0,1.0,1.0,1.0,1.0,passed,,False,7,25888,7263,0.00667,92
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__pDZ8ZqX,1.0,1.0,1.0,1.0,1.0,passed,,False,9,33766,5947,0.00722,76
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__99tCJe9,1.0,1.0,1.0,1.0,1.0,passed,,False,11,54746,9897,0.01182,126
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__n2ZKvXP,1.0,1.0,1.0,1.0,1.0,passed,,False,8,38258,24174,0.01551,170
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__pnuFfvs,1.0,1.0,1.0,1.0,1.0,passed,,False,11,79307,13111,0.01661,125
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__PSA5zN5,1.0,1.0,1.0,1.0,1.0,passed,,False,11,83467,28308,0.02357,222
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__SzFWCZT,1.0,1.0,1.0,1.0,1.0,passed,,False,8,28373,4565,0.00589,68
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__b4gTLNp,1.0,1.0,1.0,1.0,1.0,passed,,False,10,70282,33722,0.024,262
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__4D4YpRE,1.0,1.0,1.0,1.0,1.0,passed,,False,6,22899,7362,0.0063,86
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__boCKZt9,1.0,1.0,1.0,1.0,1.0,passed,,False,11,44215,9259,0.01008,114
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__hAYxp96,1.0,1.0,1.0,1.0,1.0,passed,,False,10,43281,5365,0.00831,68
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__6dPuPZX,1.0,1.0,1.0,1.0,1.0,passed,,False,10,45192,8437,0.00987,86
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__XvkABmc,1.0,1.0,1.0,1.0,1.0,passed,,False,9,51371,22817,0.01678,196
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__p3UiLk5,1.0,1.0,1.0,1.0,1.0,passed,,False,7,32177,11018,0.00913,109
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__4dS3Mxg,1.0,1.0,1.0,1.0,1.0,passed,,False,10,66057,24438,0.01951,194
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__ayFwnhW,1.0,1.0,1.0,1.0,1.0,passed,,False,8,28684,12715,0.00936,120
+DeepSeek-V4.1-Flash,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__b2toPQk,1.0,1.0,1.0,1.0,1.0,passed,,False,8,50388,41437,0.02446,299
+DeepSeek-V4.1-Flash,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__Hir56VY,0.0,,,,,fit check failed,AgentTimeoutError,False,23,407593,116326,0.10592,920
+DeepSeek-V4.1-Flash,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__KMKMQdF,0.0,,,,,fit check failed,AgentTimeoutError,False,21,425108,115407,0.10799,920
+DeepSeek-V4.1-Flash,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__MDc3HA4,0.0,,,,,fit check failed,AgentTimeoutError,False,26,463206,108325,0.11035,918
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__BVRFjtC,1.0,1.0,1.0,1.0,1.0,passed,,False,7,33215,2880,0.00779,164
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__fyyagUx,1.0,1.0,1.0,1.0,1.0,passed,,False,6,25291,2264,0.00596,94
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__zZJNpo9,1.0,1.0,1.0,1.0,1.0,passed,,False,5,18785,1546,0.00438,75
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__Jb768Sj,1.0,1.0,1.0,1.0,1.0,passed,,False,5,28674,4025,0.00734,104
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__XkWqpXN,1.0,1.0,1.0,1.0,1.0,passed,,False,6,21334,1890,0.00502,94
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__xP8tUQW,1.0,1.0,1.0,1.0,1.0,passed,,False,5,18564,1547,0.00433,89
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__Bi7VbtT,0.0,0.0,0.0,0.0,1.0,fit check failed,,False,6,27360,3574,0.0069,112
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__XgQJdY3,1.0,1.0,1.0,1.0,1.0,passed,,False,6,21364,1827,0.005,74
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__qBxhq9N,1.0,1.0,1.0,1.0,1.0,passed,,False,5,19232,1711,0.00453,97
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__54ewQrU,1.0,1.0,1.0,1.0,1.0,passed,,False,5,18127,1653,0.00429,68
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__9GbjRCk,0.0,0.0,0.0,0.0,1.0,fit check failed,,False,5,24681,3366,0.00628,97
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__znzFJzP,1.0,1.0,1.0,1.0,1.0,passed,,False,9,55193,3996,0.01264,149
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__EkfNpE2,1.0,1.0,1.0,1.0,1.0,passed,,False,5,21177,2338,0.00517,73
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__Ez2iveX,1.0,1.0,1.0,1.0,1.0,passed,,False,8,38009,3549,0.00902,118
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__QS7bAm6,1.0,1.0,1.0,1.0,1.0,passed,,False,8,34402,3385,0.00823,127
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__F5CXwjs,1.0,1.0,1.0,1.0,1.0,passed,,False,5,18557,1648,0.00437,102
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__Tum8uti,1.0,1.0,1.0,1.0,1.0,passed,,False,5,20015,1706,0.00469,141
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__v6TBoug,0.0,1.0,1.0,0.0,1.0,fit check failed,,False,6,32353,3369,0.00782,85
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__GUVpQje,1.0,1.0,1.0,1.0,1.0,passed,,False,5,18723,1555,0.00437,65
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__gToMVnJ,1.0,1.0,1.0,1.0,1.0,passed,,False,5,19140,1661,0.00449,95
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__s5Epxza,1.0,1.0,1.0,1.0,1.0,passed,,False,6,21955,1931,0.00516,94
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__5nefEiE,1.0,1.0,1.0,1.0,1.0,passed,,False,8,49057,5321,0.01194,140
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__MtYqa9M,1.0,1.0,1.0,1.0,1.0,passed,,False,5,18482,1684,0.00437,76
+gemma-4-31B-it,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__qvFv2pw,1.0,1.0,1.0,1.0,1.0,passed,,False,5,20694,1737,0.00483,93
+gemma-4-31B-it,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__3drTjHM,0.0,,,,,fit check failed,,False,9,62152,5983,0.01482,143
+gemma-4-31B-it,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__QcasFAe,0.0,,,,,fit check failed,,False,11,49609,4748,0.01182,102
+gemma-4-31B-it,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__gNBNDZX,0.0,,,,,fit check failed,,False,8,38890,3413,0.00914,123
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__J6NtkqP,1.0,1.0,1.0,1.0,1.0,passed,,True,2,3851,2129,0.0005,203
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__Y5XP5zm,1.0,1.0,1.0,1.0,1.0,passed,,True,4,13780,1850,0.00082,163
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__bh2fjKt,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,3931,2149,0.00051,164
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__RA4V9DQ,1.0,1.0,1.0,1.0,1.0,passed,,True,2,4332,1699,0.00045,124
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__WRtSP3j,1.0,1.0,1.0,1.0,1.0,passed,,True,2,3786,1788,0.00044,143
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__eDbN66u,1.0,1.0,1.0,1.0,1.0,passed,,True,2,3961,1287,0.00037,131
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__M3zBauU,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,4086,2004,0.00049,167
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__MwLbTRT,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,3797,2165,0.00051,143
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__bdNTV4B,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,3758,2130,0.0005,158
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__XqSALgN,1.0,1.0,1.0,1.0,1.0,passed,,True,2,3949,1899,0.00047,183
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__iWafqkW,1.0,1.0,1.0,1.0,1.0,passed,,True,4,16503,2779,0.00108,173
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__jHmFWng,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,4244,2572,0.00059,226
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__8op8D7x,1.0,1.0,1.0,1.0,1.0,passed,,False,7,20158,2656,0.0012,154
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__W7SwDuj,1.0,1.0,1.0,1.0,1.0,passed,,True,2,5421,2946,0.0007,150
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__ihxLFTF,1.0,1.0,1.0,1.0,1.0,passed,,True,2,4193,2006,0.0005,183
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__GGD85rg,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,4069,2834,0.00063,138
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__Qh54pVr,1.0,1.0,1.0,1.0,1.0,passed,,True,2,4372,1435,0.00041,89
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__mvmd2qJ,1.0,1.0,1.0,1.0,1.0,passed,,True,4,13264,2086,0.00085,142
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__eBMezm6,1.0,1.0,1.0,1.0,1.0,passed,,True,2,4112,1985,0.00049,206
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__gDCq7nk,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,4057,2132,0.00051,133
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__zHNcQX3,0.0,0.0,0.0,0.0,0.0,no valid results file,,False,4,6701,2706,0.00071,187
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__3DeuUPT,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,3967,3065,0.00067,164
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__M4TM2vb,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,3838,2026,0.00049,151
+gpt-oss-120b,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__cac3tX4,0.0,0.0,0.0,0.0,0.0,no valid results file,,True,2,4220,1554,0.00042,158
+gpt-oss-120b,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__EmJfaR4,0.0,,,,,fit check failed,,False,3,5723,2534,0.00064,180
+gpt-oss-120b,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__iw52oqw,0.0,,,,,fit check failed,,False,4,7322,2771,0.00074,162
+gpt-oss-120b,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__ka6HcJJ,0.0,,,,,fit check failed,,True,2,3866,2184,0.00051,194
+oracle,,raman-lab,raman-lab/graphene-s01,graphene-s01__PRoBNsU,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,22
+oracle,,raman-lab,raman-lab/graphene-s02,graphene-s02__xFprXY3,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,31
+oracle,,raman-lab,raman-lab/graphene-s03,graphene-s03__QZhvK8j,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,22
+oracle,,raman-lab,raman-lab/graphene-s04,graphene-s04__4kvyhG7,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,24
+oracle,,raman-lab,raman-lab/graphene-s05,graphene-s05__qH2uGVD,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,27
+oracle,,raman-lab,raman-lab/graphene-s06,graphene-s06__jAejdj7,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,20
+oracle,,raman-lab,raman-lab/graphene-s07,graphene-s07__4n4P2DM,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,22
+oracle,,raman-lab,raman-lab/graphene-s08,graphene-s08__3y89PFP,1.0,1.0,1.0,1.0,1.0,passed,,False,0,0,0,0.0,21
+oracle,,raman-fitting,terminal-bench/raman-fitting,raman-fitting__Y7LEk9q,1.0,,,,,passed,,False,0,0,0,0.0,24
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__FAtrbsN,1.0,1.0,1.0,1.0,1.0,passed,,False,6,15321,1730,0.06832,116
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__XCpR2VR,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14660,1539,0.06371,111
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__jG4gQSb,1.0,1.0,1.0,1.0,1.0,passed,,False,6,13701,1416,0.05923,144
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__9QYAixw,1.0,1.0,1.0,1.0,1.0,passed,,False,6,13822,1493,0.06067,122
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__HtXyypH,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14736,1587,0.06461,113
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__VxeMymY,1.0,1.0,1.0,1.0,1.0,passed,,False,7,18292,1667,0.07589,110
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__eYaAo3n,1.0,1.0,1.0,1.0,1.0,passed,,False,6,13389,1328,0.05708,104
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__kWn7hPj,1.0,1.0,1.0,1.0,1.0,passed,,False,5,11298,1269,0.05028,103
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__tkQan7X,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14776,1539,0.06404,111
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__MnjsXuF,1.0,1.0,1.0,1.0,1.0,passed,,False,8,21571,1687,0.08552,173
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__pSBWp35,0.0,1.0,0.0,1.0,1.0,fit check failed,,False,5,11406,1266,0.05055,140
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__sGwmZYy,0.0,1.0,0.0,1.0,1.0,fit check failed,,False,6,14238,1392,0.06041,95
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__HBNEGxL,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14242,1505,0.06204,111
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__JcbxL2k,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14302,1542,0.06273,112
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__KkB6gvb,1.0,1.0,1.0,1.0,1.0,passed,,False,6,13465,1380,0.05804,112
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__3bMpJhz,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14055,1598,0.06283,133
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__dmc9Kay,1.0,1.0,1.0,1.0,1.0,passed,,False,6,13724,1516,0.06072,88
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__sF9hDqf,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14140,1455,0.06103,99
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__dhqvhQK,1.0,1.0,1.0,1.0,1.0,passed,,False,5,11313,1280,0.05048,96
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__mkMcPhK,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14285,1428,0.06106,100
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__qVst5mS,1.0,1.0,1.0,1.0,1.0,passed,,False,6,13479,1374,0.05799,135
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__LUfZJWi,1.0,1.0,1.0,1.0,1.0,passed,,False,5,11372,1313,0.05112,96
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__STNV5dq,1.0,1.0,1.0,1.0,1.0,passed,,False,6,14505,1595,0.06407,110
+Kimi-K3,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__YyjZWpr,1.0,1.0,1.0,1.0,1.0,passed,,False,6,15105,1719,0.06754,139
+Kimi-K3,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__Nb946Dn,0.0,,,,,fit check failed,,False,9,49829,10127,0.28632,230
+Kimi-K3,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__fGWa5BY,0.0,,,,,fit check failed,,False,10,33808,6980,0.19582,216
+Kimi-K3,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__spNtZLY,0.0,,,,,fit check failed,,False,10,95281,27043,0.65691,509
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s01,graphene-s01__5gJZnDS,1.0,1.0,1.0,1.0,1.0,passed,,False,10,81095,13467,0.02024,193
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s01,graphene-s01__GmZ3thX,1.0,1.0,1.0,1.0,1.0,passed,,False,9,92708,8636,0.01909,216
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s01,graphene-s01__iu3wyhV,1.0,1.0,1.0,1.0,1.0,passed,,False,11,116794,20029,0.02954,359
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s02,graphene-s02__336QrGa,1.0,1.0,1.0,1.0,1.0,passed,,False,9,51972,10516,0.01411,191
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s02,graphene-s02__4sGfQhV,1.0,1.0,1.0,1.0,1.0,passed,,False,8,43819,5210,0.0097,184
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s02,graphene-s02__e9YenmW,1.0,1.0,1.0,1.0,1.0,passed,,False,8,54322,5345,0.01136,164
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s03,graphene-s03__E2E5gC2,1.0,1.0,1.0,1.0,1.0,passed,,False,8,57487,11139,0.01531,189
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s03,graphene-s03__QhjaHf9,1.0,1.0,1.0,1.0,1.0,passed,,False,13,166684,17851,0.03571,256
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s03,graphene-s03__vUhVf9c,1.0,1.0,1.0,1.0,1.0,passed,,False,9,76227,10873,0.01796,222
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s04,graphene-s04__GLs2BdQ,1.0,1.0,1.0,1.0,1.0,passed,,False,7,34986,5019,0.00826,147
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s04,graphene-s04__TmrE3QR,1.0,1.0,1.0,1.0,1.0,passed,,False,11,86257,10575,0.01928,227
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s04,graphene-s04__U2Zmbpj,1.0,1.0,1.0,1.0,1.0,passed,,False,8,52524,13597,0.01604,190
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s05,graphene-s05__X395a3y,1.0,1.0,1.0,1.0,1.0,passed,,False,9,76395,17145,0.02175,360
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s05,graphene-s05__qT5ev26,1.0,1.0,1.0,1.0,1.0,passed,,False,9,71530,9395,0.01637,232
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s05,graphene-s05__yXKkFai,1.0,1.0,1.0,1.0,1.0,passed,,False,10,80740,10755,0.01856,251
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s06,graphene-s06__TucR9xK,1.0,1.0,1.0,1.0,1.0,passed,,False,12,135648,30460,0.03862,502
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s06,graphene-s06__acvJNJK,1.0,1.0,1.0,1.0,1.0,passed,,False,8,67387,11601,0.01707,199
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s06,graphene-s06__db8jw2B,1.0,1.0,1.0,1.0,1.0,passed,,False,10,80246,8326,0.01703,192
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s07,graphene-s07__2i52h3E,1.0,1.0,1.0,1.0,1.0,passed,,False,10,78376,13411,0.0198,279
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s07,graphene-s07__QEVTnQK,1.0,1.0,1.0,1.0,1.0,passed,,False,9,74017,10256,0.01726,167
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s07,graphene-s07__T3XEPWc,1.0,1.0,1.0,1.0,1.0,passed,,False,12,133713,15003,0.02906,212
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s08,graphene-s08__5RVnRrx,1.0,1.0,1.0,1.0,1.0,passed,,False,10,99887,11545,0.02191,196
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s08,graphene-s08__ej4uXP6,1.0,1.0,1.0,1.0,1.0,passed,,False,12,111520,10464,0.02301,253
+MiniMax-M3.1-Flash,together,raman-lab,raman-lab/graphene-s08,graphene-s08__pdVkhyf,1.0,1.0,1.0,1.0,1.0,passed,,False,9,71826,8769,0.01604,186
+MiniMax-M3.1-Flash,together,raman-fitting,terminal-bench/raman-fitting,raman-fitting__VR7t3wy,0.0,,,,,fit check failed,AgentTimeoutError,False,12,89843,49895,0.04341,919
+MiniMax-M3.1-Flash,together,raman-fitting,terminal-bench/raman-fitting,raman-fitting__VYfJ9Xa,0.0,,,,,fit check failed,AgentTimeoutError,False,12,112749,60298,0.05309,918
+MiniMax-M3.1-Flash,together,raman-fitting,terminal-bench/raman-fitting,raman-fitting__pmhvP5R,0.0,,,,,fit check failed,AgentTimeoutError,False,10,55425,36460,0.03019,920
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__PaKS5Qi,1.0,1.0,1.0,1.0,1.0,passed,,False,7,41515,9368,0.02379,371
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__SjFgTij,1.0,1.0,1.0,1.0,1.0,passed,,False,13,221351,32289,0.09374,772
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s01,graphene-s01__WCiTq42,1.0,1.0,1.0,1.0,1.0,passed,,False,10,52115,9540,0.0257,268
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__DCH4LFJ,1.0,1.0,1.0,1.0,1.0,passed,,False,6,19601,23887,0.04773,545
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__GYGkkoZ,1.0,1.0,1.0,1.0,1.0,passed,,False,9,37178,6321,0.01743,376
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s02,graphene-s02__jakjHaX,1.0,1.0,1.0,1.0,1.0,passed,,False,9,45933,5312,0.01685,169
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__fNgMtmY,1.0,1.0,1.0,1.0,1.0,passed,,False,11,135578,13674,0.04598,428
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__fjoR5F2,1.0,1.0,1.0,1.0,1.0,passed,,False,7,24657,4754,0.01261,218
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s03,graphene-s03__ujjLTo5,1.0,1.0,1.0,1.0,1.0,passed,,False,7,23814,3699,0.01051,132
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__86GEe3r,1.0,1.0,1.0,1.0,1.0,passed,,False,8,86524,33180,0.07519,909
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__kMoJmHU,1.0,1.0,1.0,1.0,1.0,passed,,False,7,26737,4349,0.01216,166
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s04,graphene-s04__yeThCoL,1.0,1.0,1.0,1.0,1.0,passed,,False,8,59714,17364,0.04151,476
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__GhzvyuY,1.0,1.0,1.0,1.0,1.0,passed,,False,10,65922,9306,0.02734,237
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__Phc3C2P,1.0,1.0,1.0,1.0,1.0,passed,,False,10,57519,12019,0.03116,283
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s05,graphene-s05__yqoKrha,1.0,1.0,1.0,1.0,1.0,passed,,False,13,193637,31511,0.08813,909
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__9VuXKYc,1.0,1.0,1.0,1.0,1.0,passed,,False,6,18715,3607,0.00957,139
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__CKt82rC,1.0,1.0,1.0,1.0,1.0,passed,,False,10,49940,5769,0.01831,157
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s06,graphene-s06__shKDSSU,1.0,1.0,1.0,1.0,1.0,passed,,False,7,25221,5178,0.01349,192
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__TNu8fG3,1.0,1.0,1.0,1.0,1.0,passed,,False,9,42442,6270,0.01812,210
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__UvTF6EN,1.0,1.0,1.0,1.0,1.0,passed,,False,5,12182,2326,0.00619,103
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s07,graphene-s07__srBXUHb,1.0,1.0,1.0,1.0,1.0,passed,,False,6,18358,3462,0.00924,126
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__Ab3kLGT,1.0,1.0,1.0,1.0,1.0,passed,,False,7,23152,3612,0.01025,146
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__CpoaZ8G,1.0,1.0,1.0,1.0,1.0,passed,,False,8,34705,6512,0.01742,207
+Qwen3.8-27B,deepinfra,raman-lab,raman-lab/graphene-s08,graphene-s08__T5neCLR,1.0,1.0,1.0,1.0,1.0,passed,,False,10,54722,4928,0.01745,357
+Qwen3.8-27B,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__3YMLQuF,0.0,,,,,fit check failed,AgentTimeoutError,False,6,29433,32024,0.06446,917
+Qwen3.8-27B,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__75MkgKc,0.0,,,,,fit check failed,,False,14,195819,26856,0.07973,635
+Qwen3.8-27B,deepinfra,raman-fitting,terminal-bench/raman-fitting,raman-fitting__v2aVYUf,0.0,,,,,fit check failed,AgentTimeoutError,False,4,10583,11013,0.02224,921

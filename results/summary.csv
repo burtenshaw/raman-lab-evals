@@ -1,0 +1,7 @@
+model,provider,raman_fitting_passed,raman_fitting_rollouts,raman_lab_passed,raman_lab_rollouts,mean,clustered_se,pass_at_3,pass_hat_3,n_tasks,done_in_first_response,passed_when_done_early,passed_when_checked,no_results_file,fit_check_failed,errors,median_tokens_per_rollout,median_wall_seconds,est_cost_usd_all_rollouts
+gpt-oss-120b,deepinfra,0,3,13,24,0.542,0.131,6,2,8,22,12,1,11,0,0,6097,158,0.02
+Qwen3.8-27B,deepinfra,0,3,24,24,1.0,0.0,8,8,8,0,0,24,0,0,2,50883,237,0.86
+DeepSeek-V4.1-Flash,deepinfra,0,3,24,24,1.0,0.0,8,8,8,0,0,24,0,0,3,62432,126,0.7
+Kimi-K3,deepinfra,0,3,22,24,0.917,0.078,8,7,8,0,0,22,0,2,0,15653,111,2.62
+MiniMax-M3.1-Flash,together,0,3,24,24,1.0,0.0,8,8,8,0,0,24,0,0,3,91495,212,0.6
+gemma-4-31B-it,deepinfra,0,3,21,24,0.875,0.057,8,5,8,0,0,21,0,3,0,23515,95,0.18

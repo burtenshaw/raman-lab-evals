@@ -1,0 +1,19 @@
+{
+    "task": {
+        "name": "terminal-bench/raman-fitting",
+        "ref": "latest"
+    },
+    "trial_name": "raman-fitting__75MkgKc",
+    "trials_dir": "/tmp/work/jobs/qwen3.8-27b-original",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/Qwen/Qwen3.8-27B:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "e01a2109-8c6f-4033-a69f-b0da7cb58a8b"
+}

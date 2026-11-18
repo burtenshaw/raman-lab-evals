@@ -1,0 +1,6 @@
+.trials/
+scripts/.trials/
+datasets/
+__pycache__/
+*.pyc
+.DS_Store

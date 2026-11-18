@@ -1,0 +1,19 @@
+{
+    "task": {
+        "name": "terminal-bench/raman-fitting",
+        "ref": "latest"
+    },
+    "trial_name": "raman-fitting__QcasFAe",
+    "trials_dir": "/tmp/work/jobs/gemma-4-31b-it-original",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/google/gemma-4-31B-it:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "28ff6daa-4fb5-4a31-aa17-58c55a90e3a8"
+}

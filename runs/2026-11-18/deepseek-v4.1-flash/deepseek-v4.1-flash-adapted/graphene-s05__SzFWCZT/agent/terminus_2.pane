@@ -1,0 +1,177 @@
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# ls -la
+[?2004ltotal 68
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:22 ..
+-rw-r--r--. 1 root root 69622 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# head -5 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,768.701
+1100.5001,941.867
+1101.0003,726.939
+1101.5004,816.841
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# wc -l spectrum.csv
+[?2004l3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# python3 --version && pip3 --version
+[?2004lPython 3.13.18
+tail -5 spectrum.csv
+python3 - <<'PY'
+import csv
+rows=[]
+with open('spectrum.csv') as f:
+    r=csv.DictReader(f)
+    for row in r:
+        x=float(row['raman_shift_cm-1']); y=float(row['intensity'])
+        rows.append((x,y))
+print('n',len(rows),'xmin',rows[0][0],'xmax',rows[-1][0])
+for name,lo,hi in [('D',1200,1500),('G',1500,1700),('2D',2500,2850)]:
+    win=[(x,y) for x,y in rows if lo<=x<=hi]
+    xm,ym=max(win,key=lambda p:p[1])
+    print(name,'max',xm,ym)
+PY
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# tail -5 spectrum.csv
+[?2004l2997.9995,845.890
+2998.4996,854.224
+2998.9997,734.995
+2999.4999,973.002
+3000.0000,743.055
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> with open('spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         x=float(row['raman_shift_cm-1']); y=float(row['intensity'])
+[?2004l[?2004h>         rows.append((x,y))
+[?2004l[?2004h> print('n',len(rows),'xmin',rows[0][0],'xmax',rows[-1][0])
+[?2004l[?2004h> for name,lo,hi in [('D',1200,1500),('G',1500,1700),('2D',2500,2850)]:
+[?2004l[?2004h>     win=[(x,y) for x,y in rows if lo<=x<=hi]
+[?2004l[?2004h>     xm,ym=max(win,key=lambda p:p[1])
+[?2004l[?2004h>     print(name,'max',xm,ym)
+[?2004l[?2004h> PY
+[?2004ln 3800 xmin 1100.0 xmax 3000.0
+D max 1356.5675 1605.569
+G max 1580.1263 7483.455
+2D max 2689.4183 10801.957
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# pip3 install numpy scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m186.2 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;197m╸[0m[38;5;237m━━━━━━━━━━━━━━━━━[0m [32m19.9/35.3 MB[0m [31m101.2 MB/s[0m eta [36m0:00:01[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m113.5 MB/s[0m  [33m0:00:00[0m
+[?25hInstalling collected packages: numpy, scipy
+[?25l[2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/2[0m [scipy]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 scipy-1.18.1
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> xdata = []
+[?2004l[?2004h> ydata = []
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     reader = csv.DictReader(f)
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         xdata.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ydata.append(float(row['intensity']))
+[?2004l[?2004h> x = np.array(xdata)
+[?2004l[?2004h> y = np.array(ydata)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1200.0, 1500.0),
+[?2004l[?2004h>     'G':  (1500.0, 1700.0),
+[?2004l[?2004h>     '2D': (2500.0, 2850.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw = x[mask]
+[?2004l[?2004h>     yw = y[mask]
+[?2004l[?2004h>     imax = np.argmax(yw)
+[?2004l[?2004h>     x0_guess = xw[imax]
+[?2004l[?2004h>     ymax = yw[imax]
+[?2004l[?2004h>     offset_guess = np.min(yw)
+[?2004l[?2004h>     amp_guess = ymax - offset_guess
+[?2004l[?2004h>     p0 = [amp_guess, 20.0, x0_guess, offset_guess]
+[?2004l[?2004h>     bounds = ([0.0, 1.0, lo, -np.inf], [np.inf, 200.0, hi, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentzian, xw, yw, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     amplitude, gamma, x0, offset = popt
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amplitude),
+[?2004l[?2004h>         'offset': float(offset),
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = float(results['D']['amplitude'] / results['G']['amplitude'])
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> PY
+[?2004l{
+  "D": {
+    "x0": 1353.9902857746679,
+    "gamma": 12.34145165803843,
+    "amplitude": 632.913363920336,
+    "offset": 846.5973192157578
+  },
+  "G": {
+    "x0": 1579.3909493853685,
+    "gamma": 9.083293518075768,
+    "amplitude": 6550.646317054461,
+    "offset": 798.7673375162758
+  },
+  "2D": {
+    "x0": 2688.6985061780097,
+    "gamma": 25.593063297000672,
+    "amplitude": 9808.64592970176,
+    "offset": 732.3093616236376
+  },
+  "ID_IG": 0.09661846072693013
+}
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# python3 -m json.tool /app/results.json
+[?2004l{
+    "D": {
+        "x0": 1353.9902857746679,
+        "gamma": 12.34145165803843,
+        "amplitude": 632.913363920336,
+        "offset": 846.5973192157578
+    },
+    "G": {
+        "x0": 1579.3909493853685,
+        "gamma": 9.083293518075768,
+        "amplitude": 6550.646317054461,
+        "offset": 798.7673375162758
+    },
+    "2D": {
+        "x0": 2688.6985061780097,
+        "gamma": 25.593063297000672,
+        "amplitude": 9808.64592970176,
+        "offset": 732.3093616236376
+    },
+    "ID_IG": 0.09661846072693013
+}
+[?2004hroot@j-openenv-6afd8a88e5cad0e4dc3e6b83-a4b9r6n4-ae53d-bnxmz:/app# 

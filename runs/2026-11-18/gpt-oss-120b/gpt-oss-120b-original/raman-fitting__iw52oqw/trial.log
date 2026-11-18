@@ -1,0 +1,7 @@
+Creating HF Sandbox: image=alexgshaw/raman-fitting:20251031, flavor=cpu-basic, idle_timeout=600s
+Parser warnings: - No valid JSON object found
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-original/raman-fitting__iw52oqw/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-original/raman-fitting__iw52oqw/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-original/raman-fitting__iw52oqw/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/gpt-oss-120b-original/raman-fitting__iw52oqw/agent/trajectory.json
+Collecting main service artifacts

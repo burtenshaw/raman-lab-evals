@@ -1,0 +1,25 @@
+{
+    "job_name": "qwen3.8-27b-original",
+    "jobs_dir": "/tmp/work/jobs",
+    "n_attempts": 3,
+    "n_concurrent_trials": 5,
+    "quiet": true,
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "agents": [
+        {
+            "name": "terminus-2",
+            "model_name": "openai/Qwen/Qwen3.8-27B:deepinfra",
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            }
+        }
+    ],
+    "tasks": [
+        {
+            "name": "terminal-bench/raman-fitting",
+            "ref": "latest"
+        }
+    ]
+}

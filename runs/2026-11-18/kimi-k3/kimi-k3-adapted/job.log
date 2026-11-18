@@ -1,0 +1,762 @@
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Uploading environment/ to /app
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__, numpy.__version__)'\n"] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__)'\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['ls -la /app && head -5 /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__, numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__, numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import scipy, numpy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'; pip --version\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy; print(\'numpy ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy numpy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 60.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["python3 -c 'import numpy, scipy; print(numpy.__version__, scipy.__version__)'\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import scipy, numpy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c \'import numpy, scipy; print("OK", numpy.__version__, scipy.__version__)\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__, numpy.__version__)'\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, window=150):\n    m = (x > center - window) & (x < center + window)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    a0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [a0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)\n    amp, x0, gamma, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)),\n            'amplitude': float(amp), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, x0, gamma, amplitude, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwin=120.0):\n    m = (x > center - halfwin) & (x < center + halfwin)\n    xs, ys = x[m], y[m]\n    off0 = float(ys.min())\n    amp0 = float(ys.max() - ys.min())\n    x00 = float(xs[np.argmax(ys)])\n    # estimate gamma from FWHM\n    above = xs[ys > off0 + amp0 / 2.0]\n    fwhm = (above.max() - above.min()) if len(above) > 1 else 20.0\n    g0 = max(fwhm / 2.0, 1.0)\n    p0 = [x00, g0, amp0, off0]\n    bounds = ([x00 - halfwin, 0.1, 0.0, -np.inf],\n              [x00 + halfwin, halfwin * 2, np.inf, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=200000)\n    return {'x0': float(popt[0]), 'gamma': float(popt[1]),\n            'amplitude': float(popt[2]), 'offset': float(popt[3])}\n\nD = fit_peak(1350.0)\nG = fit_peak(1580.0)\nD2 = fit_peak(2690.0)\nresults = {'D': D, 'G': G, '2D': D2, 'ID_IG': D['amplitude'] / G['amplitude']}\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwin):\n    m = (x >= center - halfwin) & (x <= center + halfwin)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    amp0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 10.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)\n    amp, x0, gam, off = popt\n    gam = abs(gam)\n    return {'x0': float(x0), 'gamma': float(gam), 'amplitude': float(amp), 'offset': float(off)}\n\nresults = {}\nresults['D'] = fit_peak(1350.0, 100.0)\nresults['G'] = fit_peak(1580.0, 100.0)\nresults['2D'] = fit_peak(2690.0, 150.0)\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\npeaks = {'D': 1350.0, 'G': 1580.0, '2D': 2690.0}\nresults = {}\n\nfor name, center in peaks.items():\n    mask = (x >= center - 150) & (x <= center + 150)\n    xs, ys = x[mask], y[mask]\n    offset0 = float(np.min(ys))\n    x00 = float(xs[np.argmax(ys)])\n    amp0 = float(np.max(ys) - np.min(ys))\n    gamma0 = 15.0\n    p0 = [amp0, x00, gamma0, offset0]\n    bounds = ([0, center - 150, 1.0, -np.inf], [np.inf, center + 150, 300.0, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=100000)\n    amp, x0, gamma, off = popt\n    results[name] = {\n        'x0': float(x0),\n        'gamma': float(abs(gamma)),\n        'amplitude': float(amp),\n        'offset': float(off),\n    }\n    print(name, results[name])\n\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint('ID_IG =', results['ID_IG'])\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__tkQan7X/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__JcbxL2k/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ["python3 -c 'import numpy, scipy; print(numpy.__version__, scipy.__version__)'\n"] min_timeout_sec: 10.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__HtXyypH/agent/trajectory.json
+Collecting main service artifacts
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__FAtrbsN/agent/trajectory.json
+Collecting main service artifacts
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx, y = data[:,0], data[:,1]\n\ndef model(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwin):\n    m = (x > center - halfwin) & (x < center + halfwin)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    amp0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 20.0, off0]\n    bounds = ([0, center-halfwin, 0.1, -np.inf], [np.inf, center+halfwin, halfwin*2, np.inf])\n    popt, _ = curve_fit(model, xs, ys, p0=p0, bounds=bounds, maxfev=20000)\n    amp, x0, gam, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gam)), 'amplitude': float(amp), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350, 120),\n    'G': fit_peak(1580, 120),\n    '2D': fit_peak(2690, 200),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import scipy, numpy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__)'\n"] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__LUfZJWi/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__dhqvhQK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv; python3 -c \'import scipy, numpy; print("ok")\'\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import numpy; print(numpy.__version__)"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -2\n'] min_timeout_sec: 60.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__MnjsXuF/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__dhqvhQK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import scipy, numpy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__LUfZJWi/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__, numpy.__version__)'\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, x0, gamma, amplitude, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, window=120):\n    m = (x > center - window) & (x < center + window)\n    xs, ys = x[m], y[m]\n    offset0 = np.min(ys)\n    i = np.argmax(ys)\n    x00 = xs[i]\n    amp0 = ys[i] - offset0\n    # estimate gamma from FWHM\n    half = offset0 + amp0 / 2\n    above = xs[ys > half]\n    gamma0 = max((above.max() - above.min()) / 2, 2.0) if len(above) > 1 else 10.0\n    p0 = [x00, gamma0, amp0, offset0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=20000)\n    x0f, gf, af, of = popt\n    return {'x0': float(x0f), 'gamma': float(abs(gf)), 'amplitude': float(af), 'offset': float(of)}\n\nres = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690, window=150),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, half_window=150.0):\n    m = (x > center - half_window) & (x < center + half_window)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    i = int(np.argmax(ys))\n    x00 = float(xs[i])\n    a0 = float(ys[i] - off0)\n    # FWHM estimate for gamma init\n    above = xs[ys - off0 > a0 / 2.0]\n    g0 = max((above.max() - above.min()) / 2.0, 1.0) if above.size > 1 else 10.0\n    p0 = [a0, x00, g0, off0]\n    bounds = ([0.0, center - half_window, 0.1, -np.inf],\n              [np.inf, center + half_window, half_window, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=100000)\n    return {'x0': float(popt[1]), 'gamma': float(popt[2]),\n            'amplitude': float(popt[0]), 'offset': float(popt[3])}\n\nresults = {\n    'D': fit_peak(1350.0),\n    'G': fit_peak(1580.0),\n    '2D': fit_peak(2690.0, half_window=200.0),\n}\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', names=True)\nx = data['raman_shift_cm1']\ny = data['intensity']\n\ndef lorentz(x, x0, gamma, amp, offset):\n    return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\nresults = {}\nfor name, center in [('D', 1350.0), ('G', 1580.0), ('2D', 2690.0)]:\n    m = (x > center - 120) & (x < center + 120)\n    xw, yw = x[m], y[m]\n    off0 = float(np.min(yw))\n    amp0 = float(np.max(yw) - off0)\n    x00 = float(xw[np.argmax(yw)])\n    p0 = [x00, 15.0, amp0, off0]\n    popt, _ = curve_fit(lorentz, xw, yw, p0=p0, maxfev=20000)\n    x0, gamma, amp, offset = popt\n    results[name] = {'x0': float(x0), 'gamma': float(abs(gamma)),\n                     'amplitude': float(amp), 'offset': float(offset)}\n\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 10.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy, pandas; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__LUfZJWi/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__dhqvhQK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__dhqvhQK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__LUfZJWi/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__dhqvhQK/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__dhqvhQK/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__sF9hDqf/agent/trajectory.json
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__LUfZJWi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__LUfZJWi/agent/trajectory.json
+Collecting main service artifacts
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Uploading environment/ to /app
+Sending keys: ['python3 -c \'import numpy, scipy; from scipy.optimize import curve_fit; print("ok")\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 -c \'import numpy, scipy; print("ok")\'\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__pSBWp35/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, window):\n    m = (x > center - window) & (x < center + window)\n    xs, ys = x[m], y[m]\n    off0 = float(ys.min())\n    amp0 = float(ys.max() - ys.min())\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)\n    amp, x0, gam, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gam)), 'amplitude': float(amp), 'offset': float(off)}\n\nresults = {\n    'D': fit_peak(1350, 150),\n    'G': fit_peak(1580, 150),\n    '2D': fit_peak(2690, 200),\n}\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ["head -3 /app/spectrum.csv; python3 -c 'import scipy; print(scipy.__version__)'\n"] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 60.0 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'; pip install scipy 2>&1 | tail -2\n"] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwidth):\n    m = (x >= center - halfwidth) & (x <= center + halfwidth)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    i = int(np.argmax(ys))\n    x00 = float(xs[i])\n    amp0 = float(ys[i] - off0)\n    g0 = 15.0\n    p0 = [amp0, x00, g0, off0]\n    bounds = ([0, center - halfwidth, 0.1, -np.inf],\n              [np.inf, center + halfwidth, halfwidth * 2, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=20000)\n    amp, x0, gam, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gam)), 'amplitude': float(amp), 'offset': float(off)}\n\nres = {}\nres['D'] = fit_peak(1350, 100)\nres['G'] = fit_peak(1580, 100)\nres['2D'] = fit_peak(2690, 150)\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__jG4gQSb/agent/trajectory.json
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Collecting main service artifacts
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json && python3 -c "import json; d=json.load(open(\'/app/results.json\')); print(sorted(d.keys()))"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c \'import scipy, numpy; print("ok")\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__VxeMymY/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwidth=150):\n    m = (x > center - halfwidth) & (x < center + halfwidth)\n    xs, ys = x[m], y[m]\n    off0 = float(ys.min())\n    amp0 = float(ys.max() - ys.min())\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=20000)\n    amp, x0, gam, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gam)), 'amplitude': float(amp), 'offset': float(off)}\n\nresults = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690),\n}\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 60.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, x0, gamma, amp, offset):\n    return amp * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center):\n    m = (x > center - 150) & (x < center + 150)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    x00 = float(xs[np.argmax(ys)])\n    amp0 = float(np.max(ys) - off0)\n    p0 = [x00, 15.0, amp0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=200000)\n    x0, gamma, amp, offset = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)), 'amplitude': float(amp), 'offset': float(offset)}\n\nD = fit_peak(1350)\nG = fit_peak(1580)\nD2 = fit_peak(2690)\n\nresults = {'D': D, 'G': G, '2D': D2, 'ID_IG': D['amplitude'] / G['amplitude']}\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__pSBWp35/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 -c \'import scipy, numpy; print("ok")\'\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c \'import numpy, scipy; print("ok")\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__eYaAo3n/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, window):\n    m = (x >= center - window) & (x <= center + window)\n    xs, ys = x[m], y[m]\n    off0 = ys.min()\n    i = ys.argmax()\n    amp0 = ys[i] - off0\n    x00 = xs[i]\n    half = off0 + amp0 / 2.0\n    above = xs[ys >= half]\n    fwhm0 = max(above.max() - above.min(), 5.0) if above.size >= 2 else 20.0\n    p0 = [amp0, x00, fwhm0 / 2.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=200000)\n    amp, x0, gamma, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)),\n            'amplitude': float(amp), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350.0, 150.0),\n    'G': fit_peak(1580.0, 150.0),\n    '2D': fit_peak(2690.0, 200.0),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Sending keys: ['pip install scipy 2>&1 | tail -2\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__KkB6gvb/agent/trajectory.json
+Collecting main service artifacts
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__pSBWp35/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['pip install scipy 2>&1 | tail -2\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.3 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__pSBWp35/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__pSBWp35/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__pSBWp35/agent/trajectory.json
+Collecting main service artifacts
+Sending keys: ['python3 -c \'import scipy, numpy; print("ok", scipy.__version__)\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'\n"] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, window=100):\n    m = (x > center - window) & (x < center + window)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    amp0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=200000)\n    amp, x0, gamma, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)), 'amplitude': float(amp), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690, window=150),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 20.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(xlo, xhi):\n    m = (x >= xlo) & (x <= xhi)\n    xw, yw = x[m], y[m]\n    off0 = float(np.min(yw))\n    amp0 = float(np.max(yw) - off0)\n    x00 = float(xw[np.argmax(yw)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xw, yw, p0=p0, maxfev=20000)\n    amp, x0, gamma, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)),\n            'amplitude': float(amp), 'offset': float(off)}\n\nresults = {\n    'D': fit_peak(1250, 1450),\n    'G': fit_peak(1500, 1650),\n    '2D': fit_peak(2550, 2850),\n}\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ["python3 -c 'import numpy, scipy; print(numpy.__version__, scipy.__version__)'\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.3 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__mkMcPhK/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["python3 -c 'import scipy, numpy; print(scipy.__version__, numpy.__version__)'\n"] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__3bMpJhz/agent/trajectory.json
+Collecting main service artifacts
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwidth):\n    m = (x > center - halfwidth) & (x < center + halfwidth)\n    xs, ys = x[m], y[m]\n    off0 = float(ys.min())\n    amp0 = float(ys.max() - ys.min())\n    x00 = float(xs[np.argmax(ys)])\n    g0 = 15.0\n    p0 = [amp0, x00, g0, off0]\n    bounds = ([0, center - halfwidth, 0.1, -np.inf],\n              [np.inf, center + halfwidth, halfwidth, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=20000)\n    a, x0, g, off = popt\n    return {'x0': float(x0), 'gamma': float(g), 'amplitude': float(a), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350, 120),\n    'G': fit_peak(1580, 120),\n    '2D': fit_peak(2690, 150),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__kWn7hPj/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv; python3 -c \'import scipy, numpy; print("ok")\'\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, half_window=120):\n    m = (x > center - half_window) & (x < center + half_window)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    i = int(np.argmax(ys))\n    x00 = float(xs[i])\n    a0 = float(ys[i] - off0)\n    # FWHM estimate\n    half = off0 + a0 / 2.0\n    above = xs[ys > half]\n    g0 = max((above.max() - above.min()) / 2.0, 1.0) if len(above) > 1 else 10.0\n    p0 = [a0, x00, g0, off0]\n    bounds = ([0, center - half_window, 0.1, -np.inf],\n              [np.inf, center + half_window, half_window * 2, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=100000)\n    amp, x0, gamma, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)),\n            'amplitude': float(amp), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.3 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["python3 -c 'import numpy; print(numpy.__version__)'; pip install scipy 2>&1 | tail -3\n"] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__STNV5dq/agent/trajectory.json
+Collecting main service artifacts
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s01__XCpR2VR/agent/trajectory.json
+Collecting main service artifacts
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__kWn7hPj/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwin=120):\n    m = (x >= center - halfwin) & (x <= center + halfwin)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    amp0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=20000)\n    amp, x0, gam, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gam)), 'amplitude': float(amp), 'offset': float(off)}\n\nres = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690, halfwin=150),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['ls -la /app && head -5 /app/spectrum.csv\n'] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 -c \'import numpy, scipy; print("ok")\'\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c \'import scipy, numpy; print("ok")\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, x0, gamma, amplitude, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwin):\n    m = (x >= center - halfwin) & (x <= center + halfwin)\n    xs, ys = x[m], y[m]\n    off0 = ys.min()\n    x00 = xs[np.argmax(ys)]\n    amp0 = ys.max() - off0\n    gamma0 = 10.0\n    p0 = [x00, gamma0, amp0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)\n    x0, gamma, amp, off = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)), 'amplitude': float(amp), 'offset': float(off)}\n\nresults = {\n    'D': fit_peak(1350, 100),\n    'G': fit_peak(1580, 100),\n    '2D': fit_peak(2690, 150),\n}\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndef lor(x, A, x0, g, c):\n    return A * g**2 / ((x - x0)**2 + g**2) + c\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx, y = data[:, 0], data[:, 1]\n\nresults = {}\nfor name, center in [('D', 1350.0), ('G', 1580.0), ('2D', 2690.0)]:\n    m = (x > center - 150) & (x < center + 150)\n    xs, ys = x[m], y[m]\n    c0 = np.percentile(ys, 10)\n    x00 = xs[np.argmax(ys)]\n    A0 = ys.max() - c0\n    p0 = [A0, x00, 20.0, c0]\n    popt, _ = curve_fit(lor, xs, ys, p0=p0, maxfev=200000)\n    A, x0, g, c = popt\n    g = abs(g)\n    results[name] = {'x0': float(x0), 'gamma': float(g), 'amplitude': float(A), 'offset': float(c)}\n    print(name, p0, '->', results[name])\n\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s02__9QYAixw/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__kWn7hPj/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json && python3 -c "import json; d=json.load(open(\'/app/results.json\')); print(sorted(d.keys()))"\n'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__kWn7hPj/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__kWn7hPj/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s03__kWn7hPj/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s04__sGwmZYy/agent/trajectory.json
+Collecting main service artifacts
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c \'import numpy, scipy; print("ok")\'\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 3.0 max_timeout_sec: 180.0
+Uploading environment/ to /app
+Installing: tmux, asciinema
+Detected system: {'os': 'debian-based', 'package_manager': 'apt-get', 'update_command': None}
+Installing tools using apt-get: DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tmux asciinema
+Sending keys: ['pip install numpy scipy 2>&1 | tail -3\n'] min_timeout_sec: 60.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Starting recording.
+Sending keys: ['asciinema rec --stdin /logs/agent/recording.cast', 'Enter'] min_timeout_sec: 1.0 max_timeout_sec: 180.0
+Sending keys: ['clear', 'Enter'] min_timeout_sec: 0.0 max_timeout_sec: 180.0
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef model(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, halfwin):\n    m = (x >= center - halfwin) & (x <= center + halfwin)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    amp0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(model, xs, ys, p0=p0, maxfev=100000)\n    amplitude, x0, gamma, offset = popt\n    return {'x0': float(x0), 'gamma': float(abs(gamma)),\n            'amplitude': float(amplitude), 'offset': float(offset)}\n\nD = fit_peak(1350, 120)\nG = fit_peak(1580, 120)\nD2 = fit_peak(2690, 200)\n\nresults = {'D': D, 'G': G, '2D': D2, 'ID_IG': D['amplitude'] / G['amplitude']}\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.3 max_timeout_sec: 180.0
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Sending keys: ['head -5 /app/spectrum.csv; wc -l /app/spectrum.csv\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Sending keys: ['python3 -c "import scipy, numpy; print(\'ok\')"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 10.0 max_timeout_sec: 180.0
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, half_window=120.0):\n    m = (x > center - half_window) & (x < center + half_window)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    i = int(np.argmax(ys))\n    x00 = float(xs[i])\n    amp0 = float(ys[i] - off0)\n    gamma0 = 15.0\n    p0 = [amp0, x00, gamma0, off0]\n    bounds = ([0, center - half_window, 0.1, -np.inf],\n              [np.inf, center + half_window, half_window, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=20000)\n    amp, x0, gamma, off = popt\n    return {'x0': float(x0), 'gamma': float(gamma),\n            'amplitude': float(amp), 'offset': float(off)}\n\nresults = {\n    'D': fit_peak(1350.0),\n    'G': fit_peak(1580.0),\n    '2D': fit_peak(2690.0, half_window=150.0),\n}\nresults['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(results, f, indent=2)\n\nprint(json.dumps(results, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import numpy; print(numpy.__version__)"\n'] min_timeout_sec: 2.0 max_timeout_sec: 180.0
+Sending keys: ['pip install scipy 2>&1 | tail -3\n'] min_timeout_sec: 60.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s06__dmc9Kay/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s05__HBNEGxL/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import numpy, scipy; print(\'ok\')"\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, half_window=150):\n    m = (x > center - half_window) & (x < center + half_window)\n    xs, ys = x[m], y[m]\n    off0 = float(ys.min())\n    amp0 = float(ys.max() - ys.min())\n    x00 = float(xs[np.argmax(ys)])\n    p0 = [amp0, x00, 15.0, off0]\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, maxfev=100000)\n    amplitude, x0, gamma, offset = popt\n    return {\n        'x0': float(x0),\n        'gamma': float(abs(gamma)),\n        'amplitude': float(amplitude),\n        'offset': float(offset),\n    }\n\nres = {\n    'D': fit_peak(1350),\n    'G': fit_peak(1580),\n    '2D': fit_peak(2690),\n}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.5 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 30.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['python3 -c "import scipy, numpy; print(\'ok\', scipy.__version__, numpy.__version__)"\n'] min_timeout_sec: 5.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ["cat > /app/fit.py << 'EOF'\nimport json\nimport numpy as np\nfrom scipy.optimize import curve_fit\n\ndata = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)\nx = data[:, 0]\ny = data[:, 1]\n\ndef lorentz(x, amplitude, x0, gamma, offset):\n    return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset\n\ndef fit_peak(center, window=100.0):\n    m = (x >= center - window) & (x <= center + window)\n    xs, ys = x[m], y[m]\n    off0 = float(np.min(ys))\n    amp0 = float(np.max(ys) - off0)\n    x00 = float(xs[np.argmax(ys)])\n    # estimate FWHM\n    half = off0 + amp0 / 2.0\n    above = xs[ys >= half]\n    fwhm = float(above.max() - above.min()) if len(above) > 1 else 20.0\n    g0 = max(fwhm / 2.0, 1.0)\n    p0 = [amp0, x00, g0, off0]\n    bounds = ([0.0, xs.min(), 0.1, -np.inf], [np.inf, xs.max(), window, np.inf])\n    popt, _ = curve_fit(lorentz, xs, ys, p0=p0, bounds=bounds, maxfev=20000)\n    return {'x0': float(popt[1]), 'gamma': float(popt[2]),\n            'amplitude': float(popt[0]), 'offset': float(popt[3])}\n\nres = {'D': fit_peak(1350.0), 'G': fit_peak(1580.0), '2D': fit_peak(2690.0)}\nres['ID_IG'] = res['D']['amplitude'] / res['G']['amplitude']\n\nwith open('/app/results.json', 'w') as f:\n    json.dump(res, f, indent=2)\nprint(json.dumps(res, indent=2))\nEOF\n"] min_timeout_sec: 0.2 max_timeout_sec: 180.0
+Sending keys: ['python3 /app/fit.py\n'] min_timeout_sec: 15.0 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s07__qVst5mS/agent/trajectory.json
+Collecting main service artifacts
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Sending keys: ['cat /app/results.json\n'] min_timeout_sec: 0.1 max_timeout_sec: 180.0
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Failed to retrieve model info for 'openai/moonshotai/Kimi-K3:deepinfra': This model isn't mapped yet. model=openai/moonshotai/Kimi-K3:deepinfra, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.. Using fallback context limit: 1000000
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-adapted/graphene-s08__YyjZWpr/agent/trajectory.json
+Collecting main service artifacts

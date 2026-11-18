@@ -1,0 +1,25 @@
+Creating HF Sandbox: image=python:3.13-slim-bookworm, flavor=cpu-basic, idle_timeout=600s
+Uploading environment/ to /app
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Parser warnings: - Command 1 should end with newline when followed by another command. Otherwise the two commands will be concatenated together on the same line.
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/deepseek-v4.1-flash-adapted/graphene-s01__YE2xcJi/agent/trajectory.json
+Collecting main service artifacts

@@ -1,0 +1,212 @@
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:32 ..
+-rw-r--r--. 1 root root 71052 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# head -5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,814.711
+1100.5001,823.937
+1101.0003,835.751
+1101.5004,907.570
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# python3 - <<'PY'
+[?2004l[?2004h> import sys
+[?2004l[?2004h> try:
+[?2004l[?2004h>     import numpy, scipy
+[?2004l[?2004h>     print('numpy', numpy.__version__)
+[?2004l[?2004h>     print('scipy', scipy.__version__)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('IMPORT_ERROR', repr(e))
+[?2004l[?2004h> PY
+[?2004lIMPORT_ERROR ModuleNotFoundError("No module named 'numpy'")
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> x=[]; y=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         x.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         y.append(float(row['intensity']))
+[?2004l[?2004h> print('n', len(x))
+[?2004l[?2004h> print('x range', min(x), max(x))
+[?2004l[?2004h> print('y range', min(y), max(y))
+[?2004l[?2004h> for name, lo, hi in [('D',1200,1450),('G',1500,1700),('2D',2550,2850)]:
+[?2004l[?2004h>     idx=[i for i,xi in enumerate(x) if lo <= xi <= hi]
+[?2004l[?2004h>     j=max(idx, key=lambda i:y[i])
+[?2004l[?2004h>     print(name, 'window', lo, hi, 'n', len(idx), 'max', x[j], y[j])
+[?2004l[?2004h> PY
+[?2004ln 3800
+x range 1100.0 3000.0
+y range 692.427 19517.521
+D window 1200 1450 n 500 max 1347.065 5795.575
+G window 1500 1700 n 400 max 1579.1261 9870.7
+2D window 2550 2850 n 600 max 2694.4196 19517.521
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l   if lo <= xi <= hi:
+            xs.append(xi); ys.append(yi)
+    # coarse grid around observed peak maximum
+    coarse_best=None
+    for x0 in [peak_guess-30.0 + 2.0*i for i in range(31)]:
+        for gamma in [5.0 + 2.0*j for j in range(41)]:
+            r=linear_fit_for_x0_gamma(xs, ys, x0, gamma)
+            if r is not None and (coarse_best is None or r[0] < coarse_best[0]):
+                coarse_best=(r[0], x0, gamma, r[1], r[2])
+    # pattern-search refinement
+    sse, x0, gamma, A, c = coarse_best
+    step=1.0
+    while step >= 0.01:
+        improved=False
+        candidates=[(x0+step,gamma),(x0-step,gamma),(x0,gamma+step),(x0,gamma-step),
+                    (x0+step,gamma+step),(x0+step,gamma-step),(x0-step,gamma+step),(x0-step,gamma-step)]
+        for nx, ng in candidates:
+            if ng <= 0.0:
+                continue
+            r=linear_fit_for_x0_gamma(xs, ys, nx, ng)
+            if r is not None and r[0] < sse - 1e-12:
+                sse, A, c = r
+                x0, gamma = nx, ng
+                improved=True
+        if not improved:
+            step *= 0.5
+    return {'x0':x0, 'gamma':gamma, 'amplitude':A, 'offset':c, '_sse':sse, '_n':len(xs)}
+
+results={}
+for name in ['D','G','2D']:
+    results[name]=fit_peak(name)
+    print(name, results[name])
+print('ID_IG', results['D']['amplitude']/results['G']['amplitude'])
+PY
+[?2004h> 
+[?2004l[?2004h> # Read data
+[?2004l[?2004h> x=[]; y=[]
+[?2004l[?2004h> with open('/app/spectrum.csv', newline='') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         x.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         y.append(float(row['intensity']))
+[?2004l[?2004h> 
+[?2004l[?2004h> windows={
+[?2004l[?2004h>     'D': (1230.0, 1460.0, 1347.0),
+[?2004l[?2004h>     'G': (1490.0, 1670.0, 1579.0),
+[?2004l[?2004h>     '2D': (2550.0, 2840.0, 2694.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> def linear_fit_for_x0_gamma(xs, ys, x0, gamma):
+[?2004l[?2004h>     g2 = gamma*gamma
+[?2004l[?2004h>     g=[]; sgy=0.0; sg=0.0; sy=0.0; sg2=0.0; n=len(xs)
+[?2004l[?2004h>     for xi, yi in zip(xs, ys):
+[?2004l[?2004h>         gi = g2 / ((xi-x0)*(xi-x0) + g2)
+[?2004l[?2004h>         g.append(gi)
+[?2004l[?2004h>         sg += gi
+[?2004l[?2004h>         sgy += gi*yi
+[?2004l[?2004h>         sy += yi
+[?2004l[?2004h>         sg2 += gi*gi
+[?2004l[?2004h>     den = n*sg2 - sg*sg
+[?2004l[?2004h>     if abs(den) < 1e-15:
+[?2004l[?2004h>         return None
+[?2004l[?2004h>     A = (n*sgy - sg*sy) / den
+[?2004l[?2004h>     c = (sy - A*sg) / n
+[?2004l[?2004h>     sse = 0.0
+[?2004l[?2004h>     for xi, yi, gi in zip(xs, ys, g):
+[?2004l[?2004h>         pred = A*gi + c
+[?2004l[?2004h>         d = yi - pred
+[?2004l[?2004h>         sse += d*d
+[?2004l[?2004h>     return sse, A, c
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(name):
+[?2004l[?2004h>     lo, hi, peak_guess = windows[name]
+[?2004l[?2004h>     xs=[]; ys=[]
+[?2004l[?2004h>     for xi, yi in zip(x, y):
+[?2004l[?2004h>         if lo <= xi <= hi:
+[?2004l[?2004h>             xs.append(xi); ys.append(yi)
+[?2004l[?2004h>     # coarse grid around observed peak maximum
+[?2004l[?2004h>     coarse_best=None
+[?2004l[?2004h>     for x0 in [peak_guess-30.0 + 2.0*i for i in range(31)]:
+[?2004l[?2004h>         for gamma in [5.0 + 2.0*j for j in range(41)]:
+[?2004l[?2004h>             r=linear_fit_for_x0_gamma(xs, ys, x0, gamma)
+[?2004l[?2004h>             if r is not None and (coarse_best is None or r[0] < coarse_best[0]):
+[?2004l[?2004h>                 coarse_best=(r[0], x0, gamma, r[1], r[2])
+[?2004l[?2004h>     # pattern-search refinement
+[?2004l[?2004h>     sse, x0, gamma, A, c = coarse_best
+[?2004l[?2004h>     step=1.0
+[?2004l[?2004h>     while step >= 0.01:
+[?2004l[?2004h>         improved=False
+[?2004l[?2004h>         candidates=[(x0+step,gamma),(x0-step,gamma),(x0,gamma+step),(x0,gamma-step),
+[?2004l[?2004h>                     (x0+step,gamma+step),(x0+step,gamma-step),(x0-step,gamma+step),(x0-step,gamma-step)]
+[?2004l[?2004h>         for nx, ng in candidates:
+[?2004l[?2004h>             if ng <= 0.0:
+[?2004l[?2004h>                 continue
+[?2004l[?2004h>             r=linear_fit_for_x0_gamma(xs, ys, nx, ng)
+[?2004l[?2004h>             if r is not None and r[0] < sse - 1e-12:
+[?2004l[?2004h>                 sse, A, c = r
+[?2004l[?2004h>                 x0, gamma = nx, ng
+[?2004l[?2004h>                 improved=True
+[?2004l[?2004h>         if not improved:
+[?2004l[?2004h>             step *= 0.5
+[?2004l[?2004h>     return {'x0':x0, 'gamma':gamma, 'amplitude':A, 'offset':c, '_sse':sse, '_n':len(xs)}
+[?2004l[?2004h> 
+[?2004l[?2004h> results={}
+[?2004l[?2004h> for name in ['D','G','2D']:
+[?2004l[?2004h>     results[name]=fit_peak(name)
+[?2004l[?2004h>     print(name, results[name])
+[?2004l[?2004h> print('ID_IG', results['D']['amplitude']/results['G']['amplitude'])
+[?2004l[?2004h> PY
+[?2004lD {'x0': 1346.71875, 'gamma': 15.140625, 'amplitude': 4858.834125447667, 'offset': 864.1749864789433, '_sse': 1348895.6233647019, '_n': 460}
+G {'x0': 1579.5625, 'gamma': 9.96875, 'amplitude': 8862.84821807566, 'offset': 899.0948357141203, '_sse': 736212.2479064148, '_n': 360}
+2D {'x0': 2693.421875, 'gamma': 29.03125, 'amplitude': 18462.606188281756, 'offset': 1004.4863379290247, '_sse': 1432767.7936390887, '_n': 580}
+ID_IG 0.5482249053456811
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# python3 - <<'PY'
+[?2004l[?2004h> import json
+[?2004l[?2004h> results = {
+[?2004l[?2004h>     "D": {
+[?2004l[?2004h>         "x0": 1346.71875,
+[?2004l[?2004h>         "gamma": 15.140625,
+[?2004l[?2004h>         "amplitude": 4858.834125447667,
+[?2004l[?2004h>         "offset": 864.1749864789433
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "G": {
+[?2004l[?2004h>         "x0": 1579.5625,
+[?2004l[?2004h>         "gamma": 9.96875,
+[?2004l[?2004h>         "amplitude": 8862.84821807566,
+[?2004l[?2004h>         "offset": 899.0948357141203
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "2D": {
+[?2004l[?2004h>         "x0": 2693.421875,
+[?2004l[?2004h>         "gamma": 29.03125,
+[?2004l[?2004h>         "amplitude": 18462.606188281756,
+[?2004l[?2004h>         "offset": 1004.4863379290247
+[?2004l[?2004h>     },
+[?2004l[?2004h>     "ID_IG": 0.5482249053456811
+[?2004l[?2004h> }
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h>     f.write('\n')
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.71875,
+    "gamma": 15.140625,
+    "amplitude": 4858.834125447667,
+    "offset": 864.1749864789433
+  },
+  "G": {
+    "x0": 1579.5625,
+    "gamma": 9.96875,
+    "amplitude": 8862.84821807566,
+    "offset": 899.0948357141203
+  },
+  "2D": {
+    "x0": 2693.421875,
+    "gamma": 29.03125,
+    "amplitude": 18462.606188281756,
+    "offset": 1004.4863379290247
+  },
+  "ID_IG": 0.5482249053456811
+}
+[?2004hroot@j-openenv-6afd8cd529e8b7ccfbbb835c-51047lya-3777b-s5trx:/app# 

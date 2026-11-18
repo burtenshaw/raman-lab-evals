@@ -1,0 +1,309 @@
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# head -5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1338.925
+1100.5001,1328.540
+1101.0003,1244.349
+1101.5004,1282.687
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 -c "import sys; print(sys.version)"
+[?2004l3.13.18 (main, Nov  5 2026, 07:59:44) [GCC 12.2.0]
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 -c "import numpy; print('numpy', numpy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy[0m; print('numpy', numpy.__version__)
+    [1;31m^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 -c "import scipy; print('scipy', scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport scipy[0m; print('scipy', scipy.__version__)
+    [1;31m^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'scipy'[0m
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[];ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         if len(row)>=2:
+[?2004l[?2004h>             xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> print('n=',len(xs))
+[?2004l[?2004h> print('x range', min(xs), max(xs))
+[?2004l[?2004h> print('y range', min(ys), max(ys))
+[?2004l[?2004h> def peak(lo,hi):
+[?2004l[?2004h>     best=(-1e18,-1)
+[?2004l[?2004h>     for x,y in zip(xs,ys):
+[?2004l[?2004h>         if lo<=x<=hi:
+[?2004l[?2004h>             if y>best[0]: best=(y,x)
+[?2004l[?2004h>     return best
+[?2004l[?2004h> print('D region ',peak(1300,1400))
+[?2004l[?2004h> print('G region ',peak(1530,1630))
+[?2004l[?2004h> print('2D region',peak(2640,2740))
+[?2004l[?2004h> PY
+[?2004ln= 3800
+x range 1100.0 3000.0
+y range 1127.614 15305.993
+D region  (1704.645, 1346.0648)
+G region  (8221.131, 1580.6265)
+2D region (15305.993, 2693.9195)
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# pip3 install numpy scipy 2>&1 | tail -20
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.7/15.7 MB 293.8 MB/s  0:00:00
+Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 143.2 MB/s  0:00:00
+Installing collected packages: numpy, scipy
+
+Successfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# cat > /app/fit.py <<'PY'
+[?2004l[?2004h> import csv, json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> xs=[];ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         if len(row)>=2:
+[?2004l[?2004h>             xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> xs=np.array(xs); ys=np.array(ys)
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(lo,hi,x0_init,amp_init,gamma_init,offset_init):
+[?2004l[?2004h>     m=(xs>=lo)&(xs<=hi)
+[?2004l[?2004h>     x=xs[m]; y=ys[m]
+[?2004l[?2004h>     p0=[amp_init,x0_init,gamma_init,offset_init]
+[?2004l[?2004h>     popt,pcov=curve_fit(lorentz,x,y,p0=p0,maxfev=20000)
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> results={}
+[?2004l[?2004h> # D
+[?2004l[?2004h> pD=fit_peak(1280,1420,1346.0,600,25,1300)
+[?2004l[?2004h> results['D']={'x0':float(pD[1]),'gamma':float(pD[2]),'amplitude':float(pD[0]),'offset':float(pD[3])}
+[?2004l[?2004h> # G
+[?2004l[?2004h> pG=fit_peak(1500,1660,1580.6,7000,25,1300)
+[?2004l[?2004h> results['G']={'x0':float(pG[1]),'gamma':float(pG[2]),'amplitude':float(pG[0]),'offset':float(pG[3])}
+[?2004l[?2004h> # 2D
+[?2004l[?2004h> p2D=fit_peak(2590,2800,2693.9,14000,25,1300)
+[?2004l[?2004h> results['2D']={'x0':float(p2D[1]),'gamma':float(p2D[2]),'amplitude':float(p2D[0]),'offset':float(p2D[3])}
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG']=float(pD[0]/pG[0])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(results,f,indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results,indent=2))
+[?2004l[?2004h> print('ID_IG =',results['ID_IG'])
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# cd /app && python3 fit.py
+[?2004l{
+  "D": {
+    "x0": 1352.4306736577644,
+    "gamma": 20.428493315460845,
+    "amplitude": 354.1306807866542,
+    "offset": 1273.0857977079077
+  },
+  "G": {
+    "x0": 1581.0822553923363,
+    "gamma": 8.021905900911483,
+    "amplitude": 6928.646198672689,
+    "offset": 1262.7231706798905
+  },
+  "2D": {
+    "x0": 2694.886510814738,
+    "gamma": 26.980521876752878,
+    "amplitude": 14103.195057199151,
+    "offset": 1182.1143827069534
+  },
+  "ID_IG": 0.05111109308114109
+}
+ID_IG = 0.05111109308114109
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude*gamma**2/((x-x0)**2+gamma**2)+offset
+[?2004l[?2004h> 
+[?2004l[?2004h> res=json.load(open('/app/results.json'))
+[?2004l[?2004h> print('Keys:',list(res.keys()))
+[?2004l[?2004h> for name in ['D','G','2D']:
+[?2004l[?2004h>     d=res[name]
+[?2004l[?2004h>     keys=set(d.keys())
+[?2004l[?2004h>     assert keys=={'x0','gamma','amplitude','offset'}, (name,keys)
+[?2004l[?2004h>     print(name, d)
+[?2004l[?2004h> assert 'ID_IG' in res
+[?2004l[?2004h> print('ID_IG', res['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> xs=[];ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> xs=np.array(xs);ys=np.array(ys)
+[?2004l[?2004h> 
+[?2004l[?2004h> for name,(lo,hi) in {'D':(1280,1420),'G':(1500,1660),'2D':(2590,2800)}.items():
+[?2004l[?2004h>     m=(xs>=lo)&(xs<=hi)
+[?2004l[?2004h>     x=xs[m];y=ys[m]
+[?2004l[?2004h>     d=res[name]
+[?2004l[?2004h>     yhat=lorentz(x,d['amplitude'],d['x0'],d['gamma'],d['offset'])
+[?2004l[?2004h>     ss_res=np.sum((y-yhat)**2); ss_tot=np.sum((y-np.mean(y))**2)
+[?2004l[?2004h>     print(name,'R2=',1-ss_res/ss_tot,'rmse=',np.sqrt(np.mean((y-yhat)**2)))
+[?2004l[?2004h> print('JSON valid and complete.')
+[?2004l[?2004h> PY
+[?2004lKeys: ['D', 'G', '2D', 'ID_IG']
+D {'x0': 1352.4306736577644, 'gamma': 20.428493315460845, 'amplitude': 354.1306807866542, 'offset': 1273.0857977079077}
+G {'x0': 1581.0822553923363, 'gamma': 8.021905900911483, 'amplitude': 6928.646198672689, 'offset': 1262.7231706798905}
+2D {'x0': 2694.886510814738, 'gamma': 26.980521876752878, 'amplitude': 14103.195057199151, 'offset': 1182.1143827069534}
+ID_IG 0.05111109308114109
+D R2= 0.8591624148803423 rmse= 42.05671599786435
+G R2= 0.9994553570111039 rmse= 38.60158633722329
+2D R2= 0.999907805378247 rmse= 39.60862613224098
+JSON valid and complete.
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[];ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> for x,y in zip(xs,ys):
+[?2004l[?2004h>     if 1340<=x<=1365:
+[?2004l[?2004h>         print(f'{x:9.4f} {y:10.2f}')
+[?2004l[?2004h> PY
+[?2004l1340.0632    1492.18
+1340.5633    1504.32
+1341.0634    1606.27
+1341.5636    1492.86
+1342.0637    1625.11
+1342.5638    1509.61
+1343.0640    1565.16
+1343.5641    1590.66
+1344.0642    1600.72
+1344.5644    1511.58
+1345.0645    1559.96
+1345.5646    1641.19
+1346.0648    1704.64
+1346.5649    1576.10
+1347.0650    1653.57
+1347.5651    1566.63
+1348.0653    1595.14
+1348.5654    1597.85
+1349.0655    1638.66
+1349.5657    1647.53
+1350.0658    1601.33
+1350.5659    1623.25
+1351.0661    1649.94
+1351.5662    1633.22
+1352.0663    1555.19
+1352.5665    1569.77
+1353.0666    1592.85
+1353.5667    1643.77
+1354.0669    1617.58
+1354.5670    1637.04
+1355.0671    1638.98
+1355.5673    1688.68
+1356.0674    1632.40
+1356.5675    1581.03
+1357.0676    1561.11
+1357.5678    1610.88
+1358.0679    1559.74
+1358.5680    1601.22
+1359.0682    1636.56
+1359.5683    1584.47
+1360.0684    1639.28
+1360.5686    1542.57
+1361.0687    1584.41
+1361.5688    1580.08
+1362.0690    1494.13
+1362.5691    1530.69
+1363.0692    1588.24
+1363.5694    1530.41
+1364.0695    1532.90
+1364.5696    1562.98
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude*gamma**2/((x-x0)**2+gamma**2)+offset
+[?2004l[?2004h> 
+[?2004l[?2004h> xs=[];ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.reader(f); next(r)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row[0])); ys.append(float(row[1]))
+[?2004l[?2004h> xs=np.array(xs);ys=np.array(ys)
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(lo,hi,amp0,x00,g0,o0):
+[?2004l[?2004h>     m=(xs>=lo)&(xs<=hi)
+[?2004l[?2004h>     x=xs[m];y=ys[m]
+[?2004l[?2004h>     popt,_=curve_fit(lorentz,x,y,p0=[amp0,x00,g0,o0],maxfev=20000)
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> print('D peak robustness (center ~1346):')
+[?2004l[?2004h> for half in [40,60,80,100,120]:
+[?2004l[?2004h>     p=fit(1346-half,1346+half,600,1346,25,1300)
+[?2004l[?2004h>     print(f'  +/-{half}: amp={p[0]:8.1f} x0={p[1]:9.3f} gamma={p[2]:7.3f} off={p[3]:8.1f}')
+[?2004l[?2004h> print('G peak robustness (center ~1580.6):')
+[?2004l[?2004h> for half in [40,60,80,100]:
+[?2004l[?2004h>     p=fit(1580.6-half,1580.6+half,7000,1580.6,25,1300)
+[?2004l[?2004h>     print(f'  +/-{half}: amp={p[0]:8.1f} x0={p[1]:9.3f} gamma={p[2]:7.3f} off={p[3]:8.1f}')
+[?2004l[?2004h> print('2D peak robustness (center ~2693.9):')
+[?2004l[?2004h> for half in [60,80,100,120]:
+[?2004l[?2004h>     p=fit(2693.9-half,2693.9+half,14000,2693.9,25,1300)
+[?2004l[?2004h>     print(f'  +/-{half}: amp={p[0]:8.1f} x0={p[1]:9.3f} gamma={p[2]:7.3f} off={p[3]:8.1f}')
+[?2004l[?2004h> PY
+[?2004lD peak robustness (center ~1346):
+  +/-40: amp=   360.7 x0= 1352.364 gamma= 21.008 off=  1265.4
+  +/-60: amp=   364.4 x0= 1352.392 gamma= 21.653 off=  1259.9
+  +/-80: amp=   350.4 x0= 1352.453 gamma= 19.936 off=  1278.1
+  +/-100: amp=   347.6 x0= 1352.459 gamma= 19.488 off=  1282.1
+  +/-120: amp=   346.0 x0= 1352.477 gamma= 19.189 off=  1284.7
+G peak robustness (center ~1580.6):
+  +/-40: amp=  6929.2 x0= 1581.083 gamma=  8.026 off=  1261.4
+  +/-60: amp=  6928.4 x0= 1581.082 gamma=  8.020 off=  1263.3
+  +/-80: amp=  6928.7 x0= 1581.082 gamma=  8.022 off=  1262.6
+  +/-100: amp=  6928.6 x0= 1581.082 gamma=  8.022 off=  1262.7
+2D peak robustness (center ~2693.9):
+  +/-60: amp= 14094.2 x0= 2694.892 gamma= 26.953 off=  1192.7
+  +/-80: amp= 14102.0 x0= 2694.887 gamma= 26.976 off=  1183.6
+  +/-100: amp= 14103.8 x0= 2694.887 gamma= 26.984 off=  1181.2
+  +/-120: amp= 14100.0 x0= 2694.886 gamma= 26.963 off=  1186.9
+[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1352.4306736577644,
+    "gamma": 20.428493315460845,
+    "amplitude": 354.1306807866542,
+    "offset": 1273.0857977079077
+  },
+  "G": {
+    "x0": 1581.0822553923363,
+    "gamma": 8.021905900911483,
+    "amplitude": 6928.646198672689,
+    "offset": 1262.7231706798905
+  },
+  "2D": {
+    "x0": 2694.886510814738,
+    "gamma": 26.980521876752878,
+    "amplitude": 14103.195057199151,
+    "offset": 1182.1143827069534
+  },
+  "ID_IG": 0.05111109308114109
+}[?2004hroot@j-openenv-6afd8e2ce5cad0e4dc3e6e46-kjjthkfw-71013-stfk4:/app# 

@@ -1,0 +1,129 @@
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# head -5 spectrum.csv && wc -l spectrum.csv && tail -3 spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,902.977
+1100.5001,976.662
+1101.0003,906.945
+1101.5004,1014.009
+3801 spectrum.csv
+2998.9997,819.908
+2999.4999,821.811
+3000.0000,791.488
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# cat > explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> data = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:,0]
+[?2004l[?2004h> y = data[:,1]
+[?2004l[?2004h> print("x range:", x.min(), x.max(), "n:", len(x))
+[?2004l[?2004h> print("baseline (median):", np.median(y))
+[?2004l[?2004h> for name, cx in [('D',1350),('G',1580),('2D',2690)]:
+[?2004l[?2004h>     m = (x>cx-150)&(x<cx+150)
+[?2004l[?2004h>     xi, yi = x[m], y[m]
+[?2004l[?2004h>     imax = np.argmax(yi)
+[?2004l[?2004h>     print(f"{name}: peak at x={xi[imax]:.1f}, y={yi[imax]:.1f}, base~{np.percentile(yi,5):.1f}")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# python3 explore.py
+[?2004lx range: 1100.0 3000.0 n: 3800
+baseline (median): 953.1435
+D: peak at x=1351.1, y=2325.6, base~939.7
+G: peak at x=1581.1, y=7573.6, base~925.4
+2D: peak at x=2684.4, y=13904.6, base~970.0
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# cat > fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.loadtxt('spectrum.csv', delimiter=',', skiprows=1)
+[?2004l[?2004h> x = data[:,0]
+[?2004l[?2004h> y = data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amp, x0, gamma, off):
+[?2004l[?2004h>     return amp * gamma**2 / ((x - x0)**2 + gamma**2) + off
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {'D':1351.1, 'G':1581.1, '2D':2684.4}
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, cx in peaks.items():
+[?2004l[?2004h>     m = (x>cx-100)&(x<cx+100)
+[?2004l[?2004h>     xi, yi = x[m], y[m]
+[?2004l[?2004h>     off0 = np.percentile(yi,5)
+[?2004l[?2004h>     amp0 = yi.max()-off0
+[?2004l[?2004h>     x00 = xi[np.argmax(yi)]
+[?2004l[?2004h>     # estimate HWHM
+[?2004l[?2004h>     half = off0 + amp0/2
+[?2004l[?2004h>     above = xi[yi>half]
+[?2004l[?2004h>     gam0 = (above.max()-above.min())/2 if len(above)>1 else 20.0
+[?2004l[?2004h>     p0 = [amp0, x00, gam0, off0]
+[?2004l[?2004h>     popt, _ = curve_fit(lor, xi, yi, p0=p0, maxfev=20000)
+[?2004l[?2004h>     amp, x0, gamma, off = popt
+[?2004l[?2004h>     gamma = abs(gamma)
+[?2004l[?2004h>     results[name] = {'x0': float(x0), 'gamma': float(gamma),
+[?2004l[?2004h>                      'amplitude': float(amp), 'offset': float(off)}
+[?2004l[?2004h>     print(f"{name}: x0={x0:.3f} gamma={gamma:.3f} amp={amp:.2f} off={off:.2f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = float(results['D']['amplitude']/results['G']['amplitude'])
+[?2004l[?2004h> print("ID/IG =", results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('results.json','w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print("written results.json")
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# python3 fit.py
+[?2004lD: x0=1349.234 gamma=13.526 amp=1313.38 off=971.98
+G: x0=1581.130 gamma=8.442 amp=6596.93 off=940.58
+2D: x0=2684.731 gamma=16.999 amp=13065.37 off=809.98
+ID/IG = 0.19908962340338549
+written results.json
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# python3 -c "
+[?2004l[?2004h> import numpy as np, json
+[?2004l[?2004h> data=np.loadtxt('spectrum.csv',delimiter=',',skiprows=1)
+[?2004l[?2004h> x,y=data[:,0],data[:,1]
+[?2004l[?2004h> def lor(x,a,c,g,o): return a*g*g/((x-c)**2+g*g)+o
+[?2004l[?2004h> r=json.load(open('results.json'))
+[?2004l[?2004h> for n,c in [('D',1350),('G',1580),('2D',2690)]:
+[?2004l[?2004h>     m=(x>c-100)&(x<c+100)
+[?2004l[?2004h>     p=r[n]
+[?2004l[?2004h>     pred=lor(x[m],p['amplitude'],p['x0'],p['gamma'],p['offset'])
+[?2004l[?2004h>     ssr=np.sum((y[m]-pred)**2); sst=np.sum((y[m]-y[m].mean())**2)
+[?2004l[?2004h>     print(n,'R2=%.5f'%(1-ssr/sst))
+[?2004l[?2004h> print(json.dumps(r,indent=2))
+[?2004l[?2004h> "
+[?2004lD R2=0.98705
+G R2=0.99930
+2D R2=0.99988
+{
+  "D": {
+    "x0": 1349.2336729051947,
+    "gamma": 13.52552716180972,
+    "amplitude": 1313.3805318331588,
+    "offset": 971.9786262770826
+  },
+  "G": {
+    "x0": 1581.129783610428,
+    "gamma": 8.441950219533679,
+    "amplitude": 6596.931117660776,
+    "offset": 940.5776512776299
+  },
+  "2D": {
+    "x0": 2684.7312607034783,
+    "gamma": 16.998823924691955,
+    "amplitude": 13065.372632768316,
+    "offset": 809.9834779453862
+  },
+  "ID_IG": 0.19908962340338549
+}
+[?2004hroot@j-openenv-6afd8fe5e5cad0e4dc3e6f5f-0nmv937d-91b92-gkrlw:/app# 

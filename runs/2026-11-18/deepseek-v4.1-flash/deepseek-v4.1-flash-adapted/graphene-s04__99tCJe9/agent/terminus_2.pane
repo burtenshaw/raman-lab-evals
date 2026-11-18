@@ -1,0 +1,303 @@
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# ls -la /app
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:31 ..
+-rw-r--r--. 1 root root 72290 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# head -n 10 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1365.563
+1100.5001,1398.616
+1101.0003,1325.446
+1101.5004,1350.712
+1102.0005,1288.901
+1102.5007,1318.175
+1103.0008,1335.503
+1103.5009,1347.222
+1104.0011,1321.654
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# wc -l /app/spectrum.csv
+[?2004l3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> try:
+[?2004l[?2004h>     import scipy
+[?2004l[?2004h>     print('scipy', scipy.__version__)
+[?2004l[?2004h> except Exception as e:
+[?2004l[?2004h>     print('no scipy', e)
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> print('n', len(x), 'range', x.min(), x.max())
+[?2004l[?2004h> for name, lo, hi in [('D', 1250, 1450), ('G', 1500, 1650), ('2D', 2550, 2800)]:
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xm = x[m][np.argmax(y[m])]
+[?2004l[?2004h>     ym = y[m].max()
+[?2004l[?2004h>     print(name, 'local max', xm, ym, 'points', m.sum())
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m1[0m, in [35m<module>[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 --version
+[?2004lPython 3.13.18
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 -m pip --version
+[?2004lpython3 -m pip list
+pip 26.2.2 from /usr/local/lib/python3.13/site-packages/pip (python 3.13)
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 -m pip list
+[?2004lPackage Version
+------- -------
+pip     26.2.2
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 -m pip install numpy scipy
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/15.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m15.7/15.7 MB[0m [31m229.6 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/35.3 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m35.3/35.3 MB[0m [31m243.1 MB/s[0m  [33m0:00:00[0m
+[?25hInstalling collected packages: numpy, scipy
+[?25l[2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0/2[0m [numpy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m1/2[0m [scipy][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2/2[0m [scipy]
+[?25h[1A[2KSuccessfully installed numpy-2.5.5 scipy-1.18.1
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> print('n', len(x), 'range', x.min(), x.max())
+[?2004l[?2004h> for name, lo, hi in [('D', 1250, 1450), ('G', 1500, 1650), ('2D', 2550, 2800)]:
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     imax = np.argmax(y[m])
+[?2004l[?2004h>     xm = x[m][imax]
+[?2004l[?2004h>     ym = y[m][imax]
+[?2004l[?2004h>     print(name, 'local max', xm, ym, 'points', m.sum())
+[?2004l[?2004h>     idx = np.where(m)[0][imax]
+[?2004l[?2004h>     for j in range(max(0, idx-3), min(len(x), idx+4)):
+[?2004l[?2004h>         print(f'  {x[j]:.3f} {y[j]:.3f}')
+[?2004l[?2004h> PY
+[?2004ln 3800 range 1100.0 3000.0
+D local max 1346.0648 13447.987 points 400
+  1344.564 13155.042
+  1345.064 13191.934
+  1345.565 13365.280
+  1346.065 13447.987
+  1346.565 13295.819
+  1347.065 13317.001
+  1347.565 13178.822
+G local max 1585.1277 9883.691 points 300
+  1583.627 9774.198
+  1584.127 9825.119
+  1584.628 9824.812
+  1585.128 9883.691
+  1585.628 9842.549
+  1586.128 9797.038
+  1586.628 9762.821
+2D local max 2678.4154 11944.354 points 500
+  2676.915 11699.546
+  2677.415 11814.631
+  2677.915 11739.162
+  2678.415 11944.354
+  2678.916 11826.765
+  2679.416 11814.804
+  2679.916 11727.548
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz_offset(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D':  (1250.0, 1450.0),
+[?2004l[?2004h>     'G':  (1500.0, 1650.0),
+[?2004l[?2004h>     '2D': (2550.0, 2800.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[m], y[m]
+[?2004l[?2004h>     x0_0 = xw[np.argmax(yw)]
+[?2004l[?2004h>     A0 = yw.max() - np.percentile(yw, 5)
+[?2004l[?2004h>     c0 = np.percentile(yw, 5)
+[?2004l[?2004h>     p0 = [x0_0, 20.0, A0, c0]
+[?2004l[?2004h>     bounds = ([lo, 0.1, 0.0, -np.inf], [hi, 200.0, np.inf, np.inf])
+[?2004l[?2004h>     popt, pcov = curve_fit(lorentz_offset, xw, yw, p0=p0, bounds=bounds, maxfev=20000)
+[?2004l[?2004h>     perr = np.sqrt(np.diag(pcov))
+[?2004l[?2004h>     print(name)
+[?2004l[?2004h>     for label, val, err in zip(['x0', 'gamma', 'amplitude', 'offset'], popt, perr):
+[?2004l[?2004h>         print(f'  {label}: {val:.10g} +/- {err:.3g}')
+[?2004l[?2004h>     print('  window', lo, hi, 'n', m.sum(), 'rms', np.sqrt(np.mean((yw-lorentz_offset(xw,*popt))**2)))
+[?2004l[?2004h> PY
+[?2004lD
+  x0: 1345.988093 +/- 0.0157
+  gamma: 14.73020992 +/- 0.0287
+  amplitude: 12082.21044 +/- 13
+  offset: 1269.001139 +/- 5.06
+  window 1250.0 1450.0 n 400 rms 61.436012849407014
+G
+  x0: 1585.093848 +/- 0.0234
+  gamma: 13.91462603 +/- 0.0462
+  amplitude: 8604.178122 +/- 14.9
+  offset: 1278.502159 +/- 7.28
+  window 1500.0 1650.0 n 300 rms 67.28343238426471
+2D
+  x0: 2678.037425 +/- 0.0204
+  gamma: 19.96540327 +/- 0.0383
+  amplitude: 10766.40868 +/- 11.1
+  offset: 1076.663591 +/- 4.71
+  window 2550.0 2800.0 n 500 rms 61.279046852050776
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 - <<'PY'
+[?2004l'G']['amplitude']
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+    f.write('\n')
+
+print(json.dumps(results, indent=2))
+PY
+[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz_offset(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> windows = {
+[?2004l[?2004h>     'D': (1250.0, 1450.0),
+[?2004l[?2004h>     'G': (1500.0, 1650.0),
+[?2004l[?2004h>     '2D': (2550.0, 2800.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, (lo, hi) in windows.items():
+[?2004l[?2004h>     mask = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[mask], y[mask]
+[?2004l[?2004h>     x0_0 = xw[np.argmax(yw)]
+[?2004l[?2004h>     a0 = yw.max() - np.percentile(yw, 5)
+[?2004l[?2004h>     o0 = np.percentile(yw, 5)
+[?2004l[?2004h>     popt, _ = curve_fit(
+[?2004l[?2004h>         lorentz_offset, xw, yw,
+[?2004l[?2004h>         p0=[x0_0, 20.0, a0, o0],
+[?2004l[?2004h>         bounds=([lo, 0.1, 0.0, -np.inf], [hi, 200.0, np.inf, np.inf]),
+[?2004l[?2004h>         maxfev=20000,
+[?2004l[?2004h>     )
+[?2004l[?2004h>     x0, gamma, amplitude, offset = map(float, popt)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': x0,
+[?2004l[?2004h>         'gamma': gamma,
+[?2004l[?2004h>         'amplitude': amplitude,
+[?2004l[?2004h>         'offset': offset,
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h>     f.write('\n')
+[?2004l[?2004h> 
+[?2004l[?2004h> print(json.dumps(results, indent=2))
+[?2004l[?2004h> PY
+[?2004l{
+  "D": {
+    "x0": 1345.988093007232,
+    "gamma": 14.73020992260578,
+    "amplitude": 12082.21044232311,
+    "offset": 1269.001138812047
+  },
+  "G": {
+    "x0": 1585.093847572345,
+    "gamma": 13.914626034360019,
+    "amplitude": 8604.178121878345,
+    "offset": 1278.502158583598
+  },
+  "2D": {
+    "x0": 2678.037424794796,
+    "gamma": 19.96540326897775,
+    "amplitude": 10766.408680675551,
+    "offset": 1076.6635906501515
+  },
+  "ID_IG": 1.4042259784930498
+}
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1345.988093007232,
+    "gamma": 14.73020992260578,
+    "amplitude": 12082.21044232311,
+    "offset": 1269.001138812047
+  },
+  "G": {
+    "x0": 1585.093847572345,
+    "gamma": 13.914626034360019,
+    "amplitude": 8604.178121878345,
+    "offset": 1278.502158583598
+  },
+  "2D": {
+    "x0": 2678.037424794796,
+    "gamma": 19.96540326897775,
+    "amplitude": 10766.408680675551,
+    "offset": 1076.6635906501515
+  },
+  "ID_IG": 1.4042259784930498
+}
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# python3 - <<'PY'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> x, y = np.loadtxt('/app/spectrum.csv', delimiter=',', skiprows=1, unpack=True)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentz_offset(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit(name, center, half_width):
+[?2004l[?2004h>     lo, hi = center - half_width, center + half_width
+[?2004l[?2004h>     m = (x >= lo) & (x <= hi)
+[?2004l[?2004h>     xw, yw = x[m], y[m]
+[?2004l[?2004h>     x0_0 = xw[np.argmax(yw)]
+[?2004l[?2004h>     a0 = max(yw.max() - np.percentile(yw, 5), 1.0)
+[?2004l[?2004h>     o0 = np.percentile(yw, 5)
+[?2004l[?2004h>     popt, _ = curve_fit(
+[?2004l[?2004h>         lorentz_offset, xw, yw,
+[?2004l[?2004h>         p0=[x0_0, 20.0, a0, o0],
+[?2004l[?2004h>         bounds=([lo, 0.1, 0.0, -np.inf], [hi, 200.0, np.inf, np.inf]),
+[?2004l[?2004h>         maxfev=20000,
+[?2004l[?2004h>     )
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, c in [('D', 1346.0), ('G', 1585.0), ('2D', 2678.5)]:
+[?2004l[?2004h>     print(name)
+[?2004l[?2004h>     for hw in [30, 50, 75, 100, 125, 150]:
+[?2004l[?2004h>         if name == '2D' and hw < 50:
+[?2004l[?2004h>             pass
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             x0, g, a, o = fit(name, c, hw)
+[?2004l[?2004h>             print(f'  hw={hw:3d} x0={x0:9.4f} gamma={g:8.4f} amp={a:10.3f} off={o:9.3f}')
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             print(f'  hw={hw:3d} failed {e}')
+[?2004l[?2004h> PY
+[?2004lD
+  hw= 30 x0=1345.9853 gamma= 14.8091 amp= 12117.220 off= 1225.476
+  hw= 50 x0=1345.9846 gamma= 14.7501 amp= 12085.210 off= 1262.657
+  hw= 75 x0=1345.9870 gamma= 14.7616 amp= 12087.824 off= 1258.335
+  hw=100 x0=1345.9881 gamma= 14.7360 amp= 12083.175 off= 1267.086
+  hw=125 x0=1345.9888 gamma= 14.7043 amp= 12078.472 off= 1277.131
+  hw=150 x0=1345.9895 gamma= 14.6674 amp= 12074.012 off= 1288.072
+G
+  hw= 30 x0=1585.1084 gamma= 14.0693 amp=  8635.747 off= 1230.576
+  hw= 50 x0=1585.0984 gamma= 14.0619 amp=  8632.345 off= 1234.402
+  hw= 75 x0=1585.0933 gamma= 13.9634 amp=  8612.176 off= 1264.926
+  hw=100 x0=1585.0909 gamma= 13.9514 amp=  8610.490 off= 1268.042
+  hw=125 x0=1585.0890 gamma= 13.8843 amp=  8603.442 off= 1283.702
+  hw=150 x0=1585.0873 gamma= 13.8066 amp=  8596.618 off= 1300.850
+2D
+  hw= 30 x0=2678.0393 gamma= 20.2395 amp= 10869.900 off=  958.012
+  hw= 50 x0=2678.0408 gamma= 20.0129 amp= 10776.615 off= 1062.397
+  hw= 75 x0=2678.0388 gamma= 19.9923 amp= 10769.949 off= 1070.359
+  hw=100 x0=2678.0384 gamma= 19.9782 amp= 10767.886 off= 1073.819
+  hw=125 x0=2678.0375 gamma= 19.9664 amp= 10766.534 off= 1076.431
+  hw=150 x0=2678.0372 gamma= 19.9405 amp= 10763.607 off= 1082.141
+[?2004hroot@j-openenv-6afd8c7f29e8b7ccfbbb8331-v05elblq-a8adb-xhtt8:/app# 

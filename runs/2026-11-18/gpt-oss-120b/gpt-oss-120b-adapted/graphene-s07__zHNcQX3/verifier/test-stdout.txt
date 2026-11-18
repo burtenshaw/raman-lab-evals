@@ -1,0 +1,8 @@
+invalid submission: FileNotFoundError(2, 'No such file or directory')
+{
+  "d_fit": 0.0,
+  "g_fit": 0.0,
+  "2d_fit": 0.0,
+  "id_ig": 0.0,
+  "reward": 0.0
+}

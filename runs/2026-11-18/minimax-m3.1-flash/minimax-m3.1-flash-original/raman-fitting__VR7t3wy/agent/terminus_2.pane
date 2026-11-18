@@ -1,0 +1,694 @@
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# ls -la /app
+[?2004ltotal 88
+drwxr-xr-x. 1 root root    26 Jun 17  2025 .
+drwxr-xr-x. 1 root root    96 Nov 18 11:07 ..
+-rw-r--r--. 1 root root 88805 Jun 17  2025 graphene.dat
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# find /app -maxdepth 3 -type f | head -50
+[?2004l/app/graphene.dat
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# head -40 /app/graphene.dat
+[?2004l47183,554644	19261,547207
+46588,360019	19266,089699
+46008,191298	19077,996963
+45442,488736	19173,287322
+44890,718036	19501,518253
+44352,368927	19506,586203
+43826,959593	19752,431144
+43314,029137	19812,863021
+42813,138290	19678,348151
+42323,866373	19764,871128
+41845,813826	19360,099292
+41378,600916	19413,554878
+40921,863181	19626,191780
+40475,250679	19704,066336
+40038,430487	19495,727898
+39611,084116	19672,573559
+39192,908278	19538,763458
+38783,609488	19344,943112
+38382,908122	19510,307527
+37990,536178	19552,152695
+37606,236678	19568,884582
+37229,764497	19605,714542
+36860,880256	19652,302102
+36499,358232	19518,303269
+36144,980263	19684,212843
+35797,536721	19599,237174
+35456,826102	19666,264313
+35122,653398	19895,771042
+34794,833482	19781,231391
+34473,186962	19931,483503
+34157,541138	20285,381465
+33847,728547	20523,239756
+33543,589022	21041,170567
+33244,969313	21252,731073
+32951,720556	21063,536782
+32663,698124	20547,110114
+32380,763586	20339,907615
+32102,783353	19883,117751
+31829,629489	19630,215111
+31561,176433	19007,346911
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# tail -5 /app/graphene.dat
+[?2004l1649,768294	6062,725860
+1649,507095	6005,066261
+1649,246046	6009,427936
+1648,985151	5911,446799
+1648,724404	5950,923261
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# wc -l /app/graphene.dat
+[?2004l3565 /app/graphene.dat
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 -c "import sys, numpy, scipy; print(sys.version); print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport sys, numpy, scipy[0m; print(sys.version); print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# cat > /tmp/explore.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> 
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> for line in open('/app/graphene.dat'):
+[?2004l[?2004h>     p=line.split()
+[?2004l[?2004h>     if len(p)<2: continue
+[?2004l[?2004h>     rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h> data=np.array(rows)
+[?2004l[?2004h> x=data[:,0]; y=data[:,1]
+[?2004l[?2004h> print('n=',len(x),'x range',x.min(),x.max(),'y range',y.min(),y.max())
+[?2004l[?2004h> print('sorted desc?', np.all(np.diff(x)<0))
+[?2004l[?2004h> # local maxima on the x-ordered array
+[?2004l[?2004h> idx=np.argsort(x)
+[?2004l[?2004h> xs=x[idx]; ys=y[idx]
+[?2004l[?2004h> peaks,props=find_peaks(ys, prominence=50)
+[?2004l[?2004h> order=np.argsort(props['prominences'])[::-1]
+[?2004l[?2004h> for i in order[:15]:
+[?2004l[?2004h>     p=peaks[i]
+[?2004l[?2004h>     print('peak x=%.3f y=%.1f prom=%.1f' % (xs[p], ys[p], props['prominences'][i]))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/explore.py
+[?2004lTraceback (most recent call last):
+  File [35m"/tmp/explore.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# which pip pip3 python3; python3 -V
+[?2004l/usr/local/bin/pip
+/usr/local/bin/pip3
+/usr/local/bin/python3
+Python 3.13.7
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# timeout 60 pip3 install numpy scipy 2>&1 | tail -20
+[?2004lCollecting numpy
+  Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading numpy-2.5.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (15.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.7/15.7 MB 212.6 MB/s  0:00:00
+Downloading scipy-1.18.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 361.6 MB/s  0:00:00
+Installing collected packages: numpy, scipy
+
+Successfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 25.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/explore.py
+[?2004ln= 3565 x range 1648.724404 47183.554644 y range 40.090842 79400.095085
+sorted desc? True
+peak x=19139.544 y=79400.1 prom=67189.5
+peak x=3745.053 y=12920.9 prom=11204.0
+peak x=6329.372 y=13777.7 prom=7697.6
+peak x=10289.940 y=18805.2 prom=7256.6
+peak x=33244.969 y=21252.7 prom=2174.7
+peak x=16245.584 y=18159.9 prom=1748.5
+peak x=3084.656 y=1300.7 prom=844.4
+peak x=1673.358 y=6135.4 prom=762.5
+peak x=1806.129 y=4406.5 prom=756.8
+peak x=1760.199 y=4799.3 prom=750.3
+peak x=4083.581 y=2873.8 prom=749.7
+peak x=1660.074 y=6474.3 prom=737.1
+peak x=1727.160 y=5331.1 prom=649.8
+peak x=1666.804 y=6228.4 prom=648.4
+peak x=1656.083 y=6410.2 prom=637.0
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# cat > /tmp/explore2.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> for line in open('/app/graphene.dat'):
+[?2004l[?2004h>     p=line.split()
+[?2004l[?2004h>     if len(p)<2: continue
+[?2004l[?2004h>     rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h> d=np.array(rows)
+[?2004l[?2004h> x=d[:,0]; y=d[:,1]
+[?2004l[?2004h> n=len(x)
+[?2004l[?2004h> print('n',n)
+[?2004l[?2004h> for i in range(0,n,200):
+[?2004l[?2004h>     j=min(i+200,n)
+[?2004l[?2004h>     print('idx %4d-%4d  x %10.3f->%10.3f  dx=%.4f  y min %9.1f max %9.1f mean %9.1f' % (i,j,x[i],x[j-1],x[i]-x[j-1], y[i:j].min(), y[i:j].max(), y[i:j].mean()))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/explore2.py
+[?2004ln 3565
+idx    0- 200  x  47183.555-> 13645.631  dx=33537.9236  y min   12210.6 max   79400.1 mean   19786.4
+idx  200- 400  x  13598.694->  8181.704  dx=5416.9903  y min    7890.4 max   18805.2 mean   11530.9
+idx  400- 600  x   8165.895->  5950.757  dx=2215.1378  y min    5188.0 max   13777.7 mean    7008.0
+idx  600- 800  x   5942.915->  4738.979  dx=1203.9364  y min    3091.4 max    5341.6 mean    4208.6
+idx  800-1000  x   4734.310->  3978.190  dx=756.1203  y min    1940.3 max    3343.0 mean    2629.7
+idx 1000-1200  x   3975.097->  3456.376  dx=518.7208  y min     955.0 max   12920.9 mean    2886.0
+idx 1200-1400  x   3454.179->  3076.422  dx=377.7577  y min     456.3 max    1300.7 mean     836.5
+idx 1400-1600  x   3074.781->  2787.560  dx=287.2218  y min      89.3 max     911.1 mean     436.6
+idx 1600-1800  x   2786.290->  2560.671  dx=225.6181  y min      40.1 max     611.2 mean     387.9
+idx 1800-2000  x   2559.659->  2377.858  dx=181.8011  y min      65.9 max     867.6 mean     508.2
+idx 2000-2200  x   2377.034->  2227.513  dx=149.5206  y min     552.8 max    1269.6 mean     860.7
+idx 2200-2400  x   2226.829->  2101.779  dx=125.0500  y min     771.7 max    1670.4 mean    1234.7
+idx 2400-2600  x   2101.202->  1995.147  dx=106.0545  y min    1283.0 max    2470.4 mean    1811.7
+idx 2600-2800  x   1994.655->  1903.644  dx=91.0113  y min    1908.7 max    3005.0 mean    2474.3
+idx 2800-3000  x   1903.219->  1824.327  dx=78.8921  y min    2664.4 max    3886.9 mean    3269.6
+idx 3000-3200  x   1823.957->  1754.974  dx=68.9827  y min    3384.5 max    4816.2 mean    4079.2
+idx 3200-3400  x   1754.649->  1693.875  dx=60.7742  y min    4295.4 max    5659.8 mean    4975.7
+idx 3400-3565  x   1693.588->  1648.724  dx=44.8635  y min    5216.4 max    6474.3 mean    5823.8
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# awk '{print NF}' /app/graphene.dat | sort | uniq -c
+[?2004l   3565 2
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# cat > /tmp/explore3.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.signal import find_peaks
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> for line in open('/app/graphene.dat'):
+[?2004l[?2004h>     p=line.split()
+[?2004l[?2004h>     if len(p)<2: continue
+[?2004l[?2004h>     rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h> d=np.array(rows)
+[?2004l[?2004h> c=d[:,0]; y=d[:,1]
+[?2004l[?2004h> nu=1e7/c
+[?2004l[?2004h> idx=np.argsort(nu)
+[?2004l[?2004h> nu=nu[idx]; ys=y[idx]
+[?2004l[?2004h> print('nu range', nu.min(), nu.max())
+[?2004l[?2004h> peaks,props=find_peaks(ys, prominence=100)
+[?2004l[?2004h> order=np.argsort(props['prominences'])[::-1]
+[?2004l[?2004h> for i in order[:20]:
+[?2004l[?2004h>     p=peaks[i]
+[?2004l[?2004h>     print('peak nu=%9.3f  y=%9.1f  prom=%9.1f  width=%s' % (nu[p], ys[p], props['prominences'][i], props['widths'][i]))
+[?2004l[?2004h> print()
+[?2004l[?2004h> # coarse binned profile
+[?2004l[?2004h> bins=np.arange(200,3600,100)
+[?2004l[?2004h> for lo in bins:
+[?2004l[?2004h>     m=(nu>=lo)&(nu<lo+100)
+[?2004l[?2004h>     if m.sum():
+[?2004l[?2004h>         print('%5d-%5d n=%4d  ymin=%8.1f ymax=%8.1f ymean=%8.1f  y@maxat nu=%.2f' % (lo,lo+100,m.sum(),ys[m].min(),ys[m].max(),ys[m].mean(), nu[m][np.argmax(ys[m])]))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/explore3.py
+[?2004lnu range 211.93824999939102 6065.295070382182
+Traceback (most recent call last):
+  File [35m"/tmp/explore3.py"[0m, line [35m18[0m, in [35m<module>[0m
+    print('peak nu=%9.3f  y=%9.1f  prom=%9.1f  width=%s' % (nu[p], ys[p], props['prominences'][i], [31mprops[0m[1;31m['widths'][0m[i]))
+                                                                                                   [31m~~~~~[0m[1;31m^^^^^^^^^^[0m
+[1;35mKeyError[0m: [35m'widths'[0m
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# sed -i 's/find_peaks(ys, prominence=100)/find_peaks(ys, prominence=100, width=0)/' /tmp/explore3.py && python3 /tmp/explore3.py
+[?2004lnu range 211.93824999939102 6065.295070382182
+peak nu=  522.479  y=  79400.1  prom=  67189.5  width=9.112315477504325
+peak nu= 2670.189  y=  12920.9  prom=  11204.0  width=19.614081474020622
+peak nu= 1579.935  y=  13777.7  prom=   7697.6  width=7.72695843880183
+peak nu=  971.823  y=  18805.2  prom=   7256.6  width=23.715241811719864
+peak nu=  300.797  y=  21252.7  prom=   2174.7  width=6.721239260643674
+peak nu=  615.552  y=  18159.9  prom=   1748.5  width=5.0693575838869265
+peak nu= 3241.853  y=   1300.7  prom=    844.4  width=6.254691279324788
+peak nu= 5976.008  y=   6135.4  prom=    762.5  width=1.392965530797028
+peak nu= 5536.704  y=   4406.5  prom=    756.8  width=3.6789904558245325
+peak nu= 5681.177  y=   4799.3  prom=    750.3  width=6.241821611080468
+peak nu= 2448.831  y=   2873.8  prom=    749.7  width=11.433684537574209
+peak nu= 6023.829  y=   6474.3  prom=    737.1  width=3.6717548051869926
+peak nu= 5789.851  y=   5331.1  prom=    649.8  width=1.5997464084584863
+peak nu= 5999.507  y=   6228.4  prom=    648.4  width=4.5937642867620525
+peak nu= 6038.346  y=   6410.2  prom=    637.0  width=10.90358956961154
+peak nu= 5869.436  y=   5587.3  prom=    636.6  width=3.2400545533687364
+peak nu= 5606.342  y=   4504.0  prom=    635.4  width=2.015776841575189
+peak nu= 5939.492  y=   5942.2  prom=    618.9  width=4.297157870497813
+peak nu= 5228.390  y=   3005.0  prom=    618.9  width=4.706612667326226
+peak nu= 4854.855  y=   2098.5  prom=    612.5  width=1.616570336444056
+
+  200-  300 n=  33  ymin= 19078.0 ymax= 21041.2 ymean= 19659.6  y@maxat nu=298.12
+  300-  400 n=  38  ymin= 15135.8 ymax= 21252.7 ymean= 17446.4  y@maxat nu=300.80
+  400-  500 n=  38  ymin= 12210.6 ymax= 17059.4 ymean= 13791.4  y@maxat nu=499.03
+  500-  600 n=  38  ymin= 16592.6 ymax= 79400.1 ymean= 34673.5  y@maxat nu=522.48
+  600-  700 n=  40  ymin= 13752.7 ymax= 18159.9 ymean= 15756.6  y@maxat nu=615.55
+  700-  800 n=  39  ymin= 12178.8 ymax= 13687.5 ymean= 12892.0  y@maxat nu=712.57
+  800-  900 n=  40  ymin= 11548.7 ymax= 12660.2 ymean= 12102.3  y@maxat nu=805.84
+  900- 1000 n=  41  ymin= 11560.9 ymax= 18805.2 ymean= 15820.6  y@maxat nu=971.82
+ 1000- 1100 n=  41  ymin=  8965.1 ymax= 12517.6 ymean=  9880.5  y@maxat nu=1001.16
+ 1100- 1200 n=  42  ymin=  8023.3 ymax=  9040.1 ymean=  8530.3  y@maxat nu=1100.52
+ 1200- 1300 n=  43  ymin=  7375.2 ymax=  8363.2 ymean=  7816.9  y@maxat nu=1205.65
+ 1300- 1400 n=  43  ymin=  6598.7 ymax=  7546.1 ymean=  7203.6  y@maxat nu=1311.61
+ 1400- 1500 n=  43  ymin=  6273.3 ymax=  7024.8 ymean=  6597.9  y@maxat nu=1434.43
+ 1500- 1600 n=  44  ymin=  6080.2 ymax= 13777.7 ymean=  7806.3  y@maxat nu=1579.94
+ 1600- 1700 n=  45  ymin=  5123.9 ymax=  6593.2 ymean=  5581.9  y@maxat nu=1600.16
+ 1700- 1800 n=  46  ymin=  4520.6 ymax=  5223.5 ymean=  4860.4  y@maxat nu=1711.44
+ 1800- 1900 n=  46  ymin=  4078.9 ymax=  4766.4 ymean=  4417.0  y@maxat nu=1801.36
+ 1900- 2000 n=  47  ymin=  3689.0 ymax=  4298.8 ymean=  3976.7  y@maxat nu=1903.01
+ 2000- 2100 n=  48  ymin=  3157.3 ymax=  3890.7 ymean=  3540.1  y@maxat nu=2017.95
+ 2100- 2200 n=  48  ymin=  2760.0 ymax=  3459.4 ymean=  3088.1  y@maxat nu=2101.83
+ 2200- 2300 n=  49  ymin=  2380.5 ymax=  3033.1 ymean=  2755.0  y@maxat nu=2237.95
+ 2300- 2400 n=  50  ymin=  2124.1 ymax=  2757.4 ymean=  2429.1  y@maxat nu=2327.16
+ 2400- 2500 n=  51  ymin=  2056.6 ymax=  2873.8 ymean=  2412.5  y@maxat nu=2448.83
+ 2500- 2600 n=  51  ymin=  1716.9 ymax=  2277.4 ymean=  1997.0  y@maxat nu=2566.30
+ 2600- 2700 n=  52  ymin=  1970.3 ymax= 12920.9 ymean=  6357.0  y@maxat nu=2670.19
+ 2700- 2800 n=  53  ymin=  1242.5 ymax=  3988.7 ymean=  1861.3  y@maxat nu=2700.64
+ 2800- 2900 n=  54  ymin=   955.0 ymax=  1512.5 ymean=  1188.7  y@maxat nu=2809.81
+ 2900- 3000 n=  55  ymin=   568.9 ymax=  1217.6 ymean=   978.4  y@maxat nu=2902.40
+ 3000- 3100 n=  56  ymin=   655.1 ymax=  1090.3 ymean=   818.6  y@maxat nu=3040.49
+ 3100- 3200 n=  56  ymin=   456.3 ymax=   904.8 ymean=   717.1  y@maxat nu=3198.28
+ 3200- 3300 n=  58  ymin=   320.2 ymax=  1300.7 ymean=   684.2  y@maxat nu=3241.85
+ 3300- 3400 n=  59  ymin=   271.4 ymax=   708.9 ymean=   480.6  y@maxat nu=3389.33
+ 3400- 3500 n=  59  ymin=   139.7 ymax=   728.9 ymean=   398.9  y@maxat nu=3456.66
+ 3500- 3600 n=  61  ymin=    89.3 ymax=   579.3 ymean=   365.4  y@maxat nu=3575.91
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# ls -la /; ls -la /opt /tests 2>/dev/null | head -40; find / -maxdepth 2 -name '*task*' -o -maxdepth 2 -name '*test*' 2>/dev/null | head -20
+[?2004ltotal 0
+drwxr-xr-x.   1 root   root     96 Nov 18 11:07 .
+drwxr-xr-x.   1 root   root     96 Nov 18 11:07 ..
+dr-xr-xr-x.   2 nobody nogroup   0 Sep 28 15:13 .hf-sbx-server
+drwxr-xr-x.   1 root   root     26 Jun 17  2025 app
+lrwxrwxrwx.   1 root   root      7 Aug 11  2025 bin -> usr/bin
+drwxr-xr-x.   2 root   root      6 May  9  2025 boot
+drwxr-xr-x.   5 root   root    340 Nov 18 11:07 dev
+drwxr-xr-x.   1 root   root    131 Nov 18 11:07 etc
+drwxr-xr-x.   2 root   root      6 May  9  2025 home
+lrwxrwxrwx.   1 root   root      7 Aug 11  2025 lib -> usr/lib
+lrwxrwxrwx.   1 root   root      9 Aug 11  2025 lib64 -> usr/lib64
+drwxr-xr-x.   5 root   root     52 Nov 18 11:07 logs
+drwxr-xr-x.   2 root   root      6 Aug 11  2025 media
+drwxr-xr-x.   2 root   root      6 Aug 11  2025 mnt
+drwxr-xr-x.   2 root   root      6 Aug 11  2025 opt
+dr-xr-xr-x. 671 nobody nogroup   0 Nov 18 11:07 proc
+drwx------.   1 root   root     35 Nov 18 11:08 root
+drwxr-xr-x.   3 root   root     18 Aug 11  2025 run
+lrwxrwxrwx.   1 root   root      8 Aug 11  2025 sbin -> usr/sbin
+drwxr-xr-x.   2 root   root      6 Aug 11  2025 srv
+dr-xr-xr-x.  13 nobody nogroup   0 Oct 29 13:02 sys
+drwxrwxrwt.   1 root   root    152 Nov 18 11:14 tmp
+drwxr-xr-x.   1 root   root     54 Aug 11  2025 usr
+drwxr-xr-x.   1 root   root     41 Aug 11  2025 var
+/opt:
+total 0
+drwxr-xr-x. 2 root root  6 Aug 11  2025 .
+drwxr-xr-x. 1 root root 96 Nov 18 11:07 ..
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# cat > /tmp/explore4.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> rows=[]
+[?2004l[?2004h> for line in open('/app/graphene.dat'):
+[?2004l[?2004h>     p=line.split()
+[?2004l[?2004h>     rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h> d=np.array(rows)
+[?2004l[?2004h> nu=1e7/d[:,0]; y=d[:,1]
+[?2004l[?2004h> idx=np.argsort(nu)
+[?2004l[?2004h> nu=nu[idx]; ys=y[idx]
+[?2004l[?2004h> for lo,hi in [(1400,1750),(2400,2950)]:
+[?2004l[?2004h>     print('=== window %d-%d ===' % (lo,hi))
+[?2004l[?2004h>     for n,v in zip(nu,ys):
+[?2004l[?2004h>         if lo<=n<=hi:
+[?2004l[?2004h>             print('%9.3f %10.2f' % (n,v))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/explore4.py > /tmp/win.txt; wc -l /tmp/win.txt; head -60 /tmp/win.txt
+[?2004l446 /tmp/win.txt
+=== window 1400-1750 ===
+ 1402.193    6785.16
+ 1404.500    6878.31
+ 1406.807    6857.95
+ 1409.113    6854.93
+ 1411.418    6784.02
+ 1413.722    6707.12
+ 1416.026    6757.36
+ 1418.329    6736.55
+ 1420.631    6806.23
+ 1422.932    6784.68
+ 1425.233    6730.25
+ 1427.533    6725.02
+ 1429.832    6472.21
+ 1432.130    6560.14
+ 1434.428    7024.81
+ 1436.725    6793.87
+ 1439.021    6638.52
+ 1441.316    6432.53
+ 1443.611    6852.23
+ 1445.905    6597.52
+ 1448.198    6627.94
+ 1450.490    6707.61
+ 1452.782    6519.96
+ 1455.073    6612.33
+ 1457.363    6528.47
+ 1459.652    6290.42
+ 1461.941    6568.72
+ 1464.229    6604.30
+ 1466.516    6620.08
+ 1468.803    6450.86
+ 1471.088    6655.12
+ 1473.373    6547.27
+ 1475.657    6341.75
+ 1477.941    6295.41
+ 1480.224    6375.98
+ 1482.506    6297.49
+ 1484.787    6440.38
+ 1487.068    6273.30
+ 1489.347    6365.92
+ 1491.626    6528.06
+ 1493.905    6517.01
+ 1496.182    6395.00
+ 1498.459    6365.39
+ 1500.735    6241.72
+ 1503.010    6389.12
+ 1505.285    6080.18
+ 1507.559    6558.14
+ 1509.832    6461.82
+ 1512.104    6520.97
+ 1514.376    6333.56
+ 1516.647    6178.26
+ 1518.917    6176.09
+ 1521.187    6155.64
+ 1523.455    6426.05
+ 1525.723    6383.41
+ 1527.991    6426.37
+ 1530.257    6196.63
+ 1532.523    6142.15
+ 1534.788    6367.30
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# sed -n '60,140p' /tmp/win.txt
+[?2004l 1534.788    6367.30
+ 1537.052    6443.41
+ 1539.316    6408.50
+ 1541.579    6305.42
+ 1543.841    6256.54
+ 1546.102    6467.41
+ 1548.363    6415.59
+ 1550.623    6624.97
+ 1552.882    6745.17
+ 1555.140    6742.62
+ 1557.398    6714.75
+ 1559.655    7054.78
+ 1561.912    7195.70
+ 1564.167    7745.65
+ 1566.422    7903.95
+ 1568.676    8959.50
+ 1570.929    9641.47
+ 1573.182   10589.68
+ 1575.434   11980.23
+ 1577.685   13107.21
+ 1579.935   13777.74
+ 1582.185   13766.66
+ 1584.434   12808.04
+ 1586.682   11393.04
+ 1588.930    9962.86
+ 1591.177    8838.41
+ 1593.423    8153.55
+ 1595.668    7308.46
+ 1597.913    7128.52
+ 1600.157    6593.18
+ 1602.400    6433.98
+ 1604.643    6379.57
+ 1606.884    6305.98
+ 1609.125    6033.94
+ 1611.366    6316.02
+ 1613.605    5877.84
+ 1615.844    5917.40
+ 1618.082    6141.63
+ 1620.320    5970.82
+ 1622.556    5557.70
+ 1624.792    5746.53
+ 1627.028    5605.07
+ 1629.262    5543.38
+ 1631.496    5497.12
+ 1633.729    5637.43
+ 1635.961    5459.02
+ 1638.193    5718.46
+ 1640.424    5403.89
+ 1642.654    5382.67
+ 1644.884    5535.92
+ 1647.113    5411.09
+ 1649.341    5497.00
+ 1651.568    5422.63
+ 1653.795    5600.91
+ 1656.021    5509.67
+ 1658.246    5523.67
+ 1660.470    5190.19
+ 1662.694    5321.62
+ 1664.917    5348.25
+ 1667.139    5564.35
+ 1669.361    5480.22
+ 1671.582    5188.00
+ 1673.802    5417.40
+ 1676.022    5305.47
+ 1678.240    5384.27
+ 1680.458    5200.30
+ 1682.676    5149.51
+ 1684.893    5341.64
+ 1687.108    5225.59
+ 1689.324    5212.32
+ 1691.538    5230.28
+ 1693.752    5215.90
+ 1695.965    5265.81
+ 1698.177    5123.88
+ 1700.389    5145.78
+ 1702.600    5188.24
+ 1704.810    4993.13
+ 1707.020    5204.08
+ 1709.229    4937.10
+ 1711.437    5223.53
+ 1713.644    5101.80
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# sed -n '140,230p' /tmp/win.txt
+[?2004l 1713.644    5101.80
+ 1715.851    4993.41
+ 1718.057    4993.78
+ 1720.262    5057.51
+ 1722.467    4989.65
+ 1724.671    4944.78
+ 1726.874    4889.62
+ 1729.076    5173.89
+ 1731.278    4915.32
+ 1733.479    4657.25
+ 1735.679    4784.75
+ 1737.879    4814.66
+ 1740.078    5033.35
+ 1742.276    4762.99
+ 1744.474    4830.24
+ 1746.671    4992.54
+ 1748.867    4879.74
+=== window 2400-2950 ===
+ 2401.233    2360.75
+ 2403.223    2262.63
+ 2405.213    2401.53
+ 2407.202    2210.48
+ 2409.190    2397.23
+ 2411.178    2373.36
+ 2413.165    2340.47
+ 2415.152    2314.29
+ 2417.138    2336.22
+ 2419.123    2209.67
+ 2421.108    2307.08
+ 2423.092    2382.00
+ 2425.076    2402.23
+ 2427.059    2506.95
+ 2429.041    2342.23
+ 2431.023    2212.98
+ 2433.004    2406.08
+ 2434.985    2293.16
+ 2436.964    2489.83
+ 2438.944    2480.07
+ 2440.922    2737.29
+ 2442.900    2843.78
+ 2444.878    2845.20
+ 2446.855    2722.97
+ 2448.831    2873.81
+ 2450.807    2788.58
+ 2452.782    2768.94
+ 2454.756    2698.50
+ 2456.730    2527.87
+ 2458.703    2563.52
+ 2460.675    2558.64
+ 2462.647    2440.99
+ 2464.619    2316.83
+ 2466.590    2322.75
+ 2468.560    2296.57
+ 2470.529    2481.20
+ 2472.498    2452.98
+ 2474.466    2358.28
+ 2476.434    2398.10
+ 2478.401    2341.78
+ 2480.368    2228.07
+ 2482.334    2342.72
+ 2484.299    2235.50
+ 2486.264    2303.21
+ 2488.228    2216.56
+ 2490.191    2297.71
+ 2492.154    2205.69
+ 2494.116    2056.59
+ 2496.078    2330.48
+ 2498.039    2290.77
+ 2500.000    2160.08
+ 2501.960    2046.65
+ 2503.919    2175.26
+ 2505.877    2204.42
+ 2507.836    2014.47
+ 2509.793    1940.32
+ 2511.750    2077.07
+ 2513.706    2133.03
+ 2515.662    2129.70
+ 2517.617    2135.19
+ 2519.571    2208.40
+ 2521.525    2173.12
+ 2523.478    2021.61
+ 2525.431    1953.08
+ 2527.383    2241.11
+ 2529.335    2129.60
+ 2531.285    1996.92
+ 2533.236    2017.71
+ 2535.185    2102.81
+ 2537.134    2272.33
+ 2539.083    2123.62
+ 2541.031    1933.37
+ 2542.978    1884.82
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# cat > /tmp/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def load():
+[?2004l[?2004h>     rows=[]
+[?2004l[?2004h>     for line in open('/app/graphene.dat'):
+[?2004l[?2004h>         p=line.split()
+[?2004l[?2004h>         if len(p)<2: continue
+[?2004l[?2004h>         rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h>     d=np.array(rows)
+[?2004l[?2004h>     nu=1e7/d[:,0]; y=d[:,1]
+[?2004l[?2004h>     i=np.argsort(nu)
+[?2004l[?2004h>     return nu[i], y[i]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x,x0,g,a,off):
+[?2004l[?2004h>     return off + a*g**2/((x-x0)**2+g**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor_lin(x,x0,g,a,off,slope):
+[?2004l[?2004h>     return off + slope*(x-x0) + a*g**2/((x-x0)**2+g**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> nu,y=load()
+[?2004l[?2004h> windows={'G':[(1400,1750),(1450,1700),(1500,1660),(1470,1700),(1520,1650)],
+[?2004l[?2004h>          '2D':[(2400,2950),(2450,2900),(2500,2850),(2550,2800),(2580,2760)]}
+[?2004l[?2004h> inits={'G':1580.,'2D':2670.}
+[?2004l[?2004h> for name,ws in windows.items():
+[?2004l[?2004h>     print('===',name)
+[?2004l[?2004h>     for (lo,hi) in ws:
+[?2004l[?2004h>         m=(nu>=lo)&(nu<=hi)
+[?2004l[?2004h>         x=nu[m]; yy=y[m]
+[?2004l[?2004h>         off0=np.percentile(yy,20); amp0=yy.max()-off0
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             p,c=curve_fit(lor,x,yy,p0=[inits[name],20.,amp0,off0],maxfev=50000)
+[?2004l[?2004h>             resid=yy-lor(x,*p)
+[?2004l[?2004h>             rms=np.sqrt(np.mean(resid**2))
+[?2004l[?2004h>             print('  const  [%d,%d] n=%3d x0=%9.4f gamma=%8.4f amp=%10.2f off=%10.2f rms=%8.2f' % (lo,hi,m.sum(),p[0],p[1],p[2],p[3],rms))
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             print('  const fail',e)
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             p2,_=curve_fit(lor_lin,x,yy,p0=[inits[name],20.,amp0,off0,0.],maxfev=50000)
+[?2004l[?2004h>             rms2=np.sqrt(np.mean((yy-lor_lin(x,*p2))**2))
+[?2004l[?2004h>             print('  linear [%d,%d] n=%3d x0=%9.4f gamma=%8.4f amp=%10.2f off=%10.2f slope=%8.3f rms=%8.2f' % (lo,hi,m.sum(),p2[0],p2[1],p2[2],p2[3],p2[4],rms2))
+[?2004l[?2004h>         except Exception as e:
+[?2004l[?2004h>             print('  lin fail',e)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/fit.py
+[?2004l=== G
+  const  [1400,1750] n=155 x0=1580.3291 gamma=  8.3267 amp=   8292.39 off=   5802.57 rms=  610.58
+  linear [1400,1750] n=155 x0=1580.5191 gamma=  8.4005 amp=   8307.34 off=   5775.21 slope=  -5.918 rms=  135.42
+  const  [1450,1700] n=111 x0=1580.3347 gamma=  8.3135 amp=   8287.69 off=   5809.38 rms=  454.39
+  linear [1450,1700] n=111 x0=1580.5208 gamma=  8.4416 amp=   8311.99 off=   5761.86 slope=  -6.012 rms=  140.35
+  const  [1500,1660] n= 71 x0=1580.3309 gamma=  8.5422 amp=   8316.73 off=   5732.83 rms=  333.83
+  linear [1500,1660] n= 71 x0=1580.5336 gamma=  8.5436 amp=   8327.16 off=   5726.06 slope=  -6.533 rms=  149.27
+  const  [1470,1700] n=102 x0=1580.3190 gamma=  8.6005 amp=   8322.39 off=   5714.58 rms=  418.54
+  linear [1470,1700] n=102 x0=1580.5193 gamma=  8.4489 amp=   8312.86 off=   5759.45 slope=  -5.971 rms=  142.68
+  const  [1520,1650] n= 58 x0=1580.3221 gamma=  8.8307 amp=   8370.98 off=   5623.70 rms=  291.83
+  linear [1520,1650] n= 58 x0=1580.5434 gamma=  8.6130 amp=   8339.81 off=   5700.02 slope=  -6.933 rms=  142.96
+=== 2D
+  const  [2400,2950] n=289 x0=2670.0769 gamma= 16.6669 amp=  12194.53 off=   1472.27 rms=  529.96
+  linear [2400,2950] n=289 x0=2670.3301 gamma= 16.5384 amp=  12175.29 off=   1508.12 slope=  -2.791 rms=  291.55
+  const  [2450,2900] n=236 x0=2670.0798 gamma= 16.8823 amp=  12224.12 off=   1413.74 rms=  468.22
+  linear [2450,2900] n=236 x0=2670.3353 gamma= 16.7774 amp=  12207.35 off=   1443.67 slope=  -2.825 rms=  292.92
+  const  [2500,2850] n=183 x0=2670.0853 gamma= 17.2972 amp=  12285.04 off=   1298.35 rms=  369.75
+  linear [2500,2850] n=183 x0=2670.2995 gamma= 17.2033 amp=  12269.53 off=   1325.53 slope=  -2.373 rms=  283.93
+  const  [2550,2800] n=131 x0=2670.0951 gamma= 17.8582 amp=  12382.31 off=   1131.73 rms=  316.99
+  linear [2550,2800] n=131 x0=2670.2720 gamma= 17.7852 amp=  12368.33 off=   1154.26 slope=  -2.002 rms=  283.82
+  const  [2580,2760] n= 94 x0=2670.1056 gamma= 18.5516 amp=  12528.42 off=    907.03 rms=  291.79
+  linear [2580,2760] n= 94 x0=2670.2870 gamma= 18.5401 amp=  12525.43 off=    911.04 slope=  -2.148 rms=  271.95
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# cat > /tmp/fit2.py << 'EOF'
+[?2004l[m]
+    p,_=curve_fit(lor,x,yy,p0=[1580.,8.,yy.max()-np.median(yy),np.median(yy)],maxfev=100000)
+    r=yy-lor(x,*p)
+    ss=1-np.sum(r**2)/np.sum((yy-yy.mean())**2)
+    print('  [%4d,%4d] n=%3d x0=%9.4f gam=%7.4f amp=%9.2f off=%9.2f  R2=%.5f rms=%6.1f' % (lo,hi,m.sum(),p[0],p[1],p[2],p[3],ss,np.sqrt((r**2).mean())))
+
+print()
+print('--- 2D peak: const-offset fits over windows ---')
+for lo,hi in [(2400,2950),(2450,2900),(2500,2850),(2520,2820),(2550,2800),(2580,2770)]:
+    m=(nu>=lo)&(nu<=hi); x=nu[m]; yy=y[m]
+    p,_=curve_fit(lor,x,yy,p0=[2670.,16.,yy.max()-np.median(yy),np.median(yy)],maxfev=100000)
+    r=yy-lor(x,*p)
+    ss=1-np.sum(r**2)/np.sum((yy-yy.mean())**2)
+    print('  [%4d,%4d] n=%3d x0=%9.4f gam=%7.4f amp=%9.2f off=%9.2f  R2=%.5f rms=%6.1f' % (lo,hi,m.sum(),p[0],p[1],p[2],p[3],ss,np.sqrt((r**2).mean())))
+EOF
+python3 /tmp/fit2.py
+[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> def load():
+[?2004l[?2004h>     rows=[]
+[?2004l[?2004h>     for line in open('/app/graphene.dat'):
+[?2004l[?2004h>         p=line.split()
+[?2004l[?2004h>         if len(p)<2: continue
+[?2004l[?2004h>         rows.append((float(p[0].replace(',','.')), float(p[1].replace(',','.'))))
+[?2004l[?2004h>     d=np.array(rows)
+[?2004l[?2004h>     nu=1e7/d[:,0]; y=d[:,1]
+[?2004l[?2004h>     i=np.argsort(nu)
+[?2004l[?2004h>     return nu[i], y[i]
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x,x0,g,a,off):
+[?2004l[?2004h>     return off + a*g**2/((x-x0)**2+g**2)
+[?2004l[?2004h> 
+[?2004l[?2004h> nu,y=load()
+[?2004l[?2004h> print('--- background shape (peak-free windows) ---')
+[?2004l[?2004h> for lo,hi in [(1000,1500),(1700,2400),(2800,3200),(3400,4000)]:
+[?2004l[?2004h>     m=(nu>=lo)&(nu<=hi)
+[?2004l[?2004h>     x=nu[m]; yy=y[m]
+[?2004l[?2004h>     p=np.polyfit(x,yy,1)
+[?2004l[?2004h>     resid=yy-np.polyval(p,x)
+[?2004l[?2004h>     print('  [%d,%d] n=%d  slope=%8.3f  value@lo=%8.1f value@hi=%8.1f  resid_std=%6.1f' % (lo,hi,m.sum(),p[0],np.polyval(p,lo),np.polyval(p,hi),resid.std()))
+[?2004l[?2004h> 
+[?2004l[?2004h> print()
+[?2004l[?2004h> print('--- G peak: const-offset fits over windows ---')
+[?2004l[?2004h> for lo,hi in [(1450,1700),(1475,1680),(1500,1660),(1520,1650),(1400,1750),(1490,1690)]:
+[?2004l[?2004h>     m=(nu>=lo)&(nu<=hi); x=nu[m]; yy=y[m]
+[?2004l[?2004h>     p,_=curve_fit(lor,x,yy,p0=[1580.,8.,yy.max()-np.median(yy),np.median(yy)],maxfev=100000)
+[?2004l[?2004h>     r=yy-lor(x,*p)
+[?2004l[?2004h>     ss=1-np.sum(r**2)/np.sum((yy-yy.mean())**2)
+[?2004l[?2004h>     print('  [%4d,%4d] n=%3d x0=%9.4f gam=%7.4f amp=%9.2f off=%9.2f  R2=%.5f rms=%6.1f' % (lo,hi,m.sum(),p[0],p[1],p[2],p[3],ss,np.sqrt((r**2).mean())))
+[?2004l[?2004h> 
+[?2004l[?2004h> print()
+[?2004l[?2004h> print('--- 2D peak: const-offset fits over windows ---')
+[?2004l[?2004h> for lo,hi in [(2400,2950),(2450,2900),(2500,2850),(2520,2820),(2550,2800),(2580,2770)]:
+[?2004l[?2004h>     m=(nu>=lo)&(nu<=hi); x=nu[m]; yy=y[m]
+[?2004l[?2004h>     p,_=curve_fit(lor,x,yy,p0=[2670.,16.,yy.max()-np.median(yy),np.median(yy)],maxfev=100000)
+[?2004l[?2004h>     r=yy-lor(x,*p)
+[?2004l[?2004h>     ss=1-np.sum(r**2)/np.sum((yy-yy.mean())**2)
+[?2004l[?2004h>     print('  [%4d,%4d] n=%3d x0=%9.4f gam=%7.4f amp=%9.2f off=%9.2f  R2=%.5f rms=%6.1f' % (lo,hi,m.sum(),p[0],p[1],p[2],p[3],ss,np.sqrt((r**2).mean())))
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# python3 /tmp/fit2.py
+[?2004l--- background shape (peak-free windows) ---
+  [1000,1500] n=212  slope=  -7.963  value@lo=  9997.8 value@hi=  6016.1  resid_std= 401.0
+  [1700,2400] n=334  slope=  -4.100  value@lo=  5016.7 value@hi=  2147.1  resid_std= 122.1
+  [2800,3200] n=221  slope=  -1.565  value@lo=  1238.5 value@hi=   612.5  resid_std= 114.7
+  [3400,4000] n=374  slope=   0.096  value@lo=   361.2 value@hi=   418.8  resid_std= 114.4
+
+--- G peak: const-offset fits over windows ---
+  [1450,1700] n=111 x0=1580.3348 gam= 8.3136 amp=  8287.65 off=  5809.38  R2=0.93358 rms= 454.4
+  [1475,1680] n= 91 x0=1580.3318 gam= 8.4253 amp=  8300.14 off=  5773.19  R2=0.95825 rms= 385.9
+  [1500,1660] n= 71 x0=1580.3309 gam= 8.5423 amp=  8316.72 off=  5732.82  R2=0.97360 rms= 333.8
+  [1520,1650] n= 58 x0=1580.3221 gam= 8.8307 amp=  8370.97 off=  5623.70  R2=0.98255 rms= 291.8
+  [1400,1750] n=155 x0=1580.3290 gam= 8.3267 amp=  8292.41 off=  5802.57  R2=0.85594 rms= 610.6
+  [1490,1690] n= 89 x0=1580.3114 gam= 8.7855 amp=  8347.94 off=  5651.62  R2=0.96181 rms= 379.3
+
+--- 2D peak: const-offset fits over windows ---
+  [2400,2950] n=289 x0=2670.0769 gam=16.6669 amp= 12194.54 off=  1472.28  R2=0.95396 rms= 530.0
+  [2450,2900] n=236 x0=2670.0798 gam=16.8823 amp= 12224.12 off=  1413.74  R2=0.96928 rms= 468.2
+  [2500,2850] n=183 x0=2670.0853 gam=17.2972 amp= 12285.05 off=  1298.35  R2=0.98422 rms= 369.8
+  [2520,2820] n=157 x0=2670.0889 gam=17.4523 amp= 12310.31 off=  1253.44  R2=0.98694 rms= 354.6
+  [2550,2800] n=131 x0=2670.0951 gam=17.8581 amp= 12382.33 off=  1131.74  R2=0.99078 rms= 317.0
+  [2580,2770] n= 99 x0=2670.1064 gam=18.5269 amp= 12522.92 off=   915.25  R2=0.99361 rms= 285.1
+[?2004hroot@j-openenv-6afd86e8884144d2f44fd3c0-9vypbaix-6f646-t5vv9:/app# 

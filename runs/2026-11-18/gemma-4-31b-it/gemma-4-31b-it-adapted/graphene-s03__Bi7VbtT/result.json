@@ -1,0 +1,147 @@
+{
+    "id": "7c20656e-4727-4927-b223-ef5e2b0bbcbf",
+    "task_name": "raman-lab/graphene-s03",
+    "trial_name": "graphene-s03__Bi7VbtT",
+    "trial_uri": "file:///tmp/work/jobs/gemma-4-31b-it-adapted/graphene-s03__Bi7VbtT",
+    "task_id": {
+        "path": "/tmp/work/datasets/raman-lab/graphene-s03"
+    },
+    "source": "raman-lab",
+    "task_checksum": "003b41d5a7f8c3617302cdae90f0dc55e01fb412b6cfdd7885dc7141d2ef35c2",
+    "config": {
+        "task": {
+            "path": "/tmp/work/datasets/raman-lab/graphene-s03",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": "raman-lab"
+        },
+        "trial_name": "graphene-s03__Bi7VbtT",
+        "trials_dir": "/tmp/work/jobs/gemma-4-31b-it-adapted",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "terminus-2",
+            "import_path": null,
+            "model_name": "openai/google/gemma-4-31B-it:deepinfra",
+            "base_url": null,
+            "model_api_key_name": null,
+            "model_api_format": null,
+            "skip_model_parsing": false,
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {
+                "api_base": "https://router.huggingface.co/v1"
+            },
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "hf-sandbox",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "stream": false,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": null,
+            "extra_docker_compose": [],
+            "kwargs": {},
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "640b696d-f0ea-4a91-bab6-5749e8403da4",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "google/gemma-4-31B-it:deepinfra",
+            "provider": "openai"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 27360,
+        "n_cache_tokens": 18848,
+        "n_output_tokens": 3574,
+        "cost_usd": 0.00441629,
+        "model_usage": {
+            "google/gemma-4-31b-it": {
+                "n_input_tokens": 27360,
+                "n_cache_tokens": 18848,
+                "n_output_tokens": 3574,
+                "cost_usd": 0.00441629
+            }
+        },
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 6,
+            "api_request_times_msec": [
+                18327.702045440674,
+                18025.269985198975,
+                17674.700498580933,
+                28059.391021728516,
+                4414.4415855407715,
+                4042.6461696624756
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "d_fit": 0.0,
+            "g_fit": 0.0,
+            "2d_fit": 0.0,
+            "id_ig": 1.0,
+            "reward": 0.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-11-18T11:13:04.414098Z",
+    "finished_at": "2026-11-18T11:14:56.752504Z",
+    "environment_setup": {
+        "started_at": "2026-11-18T11:13:04.421901Z",
+        "finished_at": "2026-11-18T11:13:09.399431Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-11-18T11:13:09.399457Z",
+        "finished_at": "2026-11-18T11:13:16.787759Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-11-18T11:13:16.788040Z",
+        "finished_at": "2026-11-18T11:14:52.327068Z"
+    },
+    "verifier": {
+        "started_at": "2026-11-18T11:14:52.613700Z",
+        "finished_at": "2026-11-18T11:14:56.681543Z"
+    },
+    "step_results": null
+}

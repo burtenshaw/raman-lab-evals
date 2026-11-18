@@ -1,0 +1,14 @@
+Creating HF Sandbox: image=alexgshaw/raman-fitting:20251031, flavor=cpu-basic, idle_timeout=600s
+Parser warnings: - Extra text detected before JSON object
+- Extra text detected after JSON object
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Trajectory dumped to /tmp/work/jobs/kimi-k3-original/raman-fitting__fGWa5BY/agent/trajectory.json
+Collecting main service artifacts

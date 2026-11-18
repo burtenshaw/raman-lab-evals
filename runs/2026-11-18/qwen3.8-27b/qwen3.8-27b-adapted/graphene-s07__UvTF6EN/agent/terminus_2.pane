@@ -1,0 +1,89 @@
+[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# head -5 /app/spectrum.csv && wc -l /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1188.408
+1100.5001,1068.023
+1101.0003,1192.268
+1101.5004,1162.308
+3801 /app/spectrum.csv
+[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# python3 -c "import numpy, scipy; print(numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport numpy, scipy[0m; print(numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# pip install numpy scipy 2>&1 | tail -5
+[?2004lSuccessfully installed numpy-2.5.5 scipy-1.18.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# cat > /app/fit.py << 'EOF'
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lor(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> data = np.genfromtxt('/app/spectrum.csv', delimiter=',', skip_header=1)
+[?2004l[?2004h> x_all, y_all = data[:,0], data[:,1]
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {'D': 1350, 'G': 1580, '2D': 2690}
+[?2004l[?2004h> win = 150
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, center in peaks.items():
+[?2004l[?2004h>     m = (x_all >= center-win) & (x_all <= center+win)
+[?2004l[?2004h>     x = x_all[m]; y = y_all[m]
+[?2004l[?2004h>     # initial guesses
+[?2004l[?2004h>     off0 = np.percentile(y, 10)
+[?2004l[?2004h>     idx = np.argmax(y)
+[?2004l[?2004h>     amp0 = y[idx] - off0
+[?2004l[?2004h>     x00 = x[idx]
+[?2004l[?2004h>     gam0 = 20.0
+[?2004l[?2004h>     p0 = [amp0, x00, gam0, off0]
+[?2004l[?2004h>     popt, pcov = curve_fit(lor, x, y, p0=p0, maxfev=20000)
+[?2004l[?2004h>     amp, x0, gam, off = popt
+[?2004l[?2004h>     gam = abs(gam)
+[?2004l[?2004h>     results[name] = {'x0': float(x0), 'gamma': float(gam), 'amplitude': float(amp), 'offset': float(off)}
+[?2004l[?2004h>     print(name, 'x0=%.3f gamma=%.3f amp=%.3f off=%.3f' % (x0, gam, amp, off))
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = float(results['D']['amplitude'] / results['G']['amplitude'])
+[?2004l[?2004h> print('ID_IG =', results['ID_IG'])
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json','w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print('written')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# python3 /app/fit.py
+[?2004lD x0=1348.258 gamma=16.602 amp=8201.090 off=1285.171
+G x0=1580.381 gamma=12.734 amp=7496.681 off=1350.996
+2D x0=2692.411 gamma=20.923 amp=10379.338 off=1408.963
+ID_IG = 1.0939627809132975
+written
+[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1348.2575016299256,
+    "gamma": 16.602450510193794,
+    "amplitude": 8201.089809486122,
+    "offset": 1285.1705034900774
+  },
+  "G": {
+    "x0": 1580.3809979078083,
+    "gamma": 12.734444034969139,
+    "amplitude": 7496.6808309871585,
+    "offset": 1350.9962156858296
+  },
+  "2D": {
+    "x0": 2692.4107802729864,
+    "gamma": 20.92254802714095,
+    "amplitude": 10379.337823746175,
+    "offset": 1408.963402194445
+  },
+  "ID_IG": 1.0939627809132975
+}[?2004hroot@j-openenv-6afd8fcee5cad0e4dc3e6f34-l38dralj-b82e0-6vm7s:/app# 

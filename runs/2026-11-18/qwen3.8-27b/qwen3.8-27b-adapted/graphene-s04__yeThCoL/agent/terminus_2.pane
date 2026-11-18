@@ -1,0 +1,439 @@
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# ls -la
+[?2004ltotal 72
+drwxr-xr-x. 2 root root    26 Nov 18 11:07 .
+drwxr-xr-x. 1 root root   107 Nov 18 11:22 ..
+-rw-r--r--. 1 root root 72290 Nov 18 11:07 spectrum.csv
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# head -n 10 spectrum.csv && wc -l spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,1365.563
+1100.5001,1398.616
+1101.0003,1325.446
+1101.5004,1350.712
+1102.0005,1288.901
+1102.5007,1318.175
+1103.0008,1335.503
+1103.5009,1347.222
+1104.0011,1321.654
+3801 spectrum.csv
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 -c "import sys, numpy, scipy; print(sys.version, numpy.__version__, scipy.__version__)"
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport sys, numpy, scipy[0m; print(sys.version, numpy.__version__, scipy.__version__)
+    [1;31m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv, math
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> print('n', len(xs), 'x0', xs[0], 'xN', xs[-1])
+[?2004l[?2004h> imax=max(range(len(ys)), key=lambda i: ys[i])
+[?2004l[?2004h> print('overall max', xs[imax], ys[imax])
+[?2004l[?2004h> for name,lo,hi in [('D',1250,1450),('G',1480,1680),('2D',2590,2790)]:
+[?2004l[?2004h>     best=-1; bi=0
+[?2004l[?2004h>     for i,x in enumerate(xs):
+[?2004l[?2004h>         if lo<=x<=hi and ys[i]>best:
+[?2004l[?2004h>             best=ys[i]; bi=i
+[?2004l[?2004h>     print(name, 'max', xs[bi], best)
+[?2004l[?2004h> for lo,hi in [(1100,1200),(2000,2100),(2500,2550),(2900,3000)]:
+[?2004l[?2004h>     vals=[ys[i] for i,x in enumerate(xs) if lo<=x<=hi]
+[?2004l[?2004h>     if vals:
+[?2004l[?2004h>         print('baseline', lo, hi, 'mean', sum(vals)/len(vals), 'min', min(vals), 'max', max(vals))
+[?2004l[?2004h> PY
+[?2004ln 3800 x0 1100.0 xN 3000.0
+overall max 1346.0648 13447.987
+D max 1346.0648 13447.987
+G max 1585.1277 9883.691
+2D max 2678.4154 11944.354
+baseline 1100 1200 mean 1337.5249549999999 min 1182.622 max 1481.311
+baseline 2000 2100 mean 1176.31841 min 990.22 max 1352.579
+baseline 2500 2550 mean 1283.14007 min 1130.654 max 1457.521
+baseline 2900 3000 mean 1114.6801 min 962.224 max 1254.34
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> 
+[?2004l[?2004h> def local_stats(name, lo, hi, baseline_lo=None, baseline_hi=None):
+[?2004l[?2004h>     if baseline_lo is None:
+[?2004l[?2004h>         baseline_lo=lo-20; baseline_hi=lo
+[?2004l[?2004h>     if baseline_hi is None:
+[?2004l[?2004h>         baseline_hi=hi; baseline_lo=hi
+[?2004l[?2004h>     # actually use separate edge regions outside peak window maybe
+[?2004l[?2004h>     pass
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, center, half in [('D',1346,120),('G',1585,120),('2D',2678,120)]:
+[?2004l[?2004h>     lo,hi=center-half, center+half
+[?2004l[?2004h>     idx=[i for i,x in enumerate(xs) if lo<=x<=hi]
+[?2004l[?2004h>     if not idx: continue
+[?2004l[?2004h>     i0=idx[0]; imax=max(idx, key=lambda i: ys[i])
+[?2004l[?2004h>     # baseline from 20 points at each edge of window
+[?2004l[?2004h>     edge = idx[:20] + idx[-20:]
+[?2004l[?2004h>     base = sum(ys[i] for i in edge)/len(edge)
+[?2004l[?2004h>     amp = ys[imax]-base
+[?2004l[?2004h>     halfmax = base + amp/2
+[?2004l[?2004h>     # find left and right crossings
+[?2004l[?2004h>     left=None; right=None
+[?2004l[?2004h>     for i in range(imax, i0, -1):
+[?2004l[?2004h>         if ys[i] < halfmax:
+[?2004l[?2004h>             # linear interpolate between i and i+1
+[?2004l[?2004h>             x1,x2=xs[i],xs[i+1]; y1,y2=ys[i],ys[i+1]
+[?2004l[?2004h>             left = x1 + (halfmax-y1)*(x2-x1)/(y2-y1) if y2!=y1 else x1
+[?2004l[?2004h>             break
+[?2004l[?2004h>     for i in range(imax, idx[-1], 1):
+[?2004l[?2004h>         if ys[i] < halfmax:
+[?2004l[?2004h>             x1,x2=xs[i-1],xs[i]; y1,y2=ys[i-1],ys[i]
+[?2004l[?2004h>             right = x1 + (halfmax-y1)*(x2-x1)/(y2-y1) if y2!=y1 else x1
+[?2004l[?2004h>             break
+[?2004l[?2004h>     fwhm = right-left if left and right else None
+[?2004l[?2004h>     print(f'{name}: center window {lo}-{hi}, xmax={xs[imax]:.2f}, ymax={ys[imax]:.1f}, base={base:.1f}, amp={amp:.1f}, left={left and round(left,2)}, right={right and round(right,2)}, fwhm={fwhm and round(fwhm,2)}, gamma_est={fwhm/2 if fwhm else None}')
+[?2004l[?2004h>     # print values every 10 points around max
+[?2004l[?2004h>     # for i in range(max(i0,imax-60), min(idx[-1]+1,imax+60), 10):
+[?2004l[?2004h>     #     print('   ', xs[i], ys[i])
+[?2004l[?2004h> PY
+[?2004lD: center window 1226-1466, xmax=1346.06, ymax=13448.0, base=1490.4, amp=11957.5, left=1331.44, right=1360.44, fwhm=29.0, gamma_est=14.49870156361942
+G: center window 1465-1705, xmax=1585.13, ymax=9883.7, base=1434.3, amp=8449.3, left=1571.43, right=1598.69, fwhm=27.26, gamma_est=13.630238746771852
+2D: center window 2558-2798, xmax=2678.42, ymax=11944.4, base=1410.4, amp=10533.9, left=2658.66, right=2697.61, fwhm=38.95, gamma_est=19.47546915998896
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# cat > /app/fit.py << 'PYEOF'
+[?2004l[?2004h> import csv, math, json
+[?2004l[?2004h> 
+[?2004l      lam *= 0.1
+            if lam < 1e-15:
+                lam = 1e-15
+            if rel_change < 1e-14:
+                break
+        else:
+            lam *= 10.0
+            if lam > 1e15:
+                break
+    
+    return p, sse
+
+# Initial estimates
+initials = {
+    'D':  (11958.0, 14.5, 1346.06, 1490.0),
+    'G':  (8449.0, 13.6, 1585.13, 1434.0),
+    '2D': (10534.0, 19.5, 2678.42, 1410.0),
+}
+
+results = {}
+for name in ['D', 'G', '2D']:
+    p0 = initials[name]
+    p, sse = fit_lm(xs, ys, p0, window=100.0)
+    A, G, X, O = p
+    results[name] = {
+        'x0': X,
+        'gamma': G,
+        'amplitude': A,
+        'offset': O
+    }
+    print(f"{name}: x0={X:.4f}, gamma={G:.4f}, amplitude={A:.2f}, offset={O:.2f}, sse={sse:.2f}, iters_done")
+
+results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+print(f"ID/IG = {results['ID_IG']:.6f}")
+
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+print("Written to /app/results.json")
+PYEOF
+[?2004h> # Load data
+[?2004l[?2004h> xs = []
+[?2004l[?2004h> ys = []
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r = csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1']))
+[?2004l[?2004h>         ys.append(float(row['intensity']))
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, A, G, X, O):
+[?2004l[?2004h>     d = x - X
+[?2004l[?2004h>     return A * G * G / (d * d + G * G) + O
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_lm(x_data, y_data, p0, window=100.0):
+[?2004l[?2004h>     A0, G0, X0, O0 = p0
+[?2004l[?2004h>     indices = [i for i, x in enumerate(x_data) if abs(x - X0) <= window]
+[?2004l[?2004h>     xd = [x_data[i] for i in indices]
+[?2004l[?2004h>     yd = [y_data[i] for i in indices]
+[?2004l[?2004h>     n = len(xd)
+[?2004l[?2004h>     p = list(p0)
+[?2004l[?2004h>     lam = 1e-3
+[?2004l[?2004h>     for it in range(300):
+[?2004l[?2004h>         # Compute model and residuals
+[?2004l[?2004h>         model = [lorentzian(x, p[0], p[1], p[2], p[3]) for x in xd]
+[?2004l[?2004h>         res = [yd[i] - model[i] for i in range(n)]
+[?2004l[?2004h>         sse = sum(r*r for r in res)
+[?2004l[?2004h>         
+[?2004l[?2004h>         # Compute Jacobian (n x 4)
+[?2004l[?2004h>         J = []
+[?2004l[?2004h>         for i, x in enumerate(xd):
+[?2004l[?2004h>             d = x - p[2]
+[?2004l[?2004h>             A, G = p[0], p[1]
+[?2004l[?2004h>             denom = d*d + G*G
+[?2004l[?2004h>             denom2 = denom * denom
+[?2004l[?2004h>             dA = G*G / denom
+[?2004l[?2004h>             dG = A * 2.0*G*d*d / denom2
+[?2004l[?2004h>             dX = A * 2.0*G*G*d / denom2
+[?2004l[?2004h>             dO = 1.0
+[?2004l[?2004h>             J.append([dA, dG, dX, dO])
+[?2004l[?2004h>         
+[?2004l[?2004h>         # Compute J^T J (4x4) and J^T r (4x1)
+[?2004l[?2004h>         JtJ = [[0.0]*4 for _ in range(4)]
+[?2004l[?2004h>         Jtr = [0.0]*4
+[?2004l[?2004h>         for i in range(n):
+[?2004l[?2004h>             for a in range(4):
+[?2004l[?2004h>                 Jtr[a] += J[i][a] * res[i]
+[?2004l[?2004h>                 for b in range(4):
+[?2004l[?2004h>                     JtJ[a][b] += J[i][a] * J[i][b]
+[?2004l[?2004h>         
+[?2004l[?2004h>         # Solve (JtJ + lam * diag(JtJ)) dp = Jtr
+[?2004l[?2004h>         A_mat = [[JtJ[a][b] + (lam * JtJ[a][a] if a == b else 0.0) for b in range(4)] for a in range(4)]
+[?2004l[?2004h>         aug = [A_mat[a] + [Jtr[a]] for a in range(4)]
+[?2004l[?2004h>         
+[?2004l[?2004h>         # Gaussian elimination with partial pivoting
+[?2004l[?2004h>         singular = False
+[?2004l[?2004h>         for col in range(4):
+[?2004l[?2004h>             max_row = col
+[?2004l[?2004h>             for row in range(col+1, 4):
+[?2004l[?2004h>                 if abs(aug[row][col]) > abs(aug[max_row][col]):
+[?2004l[?2004h>                     max_row = row
+[?2004l[?2004h>             aug[col], aug[max_row] = aug[max_row], aug[col]
+[?2004l[?2004h>             if abs(aug[col][col]) < 1e-15:
+[?2004l[?2004h>                 singular = True
+[?2004l[?2004h>                 break
+[?2004l[?2004h>             for row in range(col+1, 4):
+[?2004l[?2004h>                 factor = aug[row][col] / aug[col][col]
+[?2004l[?2004h>                 for j in range(col, 5):
+[?2004l[?2004h>                     aug[row][j] -= factor * aug[col][j]
+[?2004l[?2004h>         
+[?2004l[?2004h>         if singular:
+[?2004l[?2004h>             break
+[?2004l[?2004h>         
+[?2004l[?2004h>         dp = [0.0]*4
+[?2004l[?2004h>         for i in range(3, -1, -1):
+[?2004l[?2004h>             s = aug[i][4]
+[?2004l[?2004h>             for j in range(i+1, 4):
+[?2004l[?2004h>                 s -= aug[i][j] * dp[j]
+[?2004l[?2004h>             dp[i] = s / aug[i][i]
+[?2004l[?2004h>         
+[?2004l[?2004h>         p_new = [p[i] + dp[i] for i in range(4)]
+[?2004l[?2004h>         if p_new[1] <= 0:
+[?2004l[?2004h>             p_new[1] = abs(p_new[1]) * 0.5 + 1e-3
+[?2004l[?2004h>         
+[?2004l[?2004h>         model_new = [lorentzian(x, p_new[0], p_new[1], p_new[2], p_new[3]) for x in xd]
+[?2004l[?2004h>         res_new = [yd[i] - model_new[i] for i in range(n)]
+[?2004l[?2004h>         sse_new = sum(r*r for r in res_new)
+[?2004l[?2004h>         
+[?2004l[?2004h>         if sse_new < sse:
+[?2004l[?2004h>             rel_change = abs(sse - sse_new) / max(sse, 1e-10)
+[?2004l[?2004h>             p = p_new
+[?2004l[?2004h>             lam *= 0.1
+[?2004l[?2004h>             if lam < 1e-15:
+[?2004l[?2004h>                 lam = 1e-15
+[?2004l[?2004h>             if rel_change < 1e-14:
+[?2004l[?2004h>                 break
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             lam *= 10.0
+[?2004l[?2004h>             if lam > 1e15:
+[?2004l[?2004h>                 break
+[?2004l[?2004h>     
+[?2004l[?2004h>     return p, sse
+[?2004l[?2004h> 
+[?2004l[?2004h> # Initial estimates
+[?2004l[?2004h> initials = {
+[?2004l[?2004h>     'D':  (11958.0, 14.5, 1346.06, 1490.0),
+[?2004l[?2004h>     'G':  (8449.0, 13.6, 1585.13, 1434.0),
+[?2004l[?2004h>     '2D': (10534.0, 19.5, 2678.42, 1410.0),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name in ['D', 'G', '2D']:
+[?2004l[?2004h>     p0 = initials[name]
+[?2004l[?2004h>     p, sse = fit_lm(xs, ys, p0, window=100.0)
+[?2004l[?2004h>     A, G, X, O = p
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': X,
+[?2004l[?2004h>         'gamma': G,
+[?2004l[?2004h>         'amplitude': A,
+[?2004l[?2004h>         'offset': O
+[?2004l[?2004h>     }
+[?2004l[?2004h>     print(f"{name}: x0={X:.4f}, gamma={G:.4f}, amplitude={A:.2f}, offset={O:.2f}, sse={sse:.2f}, iters_done")
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> print(f"ID/IG = {results['ID_IG']:.6f}")
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> print("Written to /app/results.json")
+[?2004l[?2004h> PYEOF
+[?2004l[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 /app/fit.py
+[?2004lD: x0=1345.9881, gamma=14.7347, amplitude=12082.95, offset=1267.53, sse=1503194.68, iters_done
+G: x0=1585.0909, gamma=13.9518, amplitude=8610.54, offset=1267.94, sse=1850033.49, iters_done
+2D: x0=2678.0383, gamma=19.9800, amplitude=10768.15, offset=1073.39, sse=1485323.24, iters_done
+ID/IG = 1.403275
+Written to /app/results.json
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1345.9880998230346,
+    "gamma": 14.73466128755606,
+    "amplitude": 12082.951578001841,
+    "offset": 1267.5289305285567
+  },
+  "G": {
+    "x0": 1585.0908633232098,
+    "gamma": 13.951802384915696,
+    "amplitude": 8610.53843925886,
+    "offset": 1267.9433217584035
+  },
+  "2D": {
+    "x0": 2678.0383234061046,
+    "gamma": 19.979966111784968,
+    "amplitude": 10768.14675639998,
+    "offset": 1073.3880376786087
+  },
+  "ID_IG": 1.4032747967201298
+}[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 - <<'PY'
+[?2004l[?2004h> import json
+[?2004l[?2004h> res=json.load(open('/app/results.json'))
+[?2004l[?2004h> for k in ['D','G','2D']:
+[?2004l[?2004h>     p=res[k]
+[?2004l[?2004h>     print(k, p)
+[?2004l[?2004h> print('ID_IG', res['ID_IG'])
+[?2004l[?2004h> PY
+[?2004lD {'x0': 1345.9880998230346, 'gamma': 14.73466128755606, 'amplitude': 12082.951578001841, 'offset': 1267.5289305285567}
+G {'x0': 1585.0908633232098, 'gamma': 13.951802384915696, 'amplitude': 8610.53843925886, 'offset': 1267.9433217584035}
+2D {'x0': 2678.0383234061046, 'gamma': 19.979966111784968, 'amplitude': 10768.14675639998, 'offset': 1073.3880376786087}
+ID_IG 1.4032747967201298
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 - <<'PY'
+[?2004l[?2004h> import importlib.util
+[?2004l[?2004h> spec = importlib.util.spec_from_file_location("fit", "/app/fit.py")
+[?2004l[?2004h> # just import functions by exec
+[?2004l[?2004h> code = open('/app/fit.py').read()
+[?2004l[?2004h> # strip the execution part after fit_lm definition for a clean import is messy; instead redefine quickly
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> xs=[]; ys=[]
+[?2004l[?2004h> with open('/app/spectrum.csv') as f:
+[?2004l[?2004h>     r=csv.DictReader(f)
+[?2004l[?2004h>     for row in r:
+[?2004l[?2004h>         xs.append(float(row['raman_shift_cm-1'])); ys.append(float(row['intensity']))
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x,A,G,X,O):
+[?2004l[?2004h>     d=x-X; return A*G*G/(d*d+G*G)+O
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_lm(x_data,y_data,p0,window):
+[?2004l[?2004h>     X0=p0[2]; idx=[i for i,x in enumerate(x_data) if abs(x-X0)<=window]
+[?2004l[?2004h>     xd=[x_data[i] for i in idx]; yd=[y_data[i] for i in idx]; n=len(xd)
+[?2004l[?2004h>     p=list(p0); lam=1e-3
+[?2004l[?2004h>     for it in range(300):
+[?2004l[?2004h>         model=[lorentzian(x,p[0],p[1],p[2],p[3]) for x in xd]
+[?2004l[?2004h>         res=[yd[i]-model[i] for i in range(n)]; sse=sum(r*r for r in res)
+[?2004l[?2004h>         J=[]
+[?2004l[?2004h>         for x in xd:
+[?2004l[?2004h>             d=x-p[2]; A,G=p[0],p[1]; den=d*d+G*G; den2=den*den
+[?2004l[?2004h>             J.append([G*G/den, A*2.0*G*d*d/den2, A*2.0*G*G*d/den2, 1.0])
+[?2004l[?2004h>         JtJ=[[0.0]*4 for _ in range(4)]; Jtr=[0.0]*4
+[?2004l[?2004h>         for i in range(n):
+[?2004l[?2004h>             for a in range(4):
+[?2004l[?2004h>                 Jtr[a]+=J[i][a]*res[i]
+[?2004l[?2004h>                 for b in range(4): JtJ[a][b]+=J[i][a]*J[i][b]
+[?2004l[?2004h>         A_mat=[[JtJ[a][b]+(lam*JtJ[a][a] if a==b else 0.0) for b in range(4)] for a in range(4)]
+[?2004l[?2004h>         aug=[A_mat[a]+[Jtr[a]] for a in range(4)]
+[?2004l[?2004h>         singular=False
+[?2004l[?2004h>         for col in range(4):
+[?2004l[?2004h>             mr=col
+[?2004l[?2004h>             for row in range(col+1,4):
+[?2004l[?2004h>                 if abs(aug[row][col])>abs(aug[mr][col]): mr=row
+[?2004l[?2004h>             aug[col],aug[mr]=aug[mr],aug[col]
+[?2004l[?2004h>             if abs(aug[col][col])<1e-15: singular=True; break
+[?2004l[?2004h>             for row in range(col+1,4):
+[?2004l[?2004h>                 f=aug[row][col]/aug[col][col]
+[?2004l[?2004h>                 for j in range(col,5): aug[row][j]-=f*aug[col][j]
+[?2004l[?2004h>         if singular: break
+[?2004l[?2004h>         dp=[0.0]*4
+[?2004l[?2004h>         for i in range(3,-1,-1):
+[?2004l[?2004h>             s=aug[i][4]
+[?2004l[?2004h>             for j in range(i+1,4): s-=aug[i][j]*dp[j]
+[?2004l[?2004h>             dp[i]=s/aug[i][i]
+[?2004l[?2004h>         pn=[p[i]+dp[i] for i in range(4)]
+[?2004l[?2004h>         if pn[1]<=0: pn[1]=abs(pn[1])*0.5+1e-3
+[?2004l[?2004h>         mn=[lorentzian(x,pn[0],pn[1],pn[2],pn[3]) for x in xd]
+[?2004l[?2004h>         rn=[yd[i]-mn[i] for i in range(n)]; sn=sum(r*r for r in rn)
+[?2004l[?2004h>         if sn<sss if (sss:=sse) else sn< sse:
+[?2004l[?2004h>             pass
+[?2004l[?2004h>         if sn< sse:
+[?2004l[?2004h>             rc=abs(sse-sn)/max(sse,1e-10); p=pn; lam=max(lam*0.1,1e-15)
+[?2004l[?2004h>             if rc<1e-14: break
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             lam*=10.0
+[?2004l[?2004h>             if lam>1e15: break
+[?2004l[?2004h>     return p
+[?2004l[?2004h> 
+[?2004l[?2004h> inits={'D':(11958.0,14.5,1346.06,1490.0),'G':(8449.0,13.6,1585.13,1434.0),'2D':(10534.0,19.5,2678.42,1410.0)}
+[?2004l[?2004h> for name in ['D','G','2D']:
+[?2004l[?2004h>     for w in [80,100,150]:
+[?2004l[?2004h>         p=fit_lm(xs,ys,inits[name],w)
+[?2004l[?2004h>         print(name,'win',w,'A=%.2f G=%.3f X=%.3f O=%.2f'%(p[0],p[1],p[2],p[3]))
+[?2004l[?2004h>     print()
+[?2004l[?2004h> PY
+[?2004lD win 80 A=12087.99 G=14.762 X=1345.987 O=1258.07
+D win 100 A=12082.95 G=14.735 X=1345.988 O=1267.53
+D win 150 A=12074.00 G=14.667 X=1345.989 O=1288.10
+
+G win 80 A=8611.83 G=13.961 X=1585.093 O=1265.51
+G win 100 A=8610.54 G=13.952 X=1585.091 O=1267.94
+G win 150 A=8596.79 G=13.809 X=1585.087 O=1300.39
+
+2D win 80 A=10770.93 G=19.997 X=2678.039 O=1068.96
+2D win 100 A=10768.15 G=19.980 X=2678.038 O=1073.39
+2D win 150 A=10763.58 G=19.940 X=2678.037 O=1082.20
+
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# python3 -c "
+[?2004l[?2004h> import json
+[?2004l[?2004h> with open('/app/results.json') as f:
+[?2004l[?2004h>     r = json.load(f)
+[?2004l[?2004h> assert 'D' in r and 'G' in r and '2D' in r
+[?2004l[?2004h> for k in ['D','G','2D']:
+[?2004l[?2004h>     for field in ['x0','gamma','amplitude','offset']:
+[?2004l[?2004h>         assert field in r[k], f'Missing {field} in {k}'
+[?2004l[?2004h>         assert isinstance(r[k][field], float), f'{field} in {k} is not float'
+[?2004l[?2004h> assert 'ID_IG' in r
+[?2004l[?2004h> assert isinstance(r['ID_IG'], float)
+[?2004l[?2004h> print('All checks passed.')
+[?2004l[?2004h> print(json.dumps(r, indent=2))
+[?2004l[?2004h> "
+[?2004lAll checks passed.
+{
+  "D": {
+    "x0": 1345.9880998230346,
+    "gamma": 14.73466128755606,
+    "amplitude": 12082.951578001841,
+    "offset": 1267.5289305285567
+  },
+  "G": {
+    "x0": 1585.0908633232098,
+    "gamma": 13.951802384915696,
+    "amplitude": 8610.53843925886,
+    "offset": 1267.9433217584035
+  },
+  "2D": {
+    "x0": 2678.0383234061046,
+    "gamma": 19.979966111784968,
+    "amplitude": 10768.14675639998,
+    "offset": 1073.3880376786087
+  },
+  "ID_IG": 1.4032747967201298
+}
+[?2004hroot@j-openenv-6afd8a8ae5cad0e4dc3e6b88-8qux8lh6-0759b-mjfc9:/app# 

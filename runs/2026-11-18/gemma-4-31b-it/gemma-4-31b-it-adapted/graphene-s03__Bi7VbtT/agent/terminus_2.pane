@@ -1,0 +1,258 @@
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# head -n 5 /app/spectrum.csv
+[?2004lraman_shift_cm-1,intensity
+1100.0000,954.992
+1100.5001,989.534
+1101.0003,1110.132
+1101.5004,1024.330
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# cat << 'EOF' > fit_spectrum.py
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> df = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': 1350,
+[?2004l[?2004h>     'G': 1580,
+[?2004l[?2004h>     '2D': 2690
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, center in peaks.items():
+[?2004l[?2004h>     # Define a window around the peak to isolate it
+[?2004l[?2004h>     mask = (x >= center - 50) & (x <= center + 50)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Initial guesses: x0=center, gamma=10, amplitude=max(y)-min(y), offset=min(y)
+[?2004l[?2004h>     p0 = [center, 10, np.max(y_fit) - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(popt[0]),
+[?2004l[?2004h>         'gamma': float(popt[1]),
+[?2004l[?2004h>         'amplitude': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# python3 fit_spectrum.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_spectrum.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# cat << 'EOF' > fit_spectrum.py
+[?2004lresults[name] = {
+            'x0': float(popt[0]),
+            'gamma': float(popt[1]),
+            'amplitude': float(popt[2]),
+            'offset': float(popt[3])
+        }
+    except Exception as e:
+        print(f"Error fitting {name}: {e}")
+
+if 'D' in results and 'G' in results:
+    results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+[?2004h> import csv
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> import json
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data using csv module
+[?2004l[?2004h> x = []
+[?2004l[?2004h> y = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader) # skip header
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x.append(float(row[0]))
+[?2004l[?2004h>         y.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> x = np.array(x)
+[?2004l[?2004h> y = np.array(y)
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D': 1350,
+[?2004l[?2004h>     'G': 1580,
+[?2004l[?2004h>     '2D': 2690
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, center in peaks.items():
+[?2004l[?2004h>     # Define a window around the peak to isolate it
+[?2004l[?2004h>     mask = (x >= center - 50) & (x <= center + 50)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     
+[?2004l[?2004h>     if len(x_fit) == 0:
+[?2004l[?2004h>         continue
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Initial guesses: x0=center, gamma=10, amplitude=max(y)-min(y), offset=min(y)
+[?2004l[?2004h>     p0 = [center, 10, np.max(y_fit) - np.min(y_fit), np.min(y_fit)]
+[?2004l[?2004h>     
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>         results[name] = {
+[?2004l[?2004h>             'x0': float(popt[0]),
+[?2004l[?2004h>             'gamma': float(popt[1]),
+[?2004l[?2004h>             'amplitude': float(popt[2]),
+[?2004l[?2004h>             'offset': float(popt[3])
+[?2004l[?2004h>         }
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         print(f"Error fitting {name}: {e}")
+[?2004l[?2004h> 
+[?2004l[?2004h> if 'D' in results and 'G' in results:
+[?2004l[?2004h>     results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# python3 fit_spectrum.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_spectrum.py"[0m, line [35m2[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# cat << 'EOF' > fit_spectrum.py
+[?2004l[?2004h> import csv
+[?2004lt = [p[1] for p in window]
+    
+    popt = fit_peak(x_fit, y_fit, center)
+    results[name] = {
+        'x0': popt[0],
+        'gamma': popt[1],
+        'amplitude': popt[2],
+        'offset': popt[3]
+    }
+
+results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+
+with open('/app/results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+EOF
+[?2004h> import json
+[?2004l[?2004h> import math
+[?2004l[?2004h> 
+[?2004l[?2004h> def lorentzian(x, x0, gamma, amplitude, offset):
+[?2004l[?2004h>     return amplitude * (gamma**2) / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> def calculate_sse(x_data, y_data, params):
+[?2004l[?2004h>     x0, gamma, amplitude, offset = params
+[?2004l[?2004h>     sse = 0
+[?2004l[?2004h>     for x, y in zip(x_data, y_data):
+[?2004l[?2004h>         sse += (y - lorentzian(x, x0, gamma, amplitude, offset))**2
+[?2004l[?2004h>     return sse
+[?2004l[?2004h> 
+[?2004l[?2004h> def fit_peak(x_data, y_data, start_x0):
+[?2004l[?2004h>     # Simple coordinate descent / grid search hybrid for initial guess
+[?2004l[?2004h>     # Params: x0, gamma, amplitude, offset
+[?2004l[?2004h>     best_params = [start_x0, 10.0, 100.0, min(y_data)]
+[?2004l[?2004h>     best_sse = calculate_sse(x_data, y_data, best_params)
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Heuristic to improve amplitude guess
+[?2004l[?2004h>     best_params[2] = max(y_data) - min(y_data)
+[?2004l[?2004h>     best_sse = calculate_sse(x_data, y_data, best_params)
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Simple iterative refinement (Coordinate Descent)
+[?2004l[?2004h>     step_sizes = [0.1, 0.1, 1.0, 0.1]
+[?2004l[?2004h>     for _ in range(100):
+[?2004l[?2004h>         improved = False
+[?2004l[?2004h>         for i in range(4):
+[?2004l[?2004h>             for direction in [-1, 1]:
+[?2004l[?2004h>                 test_params = list(best_params)
+[?2004l[?2004h>                 test_params[i] += direction * step_sizes[i]
+[?2004l[?2004h>                 sse = calculate_sse(x_data, y_data, test_params)
+[?2004l[?2004h>                 if sse < best_sse:
+[?2004l[?2004h>                     best_sse = sse
+[?2004l[?2004h>                     best_params = test_params
+[?2004l[?2004h>                     improved = True
+[?2004l[?2004h>         if not improved:
+[?2004l[?2004h>             # Reduce step sizes and try again
+[?2004l[?2004h>             step_sizes = [s * 0.5 for s in step_sizes]
+[?2004l[?2004h>             if step_sizes[0] < 1e-4:
+[?2004l[?2004h>                 break
+[?2004l[?2004h>     
+[?2004l[?2004h>     return best_params
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> x_all = []
+[?2004l[?2004h> y_all = []
+[?2004l[?2004h> with open('/app/spectrum.csv', 'r') as f:
+[?2004l[?2004h>     reader = csv.reader(f)
+[?2004l[?2004h>     next(reader)
+[?2004l[?2004h>     for row in reader:
+[?2004l[?2004h>         x_all.append(float(row[0]))
+[?2004l[?2004h>         y_all.append(float(row[1]))
+[?2004l[?2004h> 
+[?2004l[?2004h> peaks_centers = {'D': 1350, 'G': 1580, '2D': 2690}
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> 
+[?2004l[?2004h> for name, center in peaks_centers.items():
+[?2004l[?2004h>     # Isolate window
+[?2004l[?2004h>     window = [(x, y) for x, y in zip(x_all, y_all) if center - 50 <= x <= center + 50]
+[?2004l[?2004h>     x_fit = [p[0] for p in window]
+[?2004l[?2004h>     y_fit = [p[1] for p in window]
+[?2004l[?2004h>     
+[?2004l[?2004h>     popt = fit_peak(x_fit, y_fit, center)
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': popt[0],
+[?2004l[?2004h>         'gamma': popt[1],
+[?2004l[?2004h>         'amplitude': popt[2],
+[?2004l[?2004h>         'offset': popt[3]
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude']
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# python3 fit_spectrum.py
+[?2004l[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1354.9999999999955,
+    "gamma": 15.59999999999998,
+    "amplitude": 5577.932000000001,
+    "offset": 1477.2069999999999
+  },
+  "G": {
+    "x0": 1583.399999999997,
+    "gamma": 10.2,
+    "amplitude": 7389.080000000001,
+    "offset": 1130.432000000009
+  },
+  "2D": {
+    "x0": 2680.000000000009,
+    "gamma": 20.000000000000036,
+    "amplitude": 8597.32,
+    "offset": 2382.803999999991
+  },
+  "ID_IG": 0.7548885652882361
+}[?2004hroot@j-openenv-6afd8840884144d2f44fd48c-kxetcwx8-e29ee-d4kj7:/app# 

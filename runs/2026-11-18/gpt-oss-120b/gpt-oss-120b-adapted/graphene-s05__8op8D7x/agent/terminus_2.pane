@@ -1,0 +1,143 @@
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# ls -l
+[?2004ltotal 68
+-rw-r--r--. 1 root root 69622 Nov 18 11:06 spectrum.csv
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# cat <<'EOF' > fit_peaks.py
+[?2004l(popt[0]),
+        'x0': float(popt[1]),
+        'gamma': float(popt[2]),
+        'offset': float(popt[3])
+    }
+
+# Fit D, G, 2D peaks
+results = {}
+results['D'] = fit_peak(x, y, center=1350, window=100)
+results['G'] = fit_peak(x, y, center=1580, window=100)
+results['2D'] = fit_peak(x, y, center=2690, window=150)
+
+# Compute defect ratio I_D/I_G (using amplitudes)
+results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+
+# Write to JSON file
+with open('results.json', 'w') as f:
+    json.dump(results, f, indent=2)
+
+print('Fitting complete. Results written to results.json')
+EOF
+[?2004h> import pandas as pd
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import json
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> df = pd.read_csv('spectrum.csv')
+[?2004l[?2004h> # Ensure columns are correct
+[?2004l[?2004h> x = df['raman_shift_cm-1'].values
+[?2004l[?2004h> y = df['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian with offset
+[?2004l[?2004h> def lorentzian(x, amplitude, x0, gamma, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(x, y, center, window=50):
+[?2004l[?2004h>     mask = (x >= center - window) & (x <= center + window)
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     x0_guess = x_fit[np.argmax(y_fit)]
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, x0_guess, gamma_guess, offset_guess]
+[?2004l[?2004h>     # Bounds: amplitude>0, gamma>0
+[?2004l[?2004h>     bounds = ([0, center - window, 0, -np.inf], [np.inf, center + window, np.inf, np.inf])
+[?2004l[?2004h>     popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0, bounds=bounds)
+[?2004l[?2004h>     return {
+[?2004l[?2004h>         'amplitude': float(popt[0]),
+[?2004l[?2004h>         'x0': float(popt[1]),
+[?2004l[?2004h>         'gamma': float(popt[2]),
+[?2004l[?2004h>         'offset': float(popt[3])
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Fit D, G, 2D peaks
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> results['D'] = fit_peak(x, y, center=1350, window=100)
+[?2004l[?2004h> results['G'] = fit_peak(x, y, center=1580, window=100)
+[?2004l[?2004h> results['2D'] = fit_peak(x, y, center=2690, window=150)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G (using amplitudes)
+[?2004l[?2004h> results['ID_IG'] = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON file
+[?2004l[?2004h> with open('results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to results.json')
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# python3 fit_peaks.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/fit_peaks.py"[0m, line [35m1[0m, in [35m<module>[0m
+    import pandas as pd
+[1;35mModuleNotFoundError[0m: [35mNo module named 'pandas'[0m
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# cat results.json
+[?2004lcat: results.json: No such file or directory
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# pip3 install --quiet pandas numpy scipy
+[?2004lpython3 fit_peaks.py
+[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# python3 fit_peaks.py
+[?2004lcat results.json
+Fitting complete. Results written to results.json
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 635.94306635061,
+    "x0": 1353.9738329958884,
+    "gamma": 12.78249250548825,
+    "offset": 838.7346125188787
+  },
+  "G": {
+    "amplitude": 6548.8564897478245,
+    "x0": 1579.390704247719,
+    "gamma": 9.066664651146144,
+    "offset": 803.1195135620266
+  },
+  "2D": {
+    "amplitude": 9808.723337949514,
+    "x0": 2688.698713545002,
+    "gamma": 25.59183152627636,
+    "offset": 732.3669714411108
+  },
+  "ID_IG": 0.09710749767477317
+}[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# ls -l results.json
+[?2004l-rw-r--r--. 1 root root 464 Nov 18 11:23 results.json
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# python3 fit_peaks.py
+[?2004lFitting complete. Results written to results.json
+[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# cat results.json
+[?2004l{
+  "D": {
+    "amplitude": 635.94306635061,
+    "x0": 1353.9738329958884,
+    "gamma": 12.78249250548825,
+    "offset": 838.7346125188787
+  },
+  "G": {
+    "amplitude": 6548.8564897478245,
+    "x0": 1579.390704247719,
+    "gamma": 9.066664651146144,
+    "offset": 803.1195135620266
+  },
+  "2D": {
+    "amplitude": 9808.723337949514,
+    "x0": 2688.698713545002,
+    "gamma": 25.59183152627636,
+    "offset": 732.3669714411108
+  },
+  "ID_IG": 0.09710749767477317
+}[?2004hroot@j-openenv-6afd8a3029e8b7ccfbbb81a1-wypu4r7a-ee48a-vwv56:/app# 

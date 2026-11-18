@@ -1,0 +1,19 @@
+{
+    "task": {
+        "path": "/tmp/work/datasets/raman-lab/graphene-s02",
+        "source": "raman-lab"
+    },
+    "trial_name": "graphene-s02__Jb768Sj",
+    "trials_dir": "/tmp/work/jobs/gemma-4-31b-it-adapted",
+    "agent": {
+        "name": "terminus-2",
+        "model_name": "openai/google/gemma-4-31B-it:deepinfra",
+        "kwargs": {
+            "api_base": "https://router.huggingface.co/v1"
+        }
+    },
+    "environment": {
+        "type": "hf-sandbox"
+    },
+    "job_id": "640b696d-f0ea-4a91-bab6-5749e8403da4"
+}

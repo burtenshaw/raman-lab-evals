@@ -1,0 +1,115 @@
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# clear
+[?2004l[H[J[3J[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# python3 - <<'PY'
+[?2004l[?2004h> import sys, json, subprocess, pkgutil
+[?2004l[?2004h> missing = []
+[?2004l[?2004h> for pkg in ['numpy', 'pandas', 'scipy']:
+[?2004l[?2004h>     if not pkgutil.find_loader(pkg):
+[?2004l[?2004h>         missing.append(pkg)
+[?2004l[?2004h> if missing:
+[?2004l[?2004h>     print('Missing packages:', missing)
+[?2004l[?2004h>     sys.exit(1)
+[?2004l[?2004h> print('All required packages are available')
+[?2004l[?2004h> PY
+[?2004l<stdin>:4: DeprecationWarning: 'pkgutil.find_loader' is deprecated and slated for removal in Python 3.14; use importlib.util.find_spec() instead
+Missing packages: ['numpy', 'pandas', 'scipy']
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# cat > fit_peaks.py <<'PY'
+[?2004l[?2004h> #!/usr/bin/env python3
+[?2004l[?2004h> import json
+[?2004l[?2004h> import numpy as np
+[?2004l[?2004h> import pandas as pd
+[?2004l[?2004h> from scipy.optimize import curve_fit
+[?2004l[?2004h> 
+[?2004l[?2004h> # Load data
+[?2004l[?2004h> data = pd.read_csv('/app/spectrum.csv')
+[?2004l[?2004h> # Ensure columns are correct
+[?2004l[?2004h> x = data['raman_shift_cm-1'].values
+[?2004l[?2004h> y = data['intensity'].values
+[?2004l[?2004h> 
+[?2004l[?2004h> # Lorentzian + offset model
+[?2004l[?2004h> def lorentzian(x, amplitude, gamma, x0, offset):
+[?2004l[?2004h>     return amplitude * gamma**2 / ((x - x0)**2 + gamma**2) + offset
+[?2004l[?2004h> 
+[?2004l[?2004h> # Helper to fit a peak within a window
+[?2004l[?2004h> def fit_peak(x, y, window, guess_x0):
+[?2004l[?2004h>     mask = (x >= window[0]) & (x <= window[1])
+[?2004l[?2004h>     x_fit = x[mask]
+[?2004l[?2004h>     y_fit = y[mask]
+[?2004l[?2004h>     # Initial guesses: amplitude ~ max(y)-min(y), gamma ~ 10, x0 ~ guess_x0, offset ~ min(y)
+[?2004l[?2004h>     amp_guess = y_fit.max() - y_fit.min()
+[?2004l[?2004h>     gamma_guess = 10.0
+[?2004l[?2004h>     offset_guess = y_fit.min()
+[?2004l[?2004h>     p0 = [amp_guess, gamma_guess, guess_x0, offset_guess]
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         popt, _ = curve_fit(lorentzian, x_fit, y_fit, p0=p0)
+[?2004l[?2004h>     except Exception as e:
+[?2004l[?2004h>         # If fit fails, return NaNs
+[?2004l[?2004h>         popt = [np.nan, np.nan, np.nan, np.nan]
+[?2004l[?2004h>     return popt
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define windows and initial x0 guesses for each peak
+[?2004l[?2004h> peaks = {
+[?2004l[?2004h>     'D':  {'window': (1200, 1500), 'guess_x0': 1350},
+[?2004l[?2004h>     'G':  {'window': (1500, 1700), 'guess_x0': 1580},
+[?2004l[?2004h>     '2D': {'window': (2500, 2850), 'guess_x0': 2690},
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> results = {}
+[?2004l[?2004h> for name, cfg in peaks.items():
+[?2004l[?2004h>     amp, gamma, x0, offset = fit_peak(x, y, cfg['window'], cfg['guess_x0'])
+[?2004l[?2004h>     results[name] = {
+[?2004l[?2004h>         'x0': float(x0),
+[?2004l[?2004h>         'gamma': float(gamma),
+[?2004l[?2004h>         'amplitude': float(amp),
+[?2004l[?2004h>         'offset': float(offset)
+[?2004l[?2004h>     }
+[?2004l[?2004h> 
+[?2004l[?2004h> # Compute defect ratio I_D/I_G using amplitudes
+[?2004l[?2004h> ID_IG = results['D']['amplitude'] / results['G']['amplitude'] if results['G']['amplitude'] != 0 else None
+[?2004l[?2004h> results['ID_IG'] = float(ID_IG) if ID_IG is not None else None
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write to JSON
+[?2004l[?2004h> with open('/app/results.json', 'w') as f:
+[?2004l[?2004h>     json.dump(results, f, indent=2)
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Fitting complete. Results written to /app/results.json')
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# chmod +x fit_peaks.py
+[?2004l[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# ./fit_peaks.py
+[?2004lTraceback (most recent call last):
+  File [35m"/app/./fit_peaks.py"[0m, line [35m3[0m, in [35m<module>[0m
+    import numpy as np
+[1;35mModuleNotFoundError[0m: [35mNo module named 'numpy'[0m
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# cat /app/results.json
+[?2004lcat: /app/results.json: No such file or directory
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# pip install --quiet numpy pandas scipy
+[?2004l[33mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.[0m[33m
+[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m A new release of pip is available: [0m[31;49m26.2.2[0m[39;49m -> [0m[32;49m26.3[0m
+[1m[[0m[34;49mnotice[0m[1;39;49m][0m[39;49m To update, run: [0m[32;49mpip install --upgrade pip[0m
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# ./fit_peaks.py
+[?2004lFitting complete. Results written to /app/results.json
+[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# cat /app/results.json
+[?2004l{
+  "D": {
+    "x0": 1346.3992129172884,
+    "gamma": 16.755103012410856,
+    "amplitude": 2343.7995918878173,
+    "offset": 1027.298073878883
+  },
+  "G": {
+    "x0": 1582.1929770944048,
+    "gamma": 8.98770297925106,
+    "amplitude": 7870.668433846489,
+    "offset": 1031.8868816123445
+  },
+  "2D": {
+    "x0": 2692.7023967157943,
+    "gamma": 24.15777606405074,
+    "amplitude": 16035.246762191697,
+    "offset": 1068.6792869746698
+  },
+  "ID_IG": 0.29778914098435405
+}[?2004hroot@j-openenv-6afd87ee4643bac7ac634e24-z29r57ku-344b0-hpmlz:/app# 

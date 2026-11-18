@@ -1,0 +1,43 @@
+{
+    "id": "efe1dd19-93fe-4e87-a837-0debfc39e9bd",
+    "started_at": "2026-11-18T11:08:22.835374",
+    "updated_at": "2026-11-18T11:11:36.691297",
+    "finished_at": "2026-11-18T11:11:36.691297",
+    "n_total_trials": 3,
+    "stats": {
+        "n_completed_trials": 3,
+        "n_errored_trials": 0,
+        "n_running_trials": 0,
+        "n_pending_trials": 0,
+        "n_cancelled_trials": 0,
+        "n_retries": 0,
+        "evals": {
+            "terminus-2__openai/gpt-oss-120b:deepinfra__adhoc": {
+                "n_trials": 3,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "pass_at_k": {
+                    "2": 0.0
+                },
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "raman-fitting__EmJfaR4",
+                            "raman-fitting__ka6HcJJ",
+                            "raman-fitting__iw52oqw"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        },
+        "n_input_tokens": 16911,
+        "n_cache_tokens": 7392,
+        "n_output_tokens": 7489,
+        "cost_usd": 0.0017620849999999998
+    }
+}
