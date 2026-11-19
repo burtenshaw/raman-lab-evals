@@ -3,6 +3,7 @@
 This repository holds the code and results behind the Raman-fitting example in *Public Benchmarks won't save you! How to build better agentic evals*. It runs the Terminal-Bench 2 task [`raman-fitting`](https://hub.harborframework.com/tasks/terminal-bench/raman-fitting) and an adapted set of eight tasks, `raman-lab`, against six open-weight models. [Harbor](https://docs.harborframework.com/) runs the rollouts in an [HF Job](https://huggingface.co/docs/hub/jobs-overview). Each rollout gets its own [HF Sandbox](https://huggingface.co/docs/huggingface_hub/guides/sandbox), and [Inference Providers](https://huggingface.co/docs/inference-providers/index) serves the models.
 
 The same trial folders, including every agent trajectory, are also on the Hugging Face Hub as the dataset [burtenshaw/raman-lab-runs](https://huggingface.co/datasets/burtenshaw/raman-lab-runs).
+The eight `raman-lab` tasks, in the exact versions this run used, are on the Hub as [burtenshaw/raman-lab](https://huggingface.co/datasets/burtenshaw/raman-lab).
 
 ## Results (run of 2026-11-18)
 
